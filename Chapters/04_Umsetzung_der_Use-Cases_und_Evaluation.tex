@@ -97,10 +97,36 @@ resource "null_resource" "vyos_config" {
 }
 \end{lstlisting}
 
+Nach dem erfolgreichen Deployment wird folgender Status von Terraform zurückgemeldet:
+\begin{lstlisting}[label=tf-base-deployment-ok,caption=Terraform Deployment Status]
+BLIBLABLUB
+\end{lstlisting}
+
+\begin{lstlisting}[label=tf-base-deployment-ipsec-ok,caption=IPSEC Status]
+vyos@vyos-cloud:~$ show vpn ipsec sa
+Connection                      State    Uptime    Bytes In/Out    Packets In/Out    Remote address    Remote ID    Proposal
+------------------------------  -------  --------  --------------  ----------------  ----------------  -----------  ----------------------------------
+peer-18.158.151.142-tunnel-vti  up       24s       1K/3K           19/44             18.158.151.142    N/A          AES_CBC_128/HMAC_SHA1_96/MODP_1024
+peer-20.67.177.217-tunnel-vti   up       24s       652B/223B       4/3               20.67.177.217     N/A          AES_CBC_256/HMAC_SHA1_96
+peer-20.67.177.217-tunnel-vti   up       24s       1K/132B         17/3              20.67.177.217     N/A          AES_CBC_256/HMAC_SHA1_96/MODP_1024
+\end{lstlisting}
 
 
+Außerdem wurden auf dem Cloud-Router die AWS- und Azure-Präfixe via BGP installiert. Pro Präfix sind zwei Pfade vorhanden:
+
+\begin{lstlisting}[label=tf-base-deployment-bgp-ok,caption=BGP Status]
+vyos@vyos-cloud:~$ sh ip bgp | grep -A1 -E '10.3[2|3]'
+*  10.32.0.0/16     169.254.53.1           100             0 65516 65515 i
+*>                  169.254.21.6                           0 65515 i
+*  10.33.0.0/24     169.254.21.6                           0 65515 65516 i
+*>                  169.254.53.1           100             0 65516 i
+\end{lstlisting}
+
+Hier sind auch die ersten Unterschiede zwischen den beiden Cloud-Plattformen zu erkennen: Während AWS den kompletten VPC CIDR-Block per BGP bekannt macht (/16), passiert das bei Azure nur für die Subnets, die dem VNET Address space entnommen wurden.
 %Probleme: Race Condition externe IP, Redeploy wegen TF Bug, statische Route zu BGP Neighbor (Azure - AWS: Pseudo directly, Azure - VyOS: Static, Azure - AWS), stateless VyOS Config
 \subsection{Probleme und Lösungsfindung}
+
+%Härtung IPSEC Parameter? GCM usw...
 
 \section{Use-Case 2: Road Warrior} \label{Use-Case 2: Road Warrior}
 
