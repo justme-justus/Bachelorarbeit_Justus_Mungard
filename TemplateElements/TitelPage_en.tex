@@ -1,0 +1,154 @@
+
+% setup page dimensions for titlepage
+\newgeometry{left=2.4cm,right=2.4cm,bottom=2.5cm,top=2cm}
+
+% force baselineskip and parindent
+%\newlength{\tmpbaselineskip}
+%\setlength{\tmpbaselineskip}{\baselineskip}
+%\setlength{\baselineskip}{13.6pt}
+%\newlength{\tmpparindent}
+%\setlength{\tmpparindent}{\parindent}
+%\setlength{\parindent}{17pt}
+
+% first titlepage
+\pagestyle{empty}
+
+\begin{figure}[H]
+\vspace*{-2.5cm}
+\hspace*{2.5cm}
+\includegraphics[keepaspectratio, width=1.4\textwidth, right]{TemplateElements/fhLogo3.png}
+\end{figure}
+
+
+
+\begin{center}
+
+\vspace{1cm}
+
+\begin{minipage}[t][5cm][s]{\textwidth}%
+\centering
+\Huge{{\color{FH2}{\fontsize{24}{30} \selectfont \workTitle\\}}}
+\vspace{0.5cm}
+\LARGE{{\color{FH2}{\fontsize{16}{24} \selectfont \subTitle\\}}}
+\end{minipage}
+
+\vspace{1cm}
+
+\ifuseBachelorMediaTechnologiesOne
+	\LARGE{Research Paper}
+\else
+	\ifuseBachelorMediaTechnologiesTwo
+		\LARGE{Bachelor Thesis}
+\else
+	\ifuseMasterInteractiveTechnologies
+		\LARGE{Master Thesis}
+\else
+	\ifuseMasterDigitalDesign
+		\LARGE{Master Thesis}
+\else
+    \ifuseMasterDigitalMediaProduction
+		\LARGE{Master Thesis}
+\else
+	\ifuseMasterDigitalHealthCare
+		\LARGE{Master Thesis}
+    \else
+        \LARGE{YOU HAVE TO CHOOSE THE PROGRAM TYPE IN THE SETTINGS!!!}
+  	\fi
+\fi
+\fi
+\fi\fi\fi
+  
+\vspace{1.3cm}
+\ifuseBachelorMediaTechnologiesOne
+	\fontsize{11pt}{15pt}\selectfont Bachelor Course on Media Technology\\
+at St. Pölten University of Applied Sciences\\  
+\else
+	\ifuseBachelorMediaTechnologiesTwo
+		\fontsize{11pt}{15pt}\selectfont Bachelor Course on Media Technology\\
+at St. Pölten University of Applied Sciences\\  
+\else
+	\ifuseMasterInteractiveTechnologies
+		\fontsize{11pt}{15pt}\selectfont For attainment of the academic degree of\\
+		\textbf{Dipl.-Ing. für technisch-wissenschaftliche Berufe}
+\else
+    \ifuseMasterDigitalDesign
+		\fontsize{11pt}{15pt}\selectfont For attainment of the academic degree of\\
+		\textbf{Dipl.-Ing. für technisch-wissenschaftliche Berufe}
+\else
+    \ifuseMasterDigitalMediaProduction
+		\fontsize{11pt}{15pt}\selectfont For attainment of the academic degree of\\
+		\textbf{Dipl.-Ing. für technisch-wissenschaftliche Berufe}
+\else
+	\ifuseMasterDigitalHealthCare
+    	\fontsize{11pt}{15pt}\selectfont For attainment of the academic degree of\\
+		\textbf{Master of Science in Engineering (MSc)}
+    \else
+        \LARGE{YOU HAVE TO CHOOSE THE PROGRAM TYPE IN THE SETTINGS!!!}
+  	\fi
+\fi
+\fi
+\fi\fi\fi
+
+\vspace{4mm}
+ 
+\ifuseMasterInteractiveTechnologies
+	in the Masters Course Interactive Technologies at St. Pölten\\ 
+University of Applied Sciences, Masterclass \specialization
+\else
+    \ifuseMasterDigitalDesign
+	in the Masters Course Digital Design at St. Pölten\\ 
+University of Applied Sciences, Masterclass \specialization
+\else
+    \ifuseMasterDigitalMediaProduction
+	in the Masters Course Digital Media Production at St. Pölten\\ 
+University of Applied Sciences, Masterclass \specialization
+\else
+	\ifuseMasterDigitalHealthCare
+		in the Masters Course Digital Healthcare\\ 
+at St. Pölten University of Applied Sciences
+    \else
+  	\fi
+\fi\fi\fi
+
+
+
+
+
+\vspace{1cm}
+
+Submitted by:\\ 
+\fontsize{15pt}{15pt}\selectfont
+\textbf{\studentFirstName\ \studentLastName} \\
+\fontsize{11pt}{15pt}\selectfont
+\studentId
+
+\vspace{1cm}
+\ifuseBachelorMediaTechnologiesOne
+	\begin{tabular}{lll}
+    Advisor: & & \advisorPreTitle\ \advisoFirstName\ 		\advisorLastName, \advisorPosTitle\\
+    %Zweitbegutachter/in: & & [Titel Vorname Zuname]
+    \end{tabular}
+\else
+	\ifuseBachelorMediaTechnologiesTwo
+		\begin{tabular}{lll}
+        Advisor: & & \advisorPreTitle\ \advisoFirstName\ \advisorLastName, \advisorPosTitle\\
+        %Zweitbegutachter/in: & & [Titel Vorname Zuname]
+		\end{tabular}
+\else
+  \begin{tabular}{lll}
+  Advisor: & \advisorPreTitle\ \advisoFirstName\ \advisorLastName, \advisorPosTitle\\
+  Second Advisor: & \assessorPreTitle\ \assessorFirstName\ \assessorLastName, \assessorPosTitle\\
+  \end{tabular}
+
+\fi
+\fi
+
+\vspace{1cm}
+
+
+\large{\place, \dateDay.\dateMonth.\dateYear}
+
+
+\end{center}
+
+\restoregeometry

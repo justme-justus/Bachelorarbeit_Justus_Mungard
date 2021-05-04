@@ -1,0 +1,188 @@
+
+% setup page dimensions for titlepage
+\newgeometry{left=2.4cm,right=2.4cm,bottom=2.5cm,top=2cm}
+
+% force baselineskip and parindent
+%\newlength{\tmpbaselineskip}
+%\setlength{\tmpbaselineskip}{\baselineskip}
+%\setlength{\baselineskip}{13.6pt}
+%\newlength{\tmpparindent}
+%\setlength{\tmpparindent}{\parindent}
+%\setlength{\parindent}{17pt}
+
+% first titlepage
+\pagestyle{empty}
+
+\begin{figure}[H]
+\vspace*{-2.5cm}
+\hspace*{2.5cm}
+\includegraphics[keepaspectratio, width=1.31\textwidth, right]{TemplateElements/Fachhochschule_Kiel-logo.svg.png}
+\end{figure}
+
+
+
+\begin{center}
+
+\vspace{1cm}
+
+\begin{minipage}[t][5cm][s]{\textwidth}%
+\centering
+\Huge{{\color{FH2}{\fontsize{24}{30} \selectfont \workTitle\\}}}
+\vspace{0.5cm}
+\LARGE{{\color{FH2}{\fontsize{16}{24} \selectfont \subTitle\\}}}
+\end{minipage}
+
+\vspace{1cm}
+
+
+\ifnum\ifuseBachelorMediaTechnologiesOne 1
+\else\ifuseBachelorSmartEngineeringOne 1
+\else0
+\fi\fi
+=1 
+   	\LARGE{Bachelorarbeit}
+\else
+	\ifnum\ifuseBachelorMediaTechnologiesTwo 2
+	\else\ifuseBachelorSmartEngineeringTwo 2
+\else0
+\fi\fi
+=2
+	\LARGE{Bachelorarbeit}
+\else
+	\ifuseMasterInteractiveTechnologies
+		\LARGE{Masterarbeit}
+	\else
+	\ifuseMasterDigitalDesign
+		\LARGE{Masterarbeit}
+	\else
+    \ifuseMasterDigitalMediaProduction
+		\LARGE{Masterarbeit}
+	\else
+	\ifuseMasterDigitalHealthCare
+		\LARGE{Masterarbeit}
+    \else
+        \LARGE{YOU HAVE TO CHOOSE THE PROGRAM TYPE IN THE SETTINGS!!!}
+    \fi\fi\fi\fi
+\fi\fi
+
+% \ifuseBachelorMediaTechnologiesOne
+% 	\LARGE{Research Paper}
+% \else
+% 	\ifuseBachelorSmartEngineeringOne
+%     	\LARGE{Research Paper}
+% \else
+% 	\ifuseBachelorMediaTechnologiesTwo
+% 		\LARGE{Bachelorarbeit}
+% \else
+% 	\ifuseMasterDigitalMediaTechnologies
+% 		\LARGE{Masterarbeit}
+% \else
+% 	\ifuseMasterDigitalHealthCare
+% 		\LARGE{Masterarbeit}
+%     \else
+%         \LARGE{YOU HAVE TO CHOOSE THE PROGRAM TYPE IN THE SETTINGS!!!}
+%   	\fi
+% \fi
+% \fi
+% \fi
+% \fi
+
+
+
+
+\vspace{1.3cm}
+\ifuseBachelorMediaTechnologiesOne
+	\fontsize{11pt}{15pt}\selectfont Bachelor Informationstechnologie\\
+	Fachbereich Informatik und Elektrotechnik\\
+Fachhochschule Kiel University of Applied Sciences\\  
+\else
+	\ifuseBachelorMediaTechnologiesTwo
+		\fontsize{11pt}{15pt}\selectfont Bachelor-Studiengang \\
+Fachhochschule Kiel\\  
+\else
+	\ifuseBachelorSmartEngineeringOne
+    	\fontsize{11pt}{15pt}\selectfont Bachelor-Studiengang Smart Engineering\\
+Fachhochschule Kiel\\ 
+\else
+	\ifuseMasterInteractiveTechnologies
+		\fontsize{11pt}{15pt}\selectfont Ausgeführt zum Zweck der Erlangung des akademischen Grades\\
+		\textbf{Dipl.-Ing. für technisch-wissenschaftliche Berufe}
+\else
+	\ifuseMasterDigitalDesign
+		\fontsize{11pt}{15pt}\selectfont Ausgeführt zum Zweck der Erlangung des akademischen Grades\\
+		\textbf{Dipl.-Ing. für technisch-wissenschaftliche Berufe}	
+\else
+    \ifuseMasterDigitalMediaProduction
+		\fontsize{11pt}{15pt}\selectfont Ausgeführt zum Zweck der Erlangung des akademischen Grades\\
+		\textbf{Dipl.-Ing. für technisch-wissenschaftliche Berufe}	
+\else
+	\ifuseMasterDigitalHealthCare
+    	\fontsize{11pt}{15pt}\selectfont Ausgeführt zum Zweck der Erlangung des akademischen Grades\\
+		\textbf{Master of Science in Engineering (MSc)}
+    \else
+        \LARGE{YOU HAVE TO CHOOSE THE PROGRAM TYPE IN THE SETTINGS!!!}
+\fi\fi\fi\fi\fi\fi\fi
+
+\vspace{4mm}
+
+\ifuseMasterInteractiveTechnologies
+	am Masterstudiengang Interactive Technologies an der\\ 
+Fachhochschule St. Pölten, Masterklasse \specialization
+\else
+    \ifuseMasterDigitalDesign
+	am Masterstudiengang Digital Design an der\\ 
+Fachhochschule St. Pölten, Masterklasse \specialization
+\else
+    \ifuseMasterDigitalMediaProduction
+	am Masterstudiengang Digital Media Production an der\\ 
+Fachhochschule St. Pölten, Masterklasse \specialization
+\else
+	\ifuseMasterDigitalHealthCare
+		am Masterstudiengang Digital Healthcare\\ 
+an der Fachhochschule St. Pölten
+    \else
+        
+  	\fi\fi\fi\fi
+
+\vspace{1cm}
+\ifuseBachelorMediaTechnologiesOne
+	Ausgeführt von:
+    
+\else
+	Ausgeführt von:\\ 
+\fi
+\fontsize{15pt}{15pt}\selectfont
+\textbf{\studentFirstName\ \studentLastName} \\
+\fontsize{11pt}{15pt}\selectfont
+\studentId
+
+\vspace{1cm}
+\ifuseBachelorMediaTechnologiesOne
+	\begin{tabular}{lll}
+    Erstprüferin: & & \advisorPreTitle\ \advisoFirstName\ 		\advisorLastName\\
+    Zweitprüfer: & & \advisorCompanyPreTitle\ \advisorCompanyFirstName\ \advisorCompanyLastName\\
+    \end{tabular}
+\else
+	\ifuseBachelorMediaTechnologiesTwo
+		\begin{tabular}{lll}
+        Betreuer/in: & & \advisorPreTitle\ \advisoFirstName\ \advisorLastName, \advisorPosTitle\\
+        %Zweitbegutachter/in: & & [Titel Vorname Zuname]
+		\end{tabular}
+\else
+\begin{tabular}{lll}
+Betreuer/in: & \advisorPreTitle\ \advisoFirstName\ \advisorLastName, \advisorPosTitle\\
+Zweitbetreuer/in: & \assessorPreTitle\ \assessorFirstName\ \assessorLastName, \assessorPosTitle\\
+\end{tabular}
+
+\fi
+\fi
+
+\vspace{1cm}
+
+
+\large{\place, \dateDay.\dateMonth.\dateYear}
+
+
+\end{center}
+
+\restoregeometry
