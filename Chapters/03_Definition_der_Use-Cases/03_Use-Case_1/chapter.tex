@@ -29,7 +29,7 @@ Weiterhin kann innerhalb der Tunnel BGP gesprochen werden, um ein dynamisches Ro
 %In technischen Grundlagen erwähnen: IaC, Provider, Module
 %Mozilla Public License v2.0[2]
 %Beispiel aus der Realität nennen: Switch - Kabel - Server
-Für das automatisierte Deployment der Infrastruktur eignet sich Terraform der Firma Hashicorp. Es besitzt eine Vielzahl an \textit{Resources}, welche es ermöglichen, Infrastrukturkomponenten \texit{reproduierbar} zu deployen. Im Gegensatz zu anderen Automatisierungsframeworks wie Ansible werden durch die implizite Referenzierung zwischen Ressourcen Infrastruktur-Abhängigkeiten aufgelöst.
+Für das automatisierte Deployment der Infrastruktur eignet sich Terraform der Firma Hashicorp. Es besitzt eine Vielzahl an \textit{Resources}, welche es ermöglichen, Infrastrukturkomponenten \texit{reproduzierbar} zu deployen. Im Gegensatz zu anderen Automatisierungsframeworks wie Ansible werden durch die implizite Referenzierung zwischen Ressourcen Infrastruktur-Abhängigkeiten aufgelöst.
 Die Reihenfolge von Resource-Aufrufen innerhalb der Terraform-Module spielt keine Reihenfolge. So lassen sich komplexere Infrastrukturen installieren, ohne die Abhängigkeiten manuell auflösen zu müssen. Ressourcen, die keine Abhängigkeiten zueinander haben, werden parallel installiert.
 
 %Todo: RFC 5737 in Einleitung (Documentation IPs)

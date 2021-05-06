@@ -1,0 +1,26 @@
+\section{Use Case 2: Roadwarrior}
+Im folgenden Use-Case soll erarbeitet werden, inwefern sich Mitarbeiter via VPN - im Folgenden Roadwarrior genannt - mit den deployten Cloud-Infrastrukturen verbinden können. Ralf Spenneberg definiert diesen Begriff wie folgt:\\
+\glqq Der Begriff Roadwarrior bezeichnet Personen, die mit unbestimmter IP-Adresse auf ein VPN-Gateway zugreifen wollen. Typischerweise handelt es sich hierbei zum Beispiel um Außendienstmitarbeiter, die von unterwgs Zugriff auf die Datenbanken ihres Mutterunternehmens benötigen. Aber auch alle anderen Konstellation, bei denen Rechner mit dynamischen IP-Adressen eine VPN-Verbindung mit einem VPN-Gateway aufbauen möchten, sind denkbar. Hierbei ist die Anzahl der Roadwarrior nicht beschränkt. Theoretisch und auch praktisch sind mehrere Hundert gleichzeitiger Tunnel möglich.\grqq{} \cite[S. 199]{Spenneberg2010}\\
+Klassischerweise verbindet sich der Roadwarrior mit dem Hauptstandort, um von dort aus weitere interne Ressourcen zu erreichen - in diesem Falle die Private Cloud. Dieses klassische Design bringt insbesondere unter der Annahme, dass sich Dienste in die Cloud verlagern lassen (Use-Case 3?), diverse Probleme mit sich:
+%Auf Corona-Zeiten eingehen...
+
+\begin{itemize}
+\item Der Hautpstandort muss Bandbreite für alle n Roadwarrior zur Verfügung stellen.
+\item Der Hauptstandort ist u.U. weit entfernt. Der Mitarbeiter nimmt auf Grund von hohen Latenzen und eventuellen Paketverlusten eine schlechte Applikations-Performance wahr. Oftmals wird über Smartphone-Hotspot, Hotel-WLAN, o.ä. gearbeitet. 
+\item Latenzen erhöhen sich zusätzlich, falls bestimmte Applikations-Server gar nicht am Hauptstandort vorhanden sind, z.B. weil sie in die Public Cloud verlagert wurden.
+\end{itemize}
+
+Optimalerweise wird das Design also diese genannten Punkte in Angriff nehmen:\\
+
+\begin{itemize}
+\item Ein Load Balancing der Bandbreiten wird ermöglicht, indem n Roadwarrior über m Clouds verteilt werden.
+\item Der Roadwarrior verbindet sich im günstigsten Fall mit dem Standort, der die geringste Entfernung zu ihm aufweist.
+\item Viel genutzte Applikationen sind am jeweiligen Cloud-Standort, mit dem sich der Roadwarrior verbunden hat, verfügbar, um eine gute Usability für den Anwender zu gewährleisten.
+\item Weiterhin sollen genannte Maßnahmen für den Anwender möglichst transparent und ohne Intervention passieren. Er soll keine Wahl haben, mit welchem Cloud-Standort er sich zu verbinden hat: die Annahme ist, dass dieser sich über geeignete Automatisierungsmechanismen mit dem \textit{besten} Standort verbindet.
+\end{itemize}
+
+% Bild VPN nearest 3 Notebooks oder so?
+
+\subsection{Vorauswahl geeigneter technischer Komponenten}
+%AWS == Frankfurt, Azure == Dublin, Kiel
+\subsection{Evaluationskriterien}
