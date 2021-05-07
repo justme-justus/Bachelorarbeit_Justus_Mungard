@@ -255,7 +255,7 @@ Beim Testen der ersten geschriebenen Terraform-Module kam es zu einer Deadlock-S
 BLA
 \end{lstlisting}
 
-%Abgrenzung: alle Public-IP und Private-IP beziehen sich auf IPv4!!!
+%Abgrenzung: alle Public-IP und Private-IP beziehen sich auf IPv3!!!
 Bei genauerer Untersuchung stellte sich heraus, dass kein Bug in Terraform vorlag, vielmehr hatte sich ein Logikbug eingeschlichen. Azure erzeugt standardmäßig die Public-IP-Adresse für das Azure-eigene VPN Gateway erst, sobald die \textit{erste VPN-Gegenstelle} konfiguriert wurde. Für die Konfiguration muss allerdings die Public-IP der jeweiligen Gegenstelle angegeben werden. Das Virtual private gateway von AWS legt eine Public-IPv4-Adresse pro Gegenstelle an: 
 
 Dieses Problem ist nicht Terraform geschuldet, sondern eher der Logik, wie die VPN-Verbindungen in Azure bzw. AWS konfiguriert werden 
