@@ -8,7 +8,7 @@ Klassischerweise verbindet sich der Roadwarrior mit dem Hauptstandort, um von do
 \begin{itemize}
 %https://tu-freiberg.de/urz/bandbreite-des-vpn-zugangs-verzehnfacht
 \item Der Hautpstandort muss Bandbreite für alle n Roadwarrior zur Verfügung stellen. V.a. in zu Beginn der Corona-Krise durften viele Unternehmen erfahren, dass sie hier schlecht aufgestellt sind.
-\item Der Hauptstandort ist u.U. weit entfernt. Der Mitarbeiter nimmt auf Grund von hohen Latenzen und eventuellen Paketverlusten eine schlechte Applikations-Performance wahr. Oftmals wird über Smartphone-Hotspot, Hotel-WLAN, o.ä. gearbeitet. 
+\item Der Hauptstandort ist u.U. weit entfernt. Der Mitarbeiter nimmt auf Grund von hohen Latenzen und eventuellen Paketverlusten eine schlechte Applikations-Performance wahr. Dazu wird oftmals über Smartphone-Hotspot, Hotel-WLAN, o.ä. gearbeitet, welche nicht immer eine gute Performance liefern.
 %Fulltunnel als Argument?
 \item Latenzen erhöhen sich zusätzlich, falls bestimmte Applikations-Server gar nicht am Hauptstandort vorhanden sind, z.B. weil sie in die Public Cloud verlagert wurden.
 \end{itemize}
@@ -62,16 +62,32 @@ b) einen zentralen RADIUS-Server für alle Standorte zur Verfügung stellen.\\
 a) bringt ein Skalierungsproblem mit sich. So müssen bspw. Benutzerkennungen und Passwörter lokal auf allen Systemen gepflegt werden, was die Komplexität des Use-Cases deutlich erhöhen würde und auch in Realität schwierig zu warten wäre. Mit b) hätte man einen Single-Point-of-Failure, scheidet also auch aus. Hätte der \textit{zentrale} Authentifizierungsserver ein technisches Problem, wären alle VPN-Konzentratoren betroffen und Roadwarrior könnten sich nicht mehr einwählen.
 
 %LDAP allgemein???
-LDAP als verteilte Datenbank wäre eine Lösung für genannte Probleme: man müsste pro Standort einen LDAP-Server deployen und durchgehend mit allen weiteren LDAP-Servern synchronisieren. Als Authentifizierungsmechanismus könnte man dann RADIUS oder gleich LDAP benutzen. Windows Domain Controller wäre ein Beispiel für solch ein Szenario. In der Bachelorarbeit wird auch davon abgesehen, da die Komplexität deutlich erhöht und es für den Proof-of-Concept an sich keine gewinnbringenden Erkenntnisse liefern würde.
+%https://tools.ietf.org/html/rfc2865
+Lighweight Directory Access Protocol (LDAP) als verteilte Datenbank wäre eine Lösung für genannte Probleme: man müsste pro Standort einen LDAP-Server deployen und durchgehend mit allen weiteren LDAP-Servern synchronisieren. Als Authentifizierungsmechanismus könnte man dann bspw. RADIUS oder gleich LDAP benutzen. \textit{Windows Domänen Controller} implementieren den LDAP-Verzeichnisdienst in Form von \textit{Active Directory} und wären ein Beispiel für solch ein verteiltes Szenario.\cite[S.603-604]{Tanenbaum2003} In der Bachelorarbeit wird von der Implementation abgesehen, da die Komplexität deutlich erhöht und es für den Proof-of-Concept an sich keine gewinnbringenden Erkenntnisse liefern würde.
 
 %Kurzeinstieg PKI?
-Der Lösungsansatz wäre, auf eine Zertifikat-basierte Authentifizierung zu setzen. Eine Publik-Key-Infrastruktur benötigt zur Authentifizierung keine Verbindungen zu anderen (Authentifizierungs-)Services. Es reicht, auf dem VPN-Server vertrauenswürdige Root-Zertifikate zu hinterlegen. Diese \textit{vertrauenswürdigen Stellen} signieren mit dem privaten Schlüssel dann die Zertifikate der Roadwarrior-Clients, wodurch das Vertrauensverhältnis zwischen VPN-Server und -Client hergestellt ist.\\
-Auf Prüfung der Gültigkeit von Zertifikaten mittels Certificate Revocation Lists (CRLs) bzw. Online Certificate Status Protocol (OCSP) wird in dieser Bachelor-Arbeit verzichtet. Sie ist aber prinzipiell möglich mit der serverseitigen OpenVPN-Direktive \textit{crl-verify} (CRL-Prüfung) bzw. \textit{tls-verify} (OCSP-Prüfung).\cite[S.116, S. 325-327]{Keijser2011}
-\ifFalse
-Ein Grenzfall wäre durch die Funktion wie Domain Controller (DC) bei Windows Active Directory gegeben. Dieser kann dezentral an allen Standorten deployed werden und bringt eine RADIUS-Server-Rolle (Network Policy Server) mit. Sobald Domänenbenutzer hinzugefügt / gelöscht / geändert werden, würden alle DCs an den verschiedenen Standorten automatisch über das Active Directory über diese Änderung informiert. Network Policy Server als RADIUS-Server könnte lokal Benutzerkennung und Passwort prüfen. Windows Active Directory ist ein Spezialfall von Lightweight Directory Access Protocol. Weitere LDAP-Lösungen bringen solche Synchronisationsmechanismen mit, haben allerdings keine RADIUS-Funktionalität gibt es weitere dezentrale...\\
-\fi
+Der Lösungsansatz wäre an dieser Stelle, auf eine Zertifikat-basierte Authentifizierung zu setzen. Eine Publik-Key-Infrastruktur benötigt zur Authentifizierung keine Verbindungen zu anderen (Authentifizierungs-)Services. Es reicht, auf dem VPN-Server vertrauenswürdige Root-Zertifikate zu hinterlegen. Diese \textit{vertrauenswürdigen Stellen} signieren mit dem privaten Schlüssel dann die Zertifikate der Roadwarrior-Clients, wodurch das Vertrauensverhältnis zwischen VPN-Server und -Client hergestellt ist.\\
+Auf Prüfung der Gültigkeit von Zertifikaten mittels Certificate Revocation Lists (CRLs) bzw. Online Certificate Status Protocol (OCSP) wird in dieser Bachelor-Arbeit verzichtet. Sie ist aber prinzipiell möglich mit der serverseitigen OpenVPN-Direktive \textit{crl-verify} (CRL-Prüfung) bzw. \textit{tls-verify} (OCSP-Prüfung).\cite[S.116, S.325-327]{Keijser2011}\\
+%https://web.archive.org/web/20210125172757/https://docs.netgate.com/manuals/pfsense/en/latest/the-pfsense-documentation.pdf
+%tf remote
+Als PKI wird eine pfSense-Instanz genutzt. Dieses Firewall-Betriebssystem bietet eine simple PKI, welche via Web-GUI administrierbar ist und so das Ausstellen und die Verwaltung der Client- und Server-Zertifikate erleichtert.\cite[S.376-383]{Netgate2020}
+
+%Split-DNS S.565-567 TCP/IP Illustrated
+%Bind GeoIP Extension: https://kb.isc.org/docs/aa-01149
+%Evaluationskriterien nummerieren
+Der technische Fokus wird in diesem Use-Case auf DNS liegen. Es soll in dem Szenario zwei essenzielle Aufgaben lösen, die durch die Evaluationskriterien vorgegeben werden:
+\begin{itemize}
+\item Mit Hilfe von GeoIP-Daten soll ermöglicht werden, immer den nächstgelegenen VPN-Konzentrator zu finden. Wenn kein Server in der Nähe ist, soll ein beliebiger Server kontaktiert werden (Round-Robin). Wenn das Terraform Deployment noch nicht stattgefunden hat, also keine Cloud-Standorte zur Verfügung stehen, soll sich der Client immer mit dem VPN-Konzentrator der Private Cloud verbinden.
+\item Sobald der Roadwarrior mit einem VPN-Konzentrator verbunden ist, soll immer der (beispielhafte) Server, der am jeweiligen Standort deployed wurde, kontaktiert werden.
+\end{itemize}
+
+%DNS UPDATE S.555-558 TCP/IP Illustrated
+Weiterhin müssen Zonen dynamisch editierbar sein, da durch das Terraform-Deployment virtuelle Maschinen mit vorher unbekannten IP-Adressen erstellt werden. Diese IP-Adressen müssen mit den Domains der jeweiligen Zonen kombiniert werden. Dies gilt für extern und intern auflösbare Zonen. 
 
 
+%https://www.terraform.io/docs/language/state/remote-state-data.html
+Das in diesem Kapitel angedeutete Szenario soll wieder per Terraform deployed werden und setzt direkt auf Use-Case 1 auf. Auf Grund der langen Dauer (s. Lösungsfindung...) des Deployments in Use-Case 1 wird erwogen, Use-Case 2 nicht \glqq komplett\grqq{} auszurollen, sondern Use-Case 1 zu belassen und die Infrastruktur-Komponenten aus Use-Case 2 lediglich hinzuzufügen (vgl. später).
+%Simulation Applikation-Server mit Apache2 HTTP Server
 %Authentisierung
 %GeoIP vs. Anycast, bspw. Google DNS 8.8.8.8 -> warum ist das hier nicht praktibel (Kunden haben keine eigenen Netze und peeren nicht weltweit)
 %
