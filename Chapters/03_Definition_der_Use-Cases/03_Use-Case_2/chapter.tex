@@ -53,7 +53,11 @@ azure-client-vpn.ovpn:remote-cert-tls server
 Weiterhin sind die unterschiedlichen Authentifizierungsmechanismen nur schwierig miteinander zu kombinieren. Auch hier wäre eine Benutzerinteraktion notwendig.
 
 Daher wurde für weitere Überlegungen von den offiziellen Building-Blocks abgesehen und entschieden, pro Standort einen eigenen OpenVPN-Server hochzufahren:
-OpenVPN ist freie Software und man muss sich daher nicht mit Lizenzierungen beschäftigen analog zu VyOS. Weiterhin sind die Konfigurationen sehr gut automatisierbar: Der OpenVPN-Server benötigt ausschließlich eine textuale Konfigurationsdatei, welche sich gut aus einem Terraform-Template erzeugen ließe.
+OpenVPN ist freie Software und man muss sich daher nicht mit Lizenzierungen beschäftigen analog zu VyOS.
+%https://aws.amazon.com/marketplace/pp/B07N3X1P1T
+%https://azuremarketplace.microsoft.com/en-us/marketplace/apps/sentriumsl.vyos-1-2-lts-on-azure
+%https://docs.vyos.io/en/latest/configuration/interfaces/openvpn.html#client
+Aus den Erfahrungen aus Use-Case 1 wurde dafür ebenso die Router-Distribution VyOS gewählt. Diese kann nicht nur für Site-to-Site-Tunnel genutzt werden, sondern kann auch für Client-to-Site-Tunnel terminieren, um den Zugang für Roadwarrior zu ermöglichen. Denkbar wäre ebenso eine simple Linux-Distribution mit dem Paket OpenVPN: VyOS bietet den Vorteil, dass sich die notwendigen Konfigurationen ebenso über CLI erledigen lassen und somit per Terraform-Template \textit{automatisiert} ausgebracht werden können. VyOS ist im AWS als auch im Azure Marketplace zu beziehen.
 %RADIUS
 Ein Problem ergibt sich aus der Authentifizierung und Autorisierung der Roadwarrior-Clients. Wenn Protokolle wie RADIUS als Authentifizierungsmechanismus mit Benutzerkennung und Passwort, muss man entweder\\
 a) einen zentralen RADIUS-Server pro Standort verwalten oder \\
@@ -81,12 +85,28 @@ Der technische Fokus wird in diesem Use-Case auf DNS liegen. Es soll in dem Szen
 \item Sobald der Roadwarrior mit einem VPN-Konzentrator verbunden ist, soll immer der (beispielhafte) Server, der am jeweiligen Standort deployed wurde, kontaktiert werden.
 \end{itemize}
 
-%DNS UPDATE S.555-558 TCP/IP Illustrated
-Weiterhin müssen Zonen dynamisch editierbar sein, da durch das Terraform-Deployment virtuelle Maschinen mit vorher unbekannten IP-Adressen erstellt werden. Diese IP-Adressen müssen mit den Domains der jeweiligen Zonen kombiniert werden. Dies gilt für extern und intern auflösbare Zonen. 
+Mit Hilfe des Bind 9 Nameservers ab Version 9.10 ist es möglich, die GeoIP-Datenbank des Anbieters MaxMind auszuwerten, um DNS-Anfragen in Abhängigkeit der Absender-IP zu beantworten. Bei dieser IP handelt es sich typischerweise um die Resolver-IP des \textit{lokalen} Internet-Dienstleisters. Die Annahme für diesen Use-Case ist daher, dass der DNS-Resolver in der gleichen Region wie der Roadwarrior steht.\\
+Um mit GeoIP-Daten der Firma MaxMind arbeiten zu können, muss Bind 9 mit einem speziellen Flag (--with-maxminddb) kompiliert werden. Im Ubuntu 20.04 Standardpaket von Bind 9 ist dieses Feature bereits vorhanden.
 
+\begin{lstlisting}[label=bind-mmdb-compiler-flag,caption=Das Ubuntu 20.04 Standardpaket wurde bereits mit dem Flag kompiliert.]
+$ named -V | grep -o -- '--with-maxminddb'
+--with-maxminddb
+\end{lstlisting}
+
+
+Der Nameserver muss sowohl extern, also aus dem Internet, als auch intern für verbundene VPN-Clients, erreichbar sein.
+
+%DNS UPDATE S.555-558 TCP/IP Illustrated
+%https://registry.terraform.io/providers/hashicorp/dns/latest/docs
+Weiterhin müssen Zonen dynamisch editierbar sein, da durch das Terraform-Deployment virtuelle Maschinen mit vorher unbekannten IP-Adressen erstellt werden. Diese IP-Adressen müssen mit den Domains der jeweiligen Zonen kombiniert werden. Dies gilt für extern und intern auflösbare Zonen. Für Terraform steht ein provider \textit{dns} zur Verfügung, der diese dynamischen Updates erlaubt.
 
 %https://www.terraform.io/docs/language/state/remote-state-data.html
 Das in diesem Kapitel angedeutete Szenario soll wieder per Terraform deployed werden und setzt direkt auf Use-Case 1 auf. Auf Grund der langen Dauer (s. Lösungsfindung...) des Deployments in Use-Case 1 wird erwogen, Use-Case 2 nicht \glqq komplett\grqq{} auszurollen, sondern Use-Case 1 zu belassen und die Infrastruktur-Komponenten aus Use-Case 2 lediglich hinzuzufügen (vgl. später).
+
+%https://aws.amazon.com/marketplace/pp/B07N3X1P1T
+%https://azuremarketplace.microsoft.com/en-us/marketplace/apps/sentriumsl.vyos-1-2-lts-on-azure
+%https://docs.vyos.io/en/latest/configuration/interfaces/openvpn.html#client
+Pro Cloud-Standort wird ein OpenVPN-Server benötigt. Aus den Erfahrungen aus Use-Case 1 wurde dafür ebenso die Router-Distribution VyOS gewählt. Diese kann nicht nur für Site-to-Site-Tunnel benutzt werden, sondern kann auch für Client-to-Site-Tunnel terminieren, um den Zugang für Roadwarrior zu ermöglichen. Denkbar wäre ebenso eine simple Linux-Distribution mit dem Paket OpenVPN: VyOS bietet den Vorteil, dass sich die notwendigen Konfigurationen ebenso über CLI erledigen lassen und somit per Terraform-Template \textit{automatisiert} ausgebracht werden können.
 %Simulation Applikation-Server mit Apache2 HTTP Server
 %Authentisierung
 %GeoIP vs. Anycast, bspw. Google DNS 8.8.8.8 -> warum ist das hier nicht praktibel (Kunden haben keine eigenen Netze und peeren nicht weltweit)

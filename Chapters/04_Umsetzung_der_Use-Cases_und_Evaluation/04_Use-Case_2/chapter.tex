@@ -2,8 +2,152 @@
 %Anforderung: Ende-zu-Ende-Erreichbarkeit! Für z.B. Endpoint Scanning
 %Gleiches Profil für alle VPN-Konzentratoren
 
+\subsection{Umsetzung: Kerntätigkeiten}
 
+%GeoIP
+%Terraform DNS Update
+%Bind Split-DNS
+
+In AWS und Azure wurden via Terraform die virtuellen Maschinen VyOS aus den jeweiligen Marketplaces installiert.
+Es wurden für die Cloud-Standorte AWS und Azure analog zu Use-Case 1 Templates erstellt, um den Client-VPN-Konzentrator zu installieren. In der Terraform Ressource azurerm\_linux\_virtual\_machine wird das richtige VyOS-Image aus dem Cloud-Marketplace referenziert über source\_image\_reference und lässt dieses installieren. Einige dieser Markeplace-Images bieten verschiedene Support- und Lizenz-Verträge an. Über den \textit{plan \{\}}-Kontext wird der passende Contract ausgewählt (hier: \glqq Standard support\grqq{}). Ähnlich ist für die AWS-Instanz vorzugehen.
+
+\begin{lstlisting}[label=tf-azure-vyos-machine-image,caption=Mit der Terraform-Ressource wird das passende VyOS-Image gesucht und installiert.]
+resource "azurerm_linux_virtual_machine"  "azurerm_linux_virtual_machine" {
+  name = "vyos-test"
+  location = var.rg_location
+  resource_group_name = var.rg_name
+  admin_username = "vyos"
+  size = "Standard_B1s"
+  network_interface_ids = [ azurerm_network_interface.azurerm_network_interface.id ]
+  os_disk {
+    caching = "ReadWrite"
+    storage_account_type = "Premium_LRS"
+  }
+  admin_ssh_key {
+    username   = "vyos"
+    public_key = file("~/terraform/.cred_mgmt/_push/authorized_keys/id_rsa_automation.pub")
+  }
+  source_image_reference {
+    publisher = "sentriumsl"
+    offer = "vyos-1-2-lts-on-azure"
+    version = "latest"
+    sku = "vyos-1-2-crux"
+  }
+  plan {
+    name = "vyos-1-2-crux"
+    product = "vyos-1-2-lts-on-azure"
+    publisher = "sentriumsl"
+  }
+}
+\end{lstlisting}
+
+Konfiguriert wurden die virtuellen Maschinen wieder über ein Terraform-Template. Das Public/Private-Schlüsselpaar wurde vorab erstellt, von der pfSense-PKI signiert und mit dem Zertifikat auf dem Terraform-Server gespeichert. Während des Terraform-Deployments wird Private Key und Zertifikat per Terraform Provisioner auf das Zielsystem kopiert. Sie werden in der Config dann via set interfaces openvpn vtun0 tls cert-file / key-file referenziert. In der Praxis sollte darauf verzichtet werden, das Schlüsselmaterial \glqq auf einem anderen System vorzulagern \grqq{}: ein privater Schlüssel nur auf dem Server erzeugt und gespeichert werden, auf dem dieser final genutzt wird. Optimalerweise wäre dies zur Laufzeit der Terraform-Deployments. Zur Vereinfachung des Use-Cases wurde auf diesen Schritt verzichtet. Eine Möglichkeit zur automatisierten Erzeugung von vertrauenswürdigen Zertifikaten ist das Simple Certificate Enrollment Protocol (SCEP)\cite[S.554]{Schmeh2013}.
+
+Für den sich verbindenden VPN-Client sind diverse Konfigurationen hinterlegt: Domain-Name, (interner) Name-Server und Routen, die über den VPN-Konzentrator erreicht werden können.
+Weiterhin wird ein MSS-Clamping vorgenommen, um IP-Fragmentierung von TCP-Applikationen möglichst zu verhindern.\\
+Das Subnetz, in dem die OpenVPN-Clients terminiert werden, wird wieder dynamisch aus dem IPAM alloziert (s. set interfaces openvpn vtun0 server subnet).
+
+\begin{lstlisting}[label=vpn-c2s-server-config,caption=Terraform Template für VyOS OpenVPN-Server in AWS]
+set interfaces openvpn vtun0 openvpn-option "--mssfix 1350"
+set interfaces openvpn vtun0 server domain-name 'intern.ba.mungard.de'
+set interfaces openvpn vtun0 server name-server '192.168.201.1'
+#"dynamic" routes?
+set interfaces openvpn vtun0 server push-route '10.32.0.0/16'
+set interfaces openvpn vtun0 server push-route '10.33.0.0/16'
+set interfaces openvpn vtun0 server push-route '192.168.201.0/24'
+set interfaces openvpn vtun0 server subnet ${aws_vpn_clients_subnet}/${aws_vpn_clients_subnet_mask}
+set interfaces openvpn vtun0 tls ca-cert-file '/config/auth/BA_CA_2021.crt'
+set interfaces openvpn vtun0 tls cert-file '/config/auth/vpn-server-aws.ba.mungard.de.crt'
+set interfaces openvpn vtun0 tls dh-file '/config/auth/dh2048.pem'
+set interfaces openvpn vtun0 tls key-file '/config/auth/vpn-server-aws.ba.mungard.de.key'
+\end{lstlisting}
+
+Die drei Cloud-Standorte wurden in diesem Proof-of-Concept verteilt über verschiedenen Regionen: Dublin (Azure), Frankfurt (AWS), Kiel (Private Cloud). Es werden drei Roadwarrior-Clients simuliert, die ebenso am jeweiligen Standort stehen. Dazu wurden weitere VMs an den Cloud-Standorten hochgefahren: Sie wurden völlig isoliert von dem restlichen Deployment installiert und sich nicht Teil der internen Infrastruktur. Zugang zu internen Ressourcen wird nur über eine erfolgreiche Authentifizierung am VPN-Konzentrator gewährleistet.
+
+\begin{lstlisting}[label=ext-ip-addr-roadwarrior,caption=Der simulierte Roadwarrior-Client ist nicht Teil der Netzwerke 10.32.0.0/16 bzw. 10.33.0.0/16]
+ubuntu@vpn-client-azure:~$ ip -brief -4 address show | grep -v lo
+eth0             UP             10.42.0.4/24
+\end{lstlisting}
+
+Internet-Traffic ist möglich, Zugriff auf interne Ressourcen ist nicht möglich: 192.168.201.1 ist eine IP-Adresse der Private Cloud.
+
+\begin{lstlisting}[label=internet-access-roadwarrior,caption=Der Roadwarrior-Client kann auf das Internet zugreifen, jedoch nicht auf interne Ressourcen ohne VPN-Einwahl]
+#Internet-Traffic
+ubuntu@vpn-client-azure:~$ ping -c 1 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=112 time=0.987 ms
+
+--- 8.8.8.8 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 0.987/0.987/0.987/0.000 ms
+
+#Interne Adresse ist nicht erreichbar 
+ubuntu@vpn-client-azure:~$ ping -c 1 192.168.201.1
+PING 192.168.201.1 (192.168.201.1) 56(84) bytes of data.
+
+--- 192.168.201.1 ping statistics ---
+1 packets transmitted, 0 received, 100% packet loss, time 0ms
+\end{lstlisting}
+
+Die MaxMind GeoIP-Datenbank wurde auf dem DNS-Server installiert und in der Bind-Konfiguration referenziert:
+
+\begin{lstlisting}[label=bind-geoip-directory,caption=.]
+$ grep -E 'options|geoip-directory|^};' < named.conf.options
+options {
+        geoip-directory "/usr/share/GeoIP";
+};
+\end{lstlisting}
+
+Dadurch wurde ermöglicht, GeoIP-Daten in einer Access Control List (ACL) zu nutzen und verschiedene Fälle zu definieren. Die ACL heißt in diesem Falle \glqq dublin\grqq{} und erlaubt Zugriffe aus der Stadt Dublin bzw. Zugriff für den TSIG-Key db-vpn.ba.mungard.de. Dieser Key wird benötigt, um Zonen-Updates machen zu können und ist im entsprechenden Terraform-Modul hinterlegt.
+
+\begin{lstlisting}[label=acl-geoip-bind,caption=.]
+acl "dublin" {
+        geoip city Dublin;
+        key "db-vpn.ba.mungard.de.";
+};
+\end{lstlisting}
+
+Weiterhin existiert ein \textit{View} \glqq Dublin\grqq{}, in dem die ACL und Zonen-Daten zusammengeführt werden. Mit \textit{allow-update} werden Zonen-Updates explizit und ausschließlich für genannten TSIG-Key erlaubt.
+
+\begin{lstlisting}[label=view-geoip-bind,caption=.]
+view "dublin" {
+        match-clients { dublin; };
+        zone "ba.mungard.de" {
+                type master;
+                file "/etc/bind/ba_zones/db.geo.ba.mungard.de-dublin";
+                allow-update { key "db-vpn.ba.mungard.de."; };
+        };
+};
+\end{lstlisting}
+
+In der Zonen-Datei für Dublin befindet sich vor Terraform-Deployment nur ein A-Record \textit{default-vpn}. Dies ist der A-Record, der als Fallback dient. Gemäß Evaluationskriterien muss ein Roadwarrior-Client auf die Private Cloud zurückfallen, wenn bisher kein Deployment stattgefunden hat. Die öffentlich auflösbare Zone lautet \textit{ba.mungard.de}.
+
+\begin{lstlisting}[label=zone-dublin-before-deployment,caption=Die Zone ba.mungard.de vor dem Terraform-Deployment.]
+$ grep -A1 "ORIGIN ba.mungard.de" < /etc/bind/ba_zones/db.geo.ba.mungard.de-dublin
+$ORIGIN ba.mungard.de.
+default-vpn             A       195.244.254.197
+\end{lstlisting}
+
+Die Konfigurationen für Frankfurter und Kieler Clients wurden analog vollzogen.
+
+Analoges Vorgehen mit Split-View-DNS intern, nur kein GeoIP
+
+Binärer Entscheidungsbaum Bind / OpenVPN
+
+match-all wenn weder Frankfurt, Dublin oder Kiel...
+
+
+
+
+
+%OpenVPN Client Config
 
 \subsection{Probleme und Lösungsfindung}
-%Import von Remote State, um Azure VPN Gateway zu verkürzen... Eigentlich ziemlich coole Idee von mir... :)
+%VyOS Images finden? az CLI, AWS Suche funktioniert nicht
+%Lizenzen muss zugestimmt werden -> manuell!!!!
 %Statische Routen innerhalb VPC nicht more specific -> Transit Gateway
+%Import von Remote State, um Azure VPN Gateway zu verkürzen... Eigentlich ziemlich coole Idee von mir... :)
+%Die richtigen Images für die VyOS-Maschinen der jeweiligen Cloud-Marketplaces auf Terraform zu übertragen, erwies sich als nicht trivial...
+%mmdb.py damit man nicht "blind" ist...
+\subsection{Evaluation}
+%dig für "next hop"

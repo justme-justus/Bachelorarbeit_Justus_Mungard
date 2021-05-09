@@ -155,6 +155,7 @@ vyos@vyos-cloud:~$ sh ip bgp | grep -A1 -E '10.3[2|3]'
 *>                  169.254.53.1           100             0 65516 i
 \end{lstlisting}
 
+%FIX: i: = ...
 \begin{figure}[h]
   \centering
   \includegraphics{Figures/programmablaufplan_bash_deploy_tf.pdf}
@@ -316,7 +317,7 @@ rtt min/avg/max/mdev = 25.729/25.729/25.729/0.000 ms
 %BFD für schneller Konvergenzzeiten? -> Ausblick...
 %RTT und Ping in Einleitung / ICMP
 
-Es wurden außerdem in von allen Teilnehmern zu allen Teilnehmern Ping-Tests gemacht und währenddessen eine Verbindung getrennt. Da ein Präfix über zwei Pfade zu sehen ist, ist die Erwartung, dass ein Backup-Pfad genutzt wird. Man kann an folgendem Beispiel sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \texit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde ICMP-Echo-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung im unteren Beispiel etwa 44 Sekunden unterbrochen war. \\
+Es wurden außerdem in von allen Teilnehmern zu allen Teilnehmern Ping-Tests gemacht und währenddessen eine Verbindung getrennt. Da ein Präfix über zwei Pfade zu sehen ist, ist die Erwartung, dass ein Backup-Pfad genutzt wird. Man kann an folgendem Beispiel sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \texit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde ICMP-Echo-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung im unteren Beispiel etwa 44 Sekunden unterbrochen war.\\
 Weiterhin hat sich die Round-Trip-Time von ~20 ms auf ~62 ms erhöhtt. Dies ist eine logische Konsequenz, da Pakete nun längere Wege zurücklegen müssen. Alle Ping-Tests waren trotz Kappen einer Verbindung erfolgreich. Man muss dabei allerdings Paketverluste während der Konvergenzzeit hinnehmen.
 %Typische BGP Konvergenzzeiten?
 
