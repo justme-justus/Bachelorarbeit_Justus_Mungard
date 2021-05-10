@@ -130,6 +130,7 @@ AWS VPN-Verbindungen bieten aus Redundanzgründen standardmäßig zwei IPs pro G
         <ip_address>35.157.252.106</ip_address>
       </tunnel_outside_address>
     [...]
+    </vpn_gateway>
     <ike>
       [...]
       <pre_shared_key>cHgnL5wZ1vPGTdHhbuLmsCzyC22rcQAW</pre_shared_key>
@@ -161,7 +162,7 @@ vyos@vyos-cloud:~$ sh ip bgp | grep -A1 -E '10.3[2|3]'
   \includegraphics{Figures/programmablaufplan_bash_deploy_tf.pdf}
   \caption{TF Redeployment Bash Skript}
   \label{grafik:programmablaufplan_bash_deploy_tf}
-\end{figure}
+\end{figure}\FloatBarrier
 
 %Programmablaufdiagramm
 

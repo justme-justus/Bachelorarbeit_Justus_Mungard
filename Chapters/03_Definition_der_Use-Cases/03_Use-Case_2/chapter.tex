@@ -81,7 +81,8 @@ Als PKI wird eine pfSense-Instanz genutzt. Dieses Firewall-Betriebssystem bietet
 %Evaluationskriterien nummerieren
 Der technische Fokus wird in diesem Use-Case auf DNS liegen. Es soll in dem Szenario zwei essenzielle Aufgaben lösen, die durch die Evaluationskriterien vorgegeben werden:
 \begin{itemize}
-\item Mit Hilfe von GeoIP-Daten soll ermöglicht werden, immer den nächstgelegenen VPN-Konzentrator zu finden. Wenn kein Server in der Nähe ist, soll ein beliebiger Server kontaktiert werden (Round-Robin). Wenn das Terraform Deployment noch nicht stattgefunden hat, also keine Cloud-Standorte zur Verfügung stehen, soll sich der Client immer mit dem VPN-Konzentrator der Private Cloud verbinden.
+%https://bind9.readthedocs.io/en/latest/reference.html?highlight=rrset-order#rrset-ordering
+\item Mit Hilfe von GeoIP-Daten soll ermöglicht werden, immer den nächstgelegenen VPN-Konzentrator zu finden. Wenn kein Server in der Nähe ist, soll ein beliebiger Server kontaktiert werden (random). Wenn das Terraform Deployment noch nicht stattgefunden hat, also keine Cloud-Standorte zur Verfügung stehen, soll sich der Client immer mit dem VPN-Konzentrator der Private Cloud verbinden.
 \item Sobald der Roadwarrior mit einem VPN-Konzentrator verbunden ist, soll immer der (beispielhafte) Server, der am jeweiligen Standort deployed wurde, kontaktiert werden.
 \end{itemize}
 
@@ -93,8 +94,9 @@ $ named -V | grep -o -- '--with-maxminddb'
 --with-maxminddb
 \end{lstlisting}
 
+Der Nameserver muss sowohl extern, also aus dem Internet, als auch intern für verbundene VPN-Clients, erreichbar sein. Der Nameserver wird ausschließlich in der Private Cloud gehostet. Es wird von einem Deployment eines \textit{secondary} Name-Servers \textit{pro} Standort zur Vereinfachung des Deployments abgesehen. Weiterhin sind keine Erkenntnisgewinne dadurch gegeben. Secondary Name-Server halten Kopien aller Zonen des primary Name-Servers vor, welcher für die Verwaltung von Zonendateien zuständig ist \cite[S.517]{Fall2011}.\\
 
-Der Nameserver muss sowohl extern, also aus dem Internet, als auch intern für verbundene VPN-Clients, erreichbar sein.
+In der Praxis sollte das Deployment von \glqq Secondaries\grqq{} aus Redundanzgründen jedoch dringend in Betracht gezogen werden. Außerdem können \glqq verzögerte\grqq{} DNS-Antworten auf Grund sehr großer Entfernungen negative Auswirkungen auf die Usability haben. Da alle Test-Standorte innerhalb von Europa liegen, ist dieser Effekt im Sinne des Proof-of-Concepts vernachlässigbar.\\
 
 %DNS UPDATE S.555-558 TCP/IP Illustrated
 %https://registry.terraform.io/providers/hashicorp/dns/latest/docs
@@ -106,7 +108,9 @@ Das in diesem Kapitel angedeutete Szenario soll wieder per Terraform deployed we
 %https://aws.amazon.com/marketplace/pp/B07N3X1P1T
 %https://azuremarketplace.microsoft.com/en-us/marketplace/apps/sentriumsl.vyos-1-2-lts-on-azure
 %https://docs.vyos.io/en/latest/configuration/interfaces/openvpn.html#client
-Pro Cloud-Standort wird ein OpenVPN-Server benötigt. Aus den Erfahrungen aus Use-Case 1 wurde dafür ebenso die Router-Distribution VyOS gewählt. Diese kann nicht nur für Site-to-Site-Tunnel benutzt werden, sondern kann auch für Client-to-Site-Tunnel terminieren, um den Zugang für Roadwarrior zu ermöglichen. Denkbar wäre ebenso eine simple Linux-Distribution mit dem Paket OpenVPN: VyOS bietet den Vorteil, dass sich die notwendigen Konfigurationen ebenso über CLI erledigen lassen und somit per Terraform-Template \textit{automatisiert} ausgebracht werden können.
+Pro Cloud-Standort wird ein OpenVPN-Server benötigt. Aus den Erfahrungen aus Use-Case 1 wurde dafür ebenso die Router-Distribution VyOS gewählt. Diese kann nicht nur für Site-to-Site-Tunnel benutzt werden, sondern kann auch für Client-to-Site-Tunnel terminieren, um den Zugang für Roadwarrior zu ermöglichen. Denkbar wäre ebenso eine simple Linux-Distribution mit dem Paket OpenVPN: VyOS bietet den Vorteil, dass sich die notwendigen Konfigurationen ebenso über CLI erledigen lassen und somit per Terraform-Template \textit{automatisiert} ausgebracht werden können. Die OpenVPN-Server sollen auflösbar sein unter der Domain vpn.ba.mungard.de.\\
+
+Als stellvertretender \glqq Applikations-Server\grqq{} soll ein simpler Apache2 pro Standort in einer Ubuntu-VM installiert werden. Dieser soll unter über die Domain www.intern.ba.mungard.de erreichbar sein.
 %Simulation Applikation-Server mit Apache2 HTTP Server
 %Authentisierung
 %GeoIP vs. Anycast, bspw. Google DNS 8.8.8.8 -> warum ist das hier nicht praktibel (Kunden haben keine eigenen Netze und peeren nicht weltweit)
@@ -118,6 +122,6 @@ Pro Cloud-Standort wird ein OpenVPN-Server benötigt. Aus den Erfahrungen aus Us
 \item Roadwarrior-Clients werden simuliert, indem an den entsprechenden Standort (Kiel, Dublin bzw. Frankfurt) eine weitere virtuelle Maschine installiert wird, die VPN-Verbindungen zu den jeweiligen Konzentratoren aufbaut.
 \item Ein Roadwarrior-Client verbindet sich immer mit dem nächstgelegen Standort. Die DNS-Antworten werden per \texit{dig}- und \textit{whois}-Kommando verifiziert.
 \item Der Client hat keine Wahl, mit welchem Standort dieser verbunden wird.
-\item Ist ein Cloud-Standort nicht verfügbar (z.B. weil defekt oder nicht deployed), muss der Client auf den \textit{default} Standort (Kiel) zurückfallen.
+\item Ist ein Cloud-Standort nicht verfügbar (z.B. weil defekt oder nicht deployed), \textit{muss} der Client auf den \textit{default} Standort (Kiel) zurückfallen.
 \item Sobald ein Client mit einem VPN verbunden ist, muss er die entsprechende interne Server-Ressource ansprechen, die am jeweiligen Standort zur Verfügung steht.
 \end{itemize}
