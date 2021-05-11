@@ -255,9 +255,6 @@ Dieser simple Entscheidungsbaum soll den wichtigen Aspekt des \glqq DNS-Fallback
   \label{grafik:Use-Case_2_Entscheidungsbaum_OpenVPN}
 \end{figure}\FloatBarrier
 
-
-
-
 \subsection{Probleme und Lösungsfindung}
 %VyOS Images finden? az CLI, AWS Suche funktioniert nicht
 %Die richtigen Images für die VyOS-Maschinen der jeweiligen Cloud-Marketplaces auf Terraform zu übertragen, erwies sich als nicht trivial...
@@ -266,7 +263,6 @@ Dieser simple Entscheidungsbaum soll den wichtigen Aspekt des \glqq DNS-Fallback
 %Statische Routen innerhalb VPC nicht more specific -> Transit Gateway
 %Import von Remote State, um Azure VPN Gateway zu verkürzen... Eigentlich ziemlich coole Idee von mir... :)
 %mmdb.py damit man nicht "blind" ist...
-
 
 \textbf{\underline{Beschleunigung des Deployments}}\\
 Wie bereits in Use-Case 1 (Lösungsfindung...) geschildert, benötigt das Azure VPN Gateway viel Zeit für die Erstellung. Da Use-Case 2 direkt auf diesem Use-Case aufsetzt, hätte das ebenso eine lange Deployment-Zeit nach sich gezogen. So war ursprünglich war die Idee, den Programmcode aus Use-Case 1 zu klonen und um die Infrastruktur-Komponenten aus Use-Case 2 zu ergänzen. Somit hätte sich die Deployment Zeit $t_{gesamt}$ aus den jeweiligen Deployment-Zeiten der Infrastrukturen aus Use-Case 1 und Use-Case 2 zusammengesetzt:\\
@@ -293,10 +289,66 @@ Im Allgemeinen hat sich dieser \glqq Teile-und-herrsche\grqq{}-Ansatz im Zusamme
 
 %https://web.archive.org/web/20210123233358/https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ug.pdf Seite 230
 \textbf{\underline{More-Specific Route nicht möglich in VPC Routing-Tabelle}}\\
-%https://web.archive.org/web/20201110053320/https://github.com/maxmind/MaxMind-DB-Reader-python
-\textbf{\underline{Anzeige von GeoIP-Daten}}\\
-"Auf Sicht fahren..."
 
+
+\textbf{\underline{Untersuchung von GeoIP-Daten}}\\
+%https://linux.die.net/man/1/file
+Die GeoIP-Datenbank liegt als Binärformat auf der Festplatte.
+
+\begin{lstlisting}[label=tf-remote-state-import,caption=.]
+$ file /usr/share/GeoIP/GeoLite2-City.mmdb
+/usr/share/GeoIP/GeoLite2-City.mmdb: data
+\end{lstlisting}
+
+%https://web.archive.org/web/20201110053320/https://github.com/maxmind/MaxMind-DB-Reader-python
+%https://bind9.readthedocs.io/en/latest/security.html?highlight=geoip#access-control-lists
+Die Datensätze mussten \glqq sichtbar\grqq{} gemacht werden, um eine Idee zu bekommen, welche Spezifizierer genutzt werden können, um die DNS-Auflösung in regionaler Abhängigkeit umzusetzen. Weiterhin war nicht sichergestellt, welche Qualität die Datensätze aufweisen. Um dies zu testen, wurde kurze Python-Skript \textit{mmdb.py} geschrieben und das Modul \textit{maxminddb} des GeoIP-Anbieters MaxMind eingebunden. Per \textit{pretty print} konnten die entsprechenden Datensätze für eine IP-Adresse ausgegeben werden.
+
+\begin{lstlisting}[label=mmdb-code-example,caption=.]
+#!/usr/bin/python3
+import maxminddb
+import sys
+import pprint
+#aehnliche Code-Teile uebersprungen
+print("++++++++++++++++++++ CITY INFO +++++++++++++++++++\n")
+with maxminddb.open_database('/usr/share/GeoIP/GeoLite2-City.mmdb') as reader:
+    pprint.pprint(reader.get(sys.argv[1]))
+print("++++++++++++++++++++ CITY INFO +++++++++++++++++++\n")
+\end{lstlisting}
+
+Anbei eine Beispielausgabe für eine IP-Adresse der Fachhochschule Kiel.
+
+\begin{lstlisting}[label=mmdb-show-ip,caption=.]
+$ dig +short fh-kiel.de A
+149.222.20.63
+
+\
+
+$ mmdb.py 149.222.20.63
+++++++++++++++++++++ ASN INFO ++++++++++++++++++++
+
+{'autonomous_system_number': 680,
+ 'autonomous_system_organization': 'Verein zur Foerderung eines Deutschen '
+                                   'Forschungsnetzes e.V.'}
+++++++++++++++++++++ ASN INFO ++++++++++++++++++++
+[...]
+++++++++++++++++++++ CITY INFO +++++++++++++++++++
+
+{'city': {'geoname_id': 2891122,
+          'names': {'de': 'Kiel',
+                    'en': 'Kiel',
+                    [...]
+[...]
+ 'location': {'accuracy_radius': 20,
+              'latitude': 54.3258,
+              'longitude': 10.1379,
+              'time_zone': 'Europe/Berlin'},
+ 'postal': {'code': '24149'},
+[...]
+++++++++++++++++++++ CITY INFO +++++++++++++++++++
+\end{lstlisting}
+
+Insgesamt erwiesen sich die Datensätze als sehr brauchbar und akkurat. Per cron-Job wird die Datenbank wöchentlich aktualisiert.
 
 \subsection{Evaluation}
 
