@@ -288,8 +288,32 @@ $t_{gesamt} = t_{Infrastruktur_{U2}}$
 Im Allgemeinen hat sich dieser \glqq Teile-und-herrsche\grqq{}-Ansatz im Zusammenspiel mit Terraform als sehr hilfreich erwiesen, um Konsistenz-Probleme der asynchronen Cloud-APIs während der Deployment-Phase zu verringern \cite[S.183-184]{Brikman2019}. Probleme während des Deployments entstanden v.a. dann, wenn \glqq zu viele\grqq{} Abhängigkeiten der Infrastruktur-Komponenten im Spiel waren. Für die Verschaltung von \textit{gesplitteten} Terraform-Deployments eignet sich das Werkzeug Terragrunt \cite[S.98]{Brikman2019}.
 
 %https://web.archive.org/web/20210123233358/https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ug.pdf Seite 230
+%Warum brauchen wir more specifics?
+%CIDR in technische Grundlagen
 \textbf{\underline{More-Specific Route nicht möglich in VPC Routing-Tabelle}}\\
+Die Roadwarrior Clients müssen in einem Subnetz \glqq hinter\grqq{} dem VPN-Konzentrator terminiert werden. Dafür werden Routing-Einträge notwendig, damit AWS VPC bzw. Azure VNET die Information besitzen, über welchen \texit{Next-Hop} das Client-VPN-Subnetz erreicht werden kann. Durch \textit{Route Tables} stellt dies auch keine Hürde dar in Azure. AWS hingegen bietet keine Möglichkeit, Subnetze mit einer längeren Netzmaske in der Route Table zu hinterlegen, falls sie ein Subnetz des VPC CIDR darstellen würden. Man spricht auch von \glqq more specifics\grqq{}.\\
+Im folgenden Beispiel sei das VPC CIDR 192.168.0.0/16 (Target: local). Es soll eine Route auf ein Netzwerk 192.168.100.0/24 über die AWS Instance \glqq i-06230ccaa[...]\grqq{} (Next-Hop) gesetzt werden, was eine more specific Route zum VPC CIDR darstellt.
+Folgende Fehlermeldung meldet das Amazon Dashboard beim Versuch, diese Route anzulegen:
 
+\begin{figure}[h]
+  \centering
+  \includegraphics{Figures/more_specific_not_allowed_aws.PNG}
+  \caption{BLUB}
+  \label{grafik:more_specific_not_allowed_aws}
+\end{figure}\FloatBarrier
+
+Präfixe zu nutzen, welche nicht more specific sind, ginge insofern, dass das Routing \textit{innerhalb} des VPCs möglich wird, allerdings werden diese Präfixe nicht durch BGP den anderen Stellen bekannt gemacht. Somit erreichen Pakete aus Netzwerken, welche nicht im AWS VPC \glqq leben{grqq}, das VPN-Client-Netzwerk nicht.\\
+Hide-NAT ist, wie bereits beschrieben (s.o.), keine Lösung, da dies die Anforderung nach Ende-zu-Ende-Konnektivität verletzen würden.\\
+Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway dieses Problem erfolgreich gelöst werden. Es bietet die Möglichkeit \textit{Peerings} zwischen verschiedenen VPCs herzustellen. Die Idee war, zwei VPCs zu nutzen: ein VPC für Client-VPN und ein VPC für den (Web-)Server. Alle VPN-Verbindungen hängen fortan auf dem Transit Gateway, welches sowohl alle AWS-Routen kennt (statische Routing-Einträge) als auch alle weiteren Routen über BGP lernt. Die VPCs routen alle Ziele zu RFC1918-Netzwerken statisch auf das Transit Gateway, welches Pakete entweder weiter an das benachbarte VPC oder über das Backbone-Netzwerk zum Ziel weiterschickt. S Das folgende Netzwerkdiagramm mit anhängigen Routing-Tabellen soll diesen Sachverhalt verdeutlichen. Ein VPC CIDR entspricht in diesem Falle dem Subnet... Das Transit Gateway lernt die VPC CIDR automatisch, insofern Route Propagation eingeschaltet ist:
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.75]{Figures/Use-Case-2_AWS_TGW_Route-Tables.pdf}
+  \caption{BLUB}
+  \label{grafik:aws_tgw_route_tables}
+\end{figure}\FloatBarrier
+
+%NAT... aber keine Ende-zu-Ende...
 
 \textbf{\underline{Untersuchung von GeoIP-Daten}}\\
 %https://linux.die.net/man/1/file
@@ -302,7 +326,7 @@ $ file /usr/share/GeoIP/GeoLite2-City.mmdb
 
 %https://web.archive.org/web/20201110053320/https://github.com/maxmind/MaxMind-DB-Reader-python
 %https://bind9.readthedocs.io/en/latest/security.html?highlight=geoip#access-control-lists
-Die Datensätze mussten \glqq sichtbar\grqq{} gemacht werden, um eine Idee zu bekommen, welche Spezifizierer genutzt werden können, um die DNS-Auflösung in regionaler Abhängigkeit umzusetzen. Weiterhin war nicht sichergestellt, welche Qualität die Datensätze aufweisen. Um dies zu testen, wurde kurze Python-Skript \textit{mmdb.py} geschrieben und das Modul \textit{maxminddb} des GeoIP-Anbieters MaxMind eingebunden. Per \textit{pretty print} konnten die entsprechenden Datensätze für eine IP-Adresse ausgegeben werden.
+Die Datensätze mussten \glqq sichtbar\grqq{} gemacht werden, um eine Idee zu bekommen, welche Spezifizierer genutzt werden können, um die DNS-Auflösung in regionaler Abhängigkeit umzusetzen. Weiterhin war nicht sichergestellt, welche Qualität die Datensätze aufweisen. Um dies zu testen, wurde ein kurzes Python-Skript \textit{mmdb.py} geschrieben und das Modul \textit{maxminddb} des GeoIP-Anbieters MaxMind eingebunden. Per \textit{pretty print} konnten die entsprechenden Datensätze für eine IP-Adresse ausgegeben werden.
 
 \begin{lstlisting}[label=mmdb-code-example,caption=.]
 #!/usr/bin/python3
