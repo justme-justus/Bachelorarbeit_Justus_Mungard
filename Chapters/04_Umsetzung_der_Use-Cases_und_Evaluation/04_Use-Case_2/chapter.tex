@@ -289,7 +289,7 @@ Im Allgemeinen hat sich dieser \glqq Teile-und-herrsche\grqq{}-Ansatz im Zusamme
 
 %https://web.archive.org/web/20210123233358/https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ug.pdf Seite 230
 %Warum brauchen wir more specifics?
-%CIDR in technische Grundlagen
+%CIDR / Subnet / Route Tables in Azure und AWS in technische Grundlagen
 \textbf{\underline{More-Specific Route nicht möglich in VPC Routing-Tabelle}}\\
 Die Roadwarrior Clients müssen in einem Subnetz \glqq hinter\grqq{} dem VPN-Konzentrator terminiert werden. Dafür werden Routing-Einträge notwendig, damit AWS VPC bzw. Azure VNET die Information besitzen, über welchen \texit{Next-Hop} das Client-VPN-Subnetz erreicht werden kann. Durch \textit{Route Tables} stellt dies auch keine Hürde dar in Azure. AWS hingegen bietet keine Möglichkeit, Subnetze mit einer längeren Netzmaske in der Route Table zu hinterlegen, falls sie ein Subnetz des VPC CIDR darstellen würden. Man spricht auch von \glqq more specifics\grqq{}.\\
 Im folgenden Beispiel sei das VPC CIDR 192.168.0.0/16 (Target: local). Es soll eine Route auf ein Netzwerk 192.168.100.0/24 über die AWS Instance \glqq i-06230ccaa[...]\grqq{} (Next-Hop) gesetzt werden, was eine more specific Route zum VPC CIDR darstellt.
@@ -304,7 +304,7 @@ Folgende Fehlermeldung meldet das Amazon Dashboard beim Versuch, diese Route anz
 
 Präfixe zu nutzen, welche nicht more specific sind, ginge insofern, dass das Routing \textit{innerhalb} des VPCs möglich wird, allerdings werden diese Präfixe nicht durch BGP den anderen Stellen bekannt gemacht. Somit erreichen Pakete aus Netzwerken, welche nicht im AWS VPC \glqq leben{grqq}, das VPN-Client-Netzwerk nicht.\\
 Hide-NAT ist, wie bereits beschrieben (s.o.), keine Lösung, da dies die Anforderung nach Ende-zu-Ende-Konnektivität verletzen würden.\\
-Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway dieses Problem erfolgreich gelöst werden. Es bietet die Möglichkeit \textit{Peerings} zwischen verschiedenen VPCs herzustellen. Die Idee war, zwei VPCs zu nutzen: ein VPC für Client-VPN und ein VPC für den (Web-)Server. Alle VPN-Verbindungen hängen fortan auf dem Transit Gateway, welches sowohl alle AWS-Routen kennt (statische Routing-Einträge) als auch alle weiteren Routen über BGP lernt. Die VPCs routen alle Ziele zu RFC1918-Netzwerken statisch auf das Transit Gateway, welches Pakete entweder weiter an das benachbarte VPC oder über das Backbone-Netzwerk zum Ziel weiterschickt. S Das folgende Netzwerkdiagramm mit anhängigen Routing-Tabellen soll diesen Sachverhalt verdeutlichen. Ein VPC CIDR entspricht in diesem Falle dem Subnet... Das Transit Gateway lernt die VPC CIDR automatisch, insofern Route Propagation eingeschaltet ist:
+Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway dieses Problem erfolgreich gelöst werden. Es bietet die Möglichkeit \textit{Peerings} zwischen verschiedenen VPCs herzustellen. Die Idee war, zwei VPCs zu nutzen: ein VPC für Client-VPN und ein VPC für den (Web-)Server. Alle VPN-Verbindungen hängen fortan auf dem Transit Gateway, welches sowohl alle AWS-Routen kennt (statische Routing-Einträge) als auch alle weiteren Routen über BGP lernt. Die VPCs routen alle Ziele zu RFC1918-Netzwerken statisch auf das Transit Gateway, welches Pakete entweder weiter an das benachbarte VPC oder über das Backbone-Netzwerk zum Ziel weiterschickt. Das folgende Netzwerkdiagramm mit anhängigen Routing-Tabellen soll diesen Sachverhalt verdeutlichen. VPC CIDR und VPC Subnet werden in diesem Beispiel synonym verwendet, was formell nicht korrekt ist: Route Tables werden in Subnets genutzt, nicht im CIDR. Dies dient jedoch zur Vereinfach des Schaubildes (s. CIDR / Subnet / Route Table technische Grundlagen). Das Transit Gateway lernt die VPC CIDR automatisch, insofern Route Propagation eingeschaltet ist:
 
 \begin{figure}[h]
   \centering
@@ -375,6 +375,135 @@ $ mmdb.py 149.222.20.63
 Insgesamt erwiesen sich die Datensätze als sehr brauchbar und akkurat. Per cron-Job wird die Datenbank wöchentlich aktualisiert.
 
 \subsection{Evaluation}
+
+%Nachdem das Backbone-Netz aus Use-Case 1 um diverse Clients und Server erweitert wurde
+
+Wie bereits beschrieben, wurde pro Cloud-Standort eine virtuelle Maschine hochgefahren, die einen Roadwarrior-Client simulieren soll. Diese Clients haben \textbf{keinen} Zugriff auf interne Komponenten, sondern sind lediglich mit dem Internet verbunden, über welches VPN-Verbindungen zum jeweiligen VPN-Konzentrator aufgebaut werden können.
+
+Nach dem Deployment von Use-Case 2 wird geprüft, ob sich die Domain vpn.ba.mungard.de auflösen lässt. Dies passiert in der Azure-Cloud.
+
+\begin{lstlisting}[label=dns-resolution-client-vpn,caption=.]
+ubuntu@vpn-client-azure:~$ dig +short vpn.ba.mungard.de A
+94.245.93.144
+\end{lstlisting}
+
+Die IP-Adresse 94.2.45.93.144 gehört Microsoft.
+
+\begin{lstlisting}[label=whois-microsoft-ip,caption=.]
+$ whois 94.245.93.144 | grep mnt | uniq
+mnt-by:         MICROSOFT-MAINT
+\end{lstlisting}
+
+\begin{lstlisting}[label=ping-microsoft-ip,caption=.]
+Das Ziel ist ca. 1 Millisekunde entfernt. Für diesen Test wurde ICMP eingehend manuell erlaubt in der Network Security Group, im Default Deployment erfolgt für ICMP Echo Request ein \textit{Dropping}:
+ubuntu@vpn-client-azure:~$ ping 94.245.93.144
+PING 94.245.93.144 (94.245.93.144) 56(84) bytes of data.
+64 bytes from 94.245.93.144: icmp_seq=1 ttl=57 time=1.21 ms
+64 bytes from 94.245.93.144: icmp_seq=2 ttl=57 time=0.936 ms
+64 bytes from 94.245.93.144: icmp_seq=3 ttl=57 time=1.10 ms
+64 bytes from 94.245.93.144: icmp_seq=4 ttl=57 time=1.04 ms
+^C
+--- 94.245.93.144 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3003ms
+rtt min/avg/max/mdev = 0.936/1.073/1.216/0.106 ms
+\end{lstlisting}
+
+Die Annahme von nun an ist, dass die lokale DNS-Auflösung auch für AWS funktioniert. Daher folgt an dieser Stelle nur ein Ping mit vorheriger Auflösung des Hostnamens vpn.ba.mungard.de. Die RTT ist vergleichbar mit Azure (s.o.):
+
+\begin{lstlisting}[label=ping-aws-ip,caption=.]
+ubuntu@vpn-client-aws:~$ ping vpn.ba.mungard.de
+PING vpn.ba.mungard.de (3.67.38.135) 56(84) bytes of data.
+64 bytes from ec2-3-67-38-135.eu-central-1.compute.amazonaws.com (3.67.38.135): icmp_seq=1 ttl=63 time=0.930 ms
+64 bytes from ec2-3-67-38-135.eu-central-1.compute.amazonaws.com (3.67.38.135): icmp_seq=2 ttl=63 time=1.16 ms
+64 bytes from ec2-3-67-38-135.eu-central-1.compute.amazonaws.com (3.67.38.135): icmp_seq=3 ttl=63 time=0.970 ms
+64 bytes from ec2-3-67-38-135.eu-central-1.compute.amazonaws.com (3.67.38.135): icmp_seq=4 ttl=63 time=0.947 ms
+^C
+--- vpn.ba.mungard.de ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3004ms
+rtt min/avg/max/mdev = 0.930/1.001/1.157/0.091 ms
+\end{lstlisting}
+
+%https://www.hetzner.com/cloud
+Weiterhin wurde eine virtuelle Maschine in der Hetzner-Cloud am Standort Nürnberg deployed, welche einen Roadwarrior-Client simuliert, welcher an keinem der Standorte verfügbar ist und somit die \glqq match-all\grqq-ACl trifft. Das dig-Kommando liefert drei A-Records für die Domain vpn.ba.mungard.de aus.
+
+\begin{lstlisting}[label=dig-matchall-ip,caption=.]
+root@openvpn-client:~# dig +short vpn.ba.mungard.de A
+3.67.38.135
+195.244.254.197
+94.245.93.144
+\end{lstlisting}
+
+%normal
+Weiter wurde getestet, ob sich ein VPN-Client mit dem lokalen VPN-Konzentrator verbindet, hier wieder Azure:
+Der Filterausdruck ist für IPv4-Adressen und macht das Verbindungs-Log übersichtlicher.
+\begin{lstlisting}[label=connection-to-vpn-normal,caption=.]
+ubuntu@vpn-client-azure:~$ sudo openvpn --config config.ovpn 2>&1 | grep -E '(([0-9]{,3})\.){3}[0-9]{,3}'
+Wed May 12 11:27:26 2021 TCP/UDP: Preserving recently used remote address: [AF_INET]94.245.93.144:61231
+Wed May 12 11:27:26 2021 UDP link remote: [AF_INET]94.245.93.144:61231
+Wed May 12 11:27:26 2021 TLS: Initial packet from [AF_INET]94.245.93.144:61231, sid=edbf2413 4ce1aa1c
+Wed May 12 11:27:26 2021 [vpn-server-azure.ba.mungard.de] Peer Connection Initiated with [AF_INET]94.245.93.144:61231
+Wed May 12 11:27:27 2021 PUSH: Received control message: 'PUSH_REPLY,dhcp-option DNS 192.168.201.1,route 10.32.0.0 255.255.0.0,route 10.33.0.0 255.255.0.0,route 192.168.201.0 255.255.255.0,dhcp-option DOMAIN intern.ba.mungard.de,route-gateway 10.32.1.1,topology subnet,ping 10,ping-restart 60,ifconfig 10.32.1.2 255.255.255.0'
+Wed May 12 11:27:27 2021 ROUTE_GATEWAY 10.42.0.1/255.255.255.0 IFACE=eth0 HWADDR=00:0d:3a:dc:ec:4f
+Wed May 12 11:27:27 2021 /sbin/ip addr add dev tun0 10.32.1.2/24 broadcast 10.32.1.255
+Wed May 12 11:27:27 2021 /etc/openvpn/update-systemd-resolved tun0 1500 1557 10.32.1.2 255.255.255.0 init
+<14>May 12 11:27:27 update-systemd-resolved: Adding IPv4 DNS Server 192.168.201.1
+Wed May 12 11:27:27 2021 /sbin/ip route add 10.32.0.0/16 via 10.32.1.1
+Wed May 12 11:27:27 2021 /sbin/ip route add 10.33.0.0/16 via 10.32.1.1
+Wed May 12 11:27:27 2021 /sbin/ip route add 192.168.201.0/24 via 10.32.1.1
+\end{lstlisting}
+
+Um den Fallback zu testen, wurde eine spezielle iptables-Regel eingerichtet, die ausgehende Pakete, in denen der String \glqq vpn\grqq{} (für vpn.ba.mungard.de - DNS ist Klartext!) enthalten ist, verwirft. vpn-default ist hingegen erlaubt: die Regel wird über der erstgenannten Regel ausgewertet.
+
+\begin{lstlisting}[label=iptables-drop-dns,caption=.]
+$ sudo iptables-save | grep vpn
+-A OUTPUT -p udp -m string --string "default-vpn" --algo bm --to 65535 -m udp --dport 53 -j ACCEPT
+-A OUTPUT -p udp -m string --string "vpn" --algo bm --to 65535 -m udp --dport 53 -j DROP
+\end{lstlisting}
+
+Die Domain vpn.ba.mungard.de ist daraufhin nicht mehr auflösbar, default-vpn.ba.mungard.de hingegen schon.
+
+\begin{lstlisting}[label=connection-fail-to-vpn-fallback-to-default-vpn,caption=.]
+ubuntu@vpn-client-azure:~$ dig +short vpn.ba.mungard.de A
+;; connection timed out; no servers could be reached
+
+ubuntu@vpn-client-azure:~$ dig +short default-vpn.ba.mungard.de A
+195.244.254.197
+\end{lstlisting}
+
+Dies macht sich auch beim Verbindungsversuch mit OpenVPN bemerkbar. Ein Fallback auf die IP 195.244.254.197 erfolgt, welche der Domain default-vpn.ba.mungard.de entspricht (s.o.).
+\begin{lstlisting}[label=connection-fail-vpn-fallback-to-default-vpn,caption=.]
+ubuntu@vpn-client-azure:~$ sudo openvpn --config config.ovpn 2>&1
+Wed May 12 12:19:14 2021 RESOLVE: Cannot resolve host address: vpn.ba.mungard.de:61231 (Name or service not known)
+Wed May 12 12:19:14 2021 RESOLVE: Cannot resolve host address: vpn.ba.mungard.de:61231 (Name or service not known)
+Wed May 12 12:19:14 2021 Could not determine IPv4/IPv6 protocol
+Wed May 12 12:19:14 2021 SIGUSR1[soft,init_instance] received, process restarting
+Wed May 12 12:19:14 2021 Restart pause, 5 second(s)
+Wed May 12 12:19:19 2021 UDP link remote: [AF_INET]195.244.254.197:61231
+[...]
+Wed May 12 12:19:20 2021 Initialization Sequence Completed
+\end{lstlisting}
+
+Dies wurde analog für alle Roadwarrier-Clients erfolgreich getestet.
+
+Der Aufruf der Webseite http://www.intern.ba.mungard.de mit dem Textbrowser Lynx funktioniert (hier Azure). Somit wird immer der Server angesprochen, der am jeweiligen Cloud-Standort deployed ist:
+\begin{lstlisting}[label=lynx-default-page,caption=.]
+ubuntu@vpn-client-azure:~$ lynx -dump www.intern.ba.mungard.de | head -10
+   Ubuntu Logo Apache2 Ubuntu Default Page
+   It works! @Azure Cloud (Location: "North Europe - Dublin")
+
+   This is the default welcome page used to test the correct operation of
+   the Apache2 server after installation on Ubuntu systems. It is based on
+   the equivalent page on Debian, from which the Ubuntu Apache packaging
+   is derived. If you can read this page, it means that the Apache HTTP
+   server installed at this site is working properly. You should replace
+   this file (located at /var/www/html/index.html) before continuing to
+   operate your HTTP server.
+
+\end{lstlisting}
+
+Damit wurden alle Kriterien für eine erfolgreiche Evaluation von Use-Case 2 erfüllt.
+
+
 
 %dig für "next hop"n
 %whois Daten
