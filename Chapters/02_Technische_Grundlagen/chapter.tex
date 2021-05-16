@@ -148,3 +148,99 @@ Im Beispiel werden drei Clients hinter einem Router geNATtet. Alle eingehenden P
 
 NAT verletzt das Prinzip der Ende-zu-Ende-Konnektivität: Findet sich für ein \textbf{vom Webserver kommendes} Paket in der NAT-Tabelle kein Eintrag, wird das Paket verworfen. Dies ist bei einer Client-zu-Server-Kommunikation oftmals kein Problem, da Verbindungen ohnehin vom Client initiiert werden. Wenn allerdings eine Client-zu-Client-Kommunikation stattfinden soll, ist man auf aufwändige Mechanismen wie z.B. Hole Punching angewiesen \cite[S.317]{Fall2011}.\\
 Auf NAT soll daher in dieser Arbeit, so gut es geht, verzichtet werden. Dort, wo es möglich ist, soll eine vollwertige Ende-zu-Ende-Konnektivität gewährleistet werden.
+
+\subsection{Maximum Transmission Unit / Maximum Segment Size}
+Die maximale Paketgröße auf einem Netzwerkmedium wird durch die Maxmimum Transmission Unit (MTU) beschrieben. Im Ethernet ist die \textit{Default}-MTU 1500 Byte.\cite[S.86]{Fall2011} Ethernet ist im Internet inzwischen das meistgenutzte Medium, daher haben sich auch hier diese 1500 Byte manifestiert.\\
+Da die MTU auf dem Weg vom Empfänger zum Ziel variieren und auch mal geringer als 1500 Byte ausfallen kann, kann ein IPv4-Paket \textit{fragmentiert} werden. Dieser Prozess fordert Rechenzeit, sowohl beim Aufteilen in Fragmente und auf Empfängerseite bei der Zusammensetzung der Fragmente und kann sich negativ auf die Performance (Latenz und Datendurchsatz) auswirken.\\
+Man nutzt optimalerweise Path MTU Discovery oder beeinflusst die Maximum Segment Size (MSS) bei Initiierung der Verbindung, um Fragmentierung zu umgehen.
+
+\subsection{GeoIP}
+%https://www.maxmind.com/en/home
+%https://www.maxmind.com/en/locate-my-ip-address
+Mit Hilfe von GeoIP-Datenbanken ist es möglich, den (ungefähren) Standort mit der Absender-IP-Adresse eines Clients zu bestimmen. Verwendung finden solche Datenbanken häufig bei Internet-Streaming-Anbietern, um Zugriffe auf ein Videoangebot aus dem Ausland zu verhindern. Die Firma MaxMind ist dabei führender Anbieter für solche GeoIP-Datenbanken.
+
+\section{Domain Name System (DNS)}\label{DNS}
+Das DNS ermöglicht, Server im Internet anhand eines Namens, dem Fully Qualified Domain Name (FQDN), zu erreichen. Somit muss sich ein Benutzer einer Webseite keine IP-Adresse merken, sondern lediglich den dazugehörigen FQDN. Die IP-Adresse wird über die \textit{DNS-Auflösung} herausgefunden. Das DNS ist ein hierarchisches Modell, welches mit Domains arbeitet. Diese unterliegen unterschiedlichen Autoritäten. 
+\begin{figure}[h]
+  \centering
+  \includegraphics{Figures/dns_autoritative.pdf}
+  \caption{DNS-Hierarchie}
+  \label{grafik: napt}
+\end{figure}\FloatBarrier
+
+%https://www.isc.org/bind/
+Soll z.B. der FQDN www.intern.ba.mungard.de. aufgelöst werden, muss der \textit{Baum} von der Wurzel \glqq .\grqq{} über die Knoten de, mungard, ... bis zum Blatt www durchlaufen werden. Man spricht von einer iterativen Auflösung. Pro Hierarchie-Ebene sind \textit{autoritative Nameserver} verantwortlich für die richtige Delegation des auflösenden Clients.\\
+Das Blatt www wird auch als Resource Record bezeichnet. Für diese Arbeit sind lediglich A-Records relevant, welche FQDN nach IPv4-Adresse auflösen. Viele weitere DNS-Records existieren, z.B. für IPv6-Adressen (AAAA) oder um Mailserver (MX) für eine Domain anzugeben \cite[S.528]{Fall2011}. Ein Beispiel für einen autoritativen Nameserver ist Bind. Innerhalb des Nameservers werden Domains anhand von \textit{Zonen(-Dateien)} verwaltet
+
+\subsection{DNS-Resolver}
+Endgeräte machen diese iterative Namensauflösung typischerweise nicht selbst, sondern leiten ihre Anfragen an einen DNS-Resolver weiter (\glqq Forwarding\grqq{}). Dieser ist in folgendem Beispiel dafür verantwortlich, zu einem FQDN eine IPv4-Adresse zu finden (iterativ) und dem Endgerät zurückzuschicken.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics{Figures/dns_recursion.pdf}
+  \caption{DNS-Resolver}
+  \label{grafik: dns-resolver}
+\end{figure}\FloatBarrier
+
+\begin{lstlisting}[label=dig-example-fh-kiel,caption=Eine DNS-Auflösung für einen A-Record (www01.fh-kiel.de) gegen den Resolver von Google (8.8.8.8)]
+$ dig www01.fh-kiel.de A @8.8.8.8
+
+; <<>> DiG 9.11.9 <<>> www01.fh-kiel.de @8.8.8.8
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 56486
+;; flags: qr rd ra ad; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 512
+;; QUESTION SECTION:
+;www01.fh-kiel.de.              IN      A
+
+;; ANSWER SECTION:
+www01.fh-kiel.de.       21425   IN      A       149.222.20.63
+
+;; Query time: 20 msec
+;; SERVER: 8.8.8.8#53(8.8.8.8)
+;; WHEN: Sun May 16 15:55:30 CEST 2021
+;; MSG SIZE  rcvd: 61
+\end{lstlisting}
+
+
+
+Weiterhin kann ein Resolver Einträge \textit{cachen}, um auf erneute Anfragen schneller antworten zu können.%Der letzte Punkt eines FQDN, welcher die Root-Domain repräsentiert, wird üblicherweise ausgelassen.
+
+\subsection{Split DNS}
+Split DNS ist die Möglichkeit, verschiedene Resource Records anhand der Absender-IP auszuliefern. Dafür pflegen autoritative Nameserver Access Control Lists (ACL) mit verschiedenen IP-Präfixen, um eine Fallunterscheidung treffen zu können. Dies ist z.B. relevant, wenn eine Firma zwischen internen und externen Anfragen unterscheiden muss, um den (richtigen) Zugriff auf Ressourcen zu gewährleisten.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics{Figures/dns_split_view.pdf}
+  \caption{Split DNS für portal.firma.de.}
+  \label{grafik: split-dns}
+\end{figure}\FloatBarrier
+
+\subsection{DNS UPDATE}
+%https://datatracker.ietf.org/doc/html/rfc2136
+Die Methode DNS UPDATE ist in RFC 2136 definiert und erlaubt es, autoritative Zonen eines Nameserver während der Laufzeit zu verändern. Somit müssen keine Zonen-Dateien (manuell) verändert werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten Zonen-Dateien neu einzulesen.\\
+Clients werden über eine ACL ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP berücksichtigt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen} lassen. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (Pre-Shared Key) eine DNS UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (TSIG) \cite[S.911-914]{Fall2011}.
+%Diese Updates werden vom Nameserver selbstständig in die Zonen-Dateien übernommen und überstehen somit einen Neustart des Servers.
+
+
+\section{Virtual Private Network (VPN)}\label{vpn}
+VPNs werden genutzt, um private Netzwerke über eine öffentliche Infrastruktur abbilden zu können. Dies erfolgt zwischen VPN-Endpunkten über eine gängige Enkapsulierung, z.B. Generic Routing Encapsulation (GRE), Encapsulating Security Payload (ESP) oder OpenVPN.
+
+In diesem Beispiel werden Daten von Client A zu Client B über das Internet zwischen Router R1 und Router R2 enkapsuliert. R2 empfängt das Datenpaket, packt es aus und sendet es in der ursprünglichen Form weiter an Client B. Das Diagramm ist nicht spezifisch für eine bestimmte VPN-Technologie, sondern soll die grundsätzliche Idee verdeutlichen. Weiterhin können, je nach Technologie, Nutzdaten verschlüsselt werden. 
+
+\begin{figure}[h]
+  \centering
+  \includegraphics{Figures/}
+  \caption{Übertragung eines IP-Pakets über einen VPN-Tunnel}
+  \label{grafik: vpn-example}
+\end{figure}\FloatBarrier
+
+%Quelle
+Die in dieser Arbeit verwendeten VPN-Technologien sind IPSEC und OpenVPN. IPSEC wird u.a. für die Vernetzung von Standorten, auch Site-to-Site (S2S) genannt, genutzt und arbeitet auf OSI-Schicht 3. Ebenso dient es zur \glqq Einwahl\grqq{} in (Firmen-)Netzwerken.  IPSEC wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
+OpenVPN ist ein Open Source-Projekt, es nutzt Transport Layer Security (TLS) für die verschlüsselte Übertragung von Daten via UDP. Das Protokoll ist auf OSI-Schicht 7 zu finden. Es wird vor allem für Client-to-Site-Verbindungen genutzt (C2S): Passende Software ist für viele verschiedene Plattformen verfügbar (Windows, Linux, Mac, Android,...) und sowohl Client als auch Server-Applikation sind kostenfrei erhältlich.
+
+%ROUTE BASED VS POLICY BASED?
+Angesprochene MTU-Probleme / MSS (s.o.)
