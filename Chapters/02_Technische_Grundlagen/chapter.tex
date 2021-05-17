@@ -252,14 +252,25 @@ Der Cloud-Begriff kann je nach Literatur variieren. Diese Arbeit verweist an die
 
 Auch für die so genannten \textit{Cloud Deployment}-Modelle wird auf die Definition des NIST verwiesen.\cite{mell2011}
 
-Allerdings soll an dieser Stelle auf ein häufiges Missverständnis verwiesen werden. Eine Private Cloud existiert nicht zwingend \textit{On-premises} einer Organisation, also bspw. im eigenen Rechenzentrum. Sie kann ebenso über öffentliche Cloud-Plattformen abgebildet werden. Allerdings ist die Voraussetzung, dass alle genutzten Ressourcen dann exklusiv für die Organisation zur Verfügung stehen (exclusive use). Sie werden nicht mit weiteren Parteien geteilt (open use).\\
+Allerdings soll an dieser Stelle ein häufiges Missverständnis hingewiesen werden. Eine Private Cloud existiert nicht zwingend \textit{On-premises} einer Organisation, also bspw. im eigenen Rechenzentrum. Sie kann ebenso über öffentliche Cloud-Plattformen abgebildet werden. Allerdings ist die Voraussetzung, dass alle genutzten Ressourcen dann exklusiv für die Organisation zur Verfügung stehen (\textit{exclusive use by a single organization}). Sie werden nicht mit weiteren Parteien geteilt (\textit{open use by the general public}).\\
 %https://www.openstack.org/
 %Abgrenzung Private Cloud ...irgendwo... einarbeiten. Es wird angenommen, dass die Private Cloud schon besteht. Router interessiert, bißchen Infrastrukut (Webserver), Rest interessiert nicht...
-Die Public-Cloud-Provider, welche in dieser Arbeit genutzt werden, sind Amazon Web Services (AWS) und Microsoft Azure. Eine Private Cloud lässt sich bspw. mit OpenStack abbilden.
+Die Public-Cloud-Provider, welche in dieser Arbeit genutzt werden, sind Amazon Web Services (AWS) und Microsoft Azure. Rechenzentren stehen weltweit zur Verfügung, um eine schnelle und latenzarme Anbindung für die Kunden zu ermöglichen. Eine Private Cloud lässt sich bspw. mit OpenStack abbilden.
 
 \subsection{Multi und Hybrid Cloud}
 Eine Multi Cloud besteht aus gleichen Cloud Deployments-Bausteinen. So können zwei oder mehrere Public Clouds zu einer Multi Cloud zusammengefasst werden. Das gleiche gilt für Private Clouds.\\
 Bei einer Hybrid Cloud werden unterschiedliche Bausteine zusammengefasst. In dieser Arbeit soll eine Hybrid Cloud aus AWS, Azure (Public) und Private Cloud deployet werden.
 
+\section{Public Cloud-Netzwerke}\label{cloud}
+In diesem Kapitel wird näher auf die verschiedenen Netzwerk-\textit{Building Blocks} der Public Cloud-Plattformen AWS und Azure eingegangen. Beide bringen oftmals ähnliche Bausteine mit. Es wird daher stets versucht, im jeweiligen Kontext auf beide Plattformen zugleich einzugehen, um die Grundfunktionalität zu erläutern. %Weiterhin existierien eigene Builing Blocks...
 
+\subsection{AWS VPC / Azure VNET}
+AWS Virtual Private Cloud (VPC) und Azure Virtual Network (VNET) bilden private Netzwerke innerhalb eines Cloud-Mandanten ab. Die hier hinterlegten Präfixe bilden eine Menge an möglichen IP-Adressen innerhalb von VPC und VNET ab. Es können sowohl Public IP-Präfixe als auch IPs nach RFC 1918 benutzt werden. Diese Menge an IP-Adressen wird in AWS {CIDR} und in Azure \textit{Address Space} genannt.\\
+Die minimale Länge der Netzmaske eines AWS CIDR ist /16 und maximale Länge /28\cite[S.100]{awsug2020}. Azure VNET ist da großzügiger und es darf eine Länge zwischen /8 und /29 gewählt werden\cite[S.10]{Toroman2019}. 
+\subsection{Subnets}
+Innerhalb von VPC und VNET können Subnets angelegt werden. In diesen Subnets können bspw. virtuelle Maschinen mit IPs ausgestattet werden. Wenn also ein VPC ein CIDR-Präfix von 10.0.0.0/16 besitzt, kann z.B. ein Subnet 10.0.1.0/24 \glqq herausgeschnitten\grqq{} werden. Mit Subnets können weitere Objekte verknüpft werden wie z.B. Route Tables, welche die Routing-Informationen für Maschinen innerhalb eines Subnets verwalten.
+
+
+
+Route Table / ACL / SG
 %die Infrastruktur gehört _mir_, egal wo gehostet
