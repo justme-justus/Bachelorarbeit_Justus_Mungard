@@ -268,9 +268,21 @@ In diesem Kapitel wird näher auf die verschiedenen Netzwerk-\textit{Building Bl
 AWS Virtual Private Cloud (VPC) und Azure Virtual Network (VNET) bilden private Netzwerke innerhalb eines Cloud-Mandanten ab. Die hier hinterlegten Präfixe bilden eine Menge an möglichen IP-Adressen innerhalb von VPC und VNET ab. Es können sowohl Public IP-Präfixe als auch IPs nach RFC 1918 benutzt werden. Diese Menge an IP-Adressen wird in AWS {CIDR} und in Azure \textit{Address Space} genannt.\\
 Die minimale Länge der Netzmaske eines AWS CIDR ist /16 und maximale Länge /28\cite[S.100]{awsug2020}. Azure VNET ist da großzügiger und es darf eine Länge zwischen /8 und /29 gewählt werden\cite[S.10]{Toroman2019}. 
 \subsection{Subnets}
-Innerhalb von VPC und VNET können Subnets angelegt werden. In diesen Subnets können bspw. virtuelle Maschinen mit IPs ausgestattet werden. Wenn also ein VPC ein CIDR-Präfix von 10.0.0.0/16 besitzt, kann z.B. ein Subnet 10.0.1.0/24 \glqq herausgeschnitten\grqq{} werden. Mit Subnets können weitere Objekte verknüpft werden wie z.B. Route Tables, welche die Routing-Informationen für Maschinen innerhalb eines Subnets verwalten.
+Innerhalb von VPC und VNET können Subnets angelegt werden. In diesen Subnets können bspw. virtuelle Maschinen mit IPs ausgestattet werden. Wenn also ein VPC ein CIDR-Präfix von 10.0.0.0/16 besitzt, kann z.B. ein Subnet 10.0.1.0/24 \glqq herausgeschnitten\grqq{} werden. Mit Subnets können weitere Objekte verknüpft werden wie z.B. Route Tables, welche das Routing innerhalb eines Subnets steuern.
 
+\subsection{Route Tables}
+Route Tables ermöglichen es, den Fluss von IP-Pakete innerhalb eines Subnets zu steuern. So können z.B. statische Routen auf Ziele innerhalb eines Subnets angelegt werden. VNET kann dies, wie aus dem klassischen Netzwerk gewohnt, über Next-Hop IPs abbilden. VPC hingegen unterstützt als Next-Hop virtuelle Maschinen (Instances) und Interfaces von virtuellen Maschinen. Es gibt noch weitere spezielle Ziele adressiert werden wie z.B. VPN Gateways, um \textit{On-premise} Netzwerke zu erreichen.\\
+Subnets in Azure erfordern keine Route Tables: Alle Maschinen eines VNET erreichen sich untereinander standardmäßig und erreichen Ressourcen im Internet. Sollte ein granulareres Routing gebraucht werden, werden Azure Route Tables erforderlich. Subnets in VPC erhalten immer eine Route Table: Ohne weitere Konfigurationen wird einem Subnet die Main Route Table zugewiesen. Diese kann vorab editiert werden, so dass z.B. kein Internet-Traffic für virtuelle Maschinen möglich ist.
 
+\subsection{Security Groups}
+%https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.146.5044&rep=rep1&type=pdf
+AWS Security Groups (SG) bzw. Azure Network Security Groups bilden \textit{stateful Firewalling} ab. Dabei können sowohl ingress (eingehende), als auch egress (ausgehende) Firewall-Regeln definiert und darauf basierend Pakete gefiltert werden. Typische Protokolle anhand derer Regeln definiert werden können sind UDP, TCP und ICMP.\\
+AWS SGs können einer Instanz zugewiesen werden. Wird keine SG explizit für eine Instanz definiert, kommt eine Default SG zu Einsatz, die vom VPC vorgegeben ist.\\
+Azure NSGs können Instanzen als auch Subnets zugewiesen werden. NSGs für Subnets wirken sich also global für alle VMs eines Subnets aus. Wenn granularer Zugriff auf bestimmte VMs gewünscht ist, können zusätzliche NSGs den jeweiligen Instanzen zugeordnet werden. 
 
-Route Table / ACL / SG
+\subsection{VPN}
+AWS bringt in Form von Virtual Private Gateway und Transit Gateway Möglichkeiten mit, IPSEC-basierte S2S-Verbindungen zu terminieren. Ersteres kann Verbindungen nur innerhalb eines VPC terminieren. Transit Gateway bietet die Möglichkeit, verschiedene VPCs miteinander zu \textit{peeren}. VPN-Verbindungen können auf Transit Gateway terminiert werden und Pakete, die über VPN reinkommen, können alle gepeerten VPCs erreichen.\\
+Azure Virtual network gateway kann analog zu AWS Virtual Private Gateway IPSEC-Tunnel in einem VNET terminieren.\\
+AWS und Azure ermöglichen innerhalb der Tunnel mit Hilfe von BGP, dynamisch Routing-Informationen miteinander auszutauschen.
+
 %die Infrastruktur gehört _mir_, egal wo gehostet
