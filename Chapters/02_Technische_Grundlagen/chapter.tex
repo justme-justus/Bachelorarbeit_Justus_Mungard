@@ -225,7 +225,6 @@ Die Methode DNS UPDATE ist in RFC 2136 definiert und erlaubt es, autoritative Zo
 Clients werden über eine ACL ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP berücksichtigt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen} lassen. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (Pre-Shared Key) eine DNS UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (TSIG) \cite[S.911-914]{Fall2011}.
 %Diese Updates werden vom Nameserver selbstständig in die Zonen-Dateien übernommen und überstehen somit einen Neustart des Servers.
 
-
 \section{Virtual Private Network (VPN)}\label{vpn}
 VPNs werden genutzt, um private Netzwerke über eine öffentliche Infrastruktur abbilden zu können. Dies erfolgt zwischen VPN-Endpunkten über eine gängige Enkapsulierung, z.B. Generic Routing Encapsulation (GRE), Encapsulating Security Payload (ESP) oder OpenVPN.
 
@@ -233,14 +232,34 @@ In diesem Beispiel werden Daten von Client A zu Client B über das Internet zwis
 
 \begin{figure}[h]
   \centering
-  \includegraphics{Figures/}
+  \includegraphics{Figures/vpn-example.pdf}
   \caption{Übertragung eines IP-Pakets über einen VPN-Tunnel}
   \label{grafik: vpn-example}
 \end{figure}\FloatBarrier
 
 %Quelle
 Die in dieser Arbeit verwendeten VPN-Technologien sind IPSEC und OpenVPN. IPSEC wird u.a. für die Vernetzung von Standorten, auch Site-to-Site (S2S) genannt, genutzt und arbeitet auf OSI-Schicht 3. Ebenso dient es zur \glqq Einwahl\grqq{} in (Firmen-)Netzwerken.  IPSEC wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
-OpenVPN ist ein Open Source-Projekt, es nutzt Transport Layer Security (TLS) für die verschlüsselte Übertragung von Daten via UDP. Das Protokoll ist auf OSI-Schicht 7 zu finden. Es wird vor allem für Client-to-Site-Verbindungen genutzt (C2S): Passende Software ist für viele verschiedene Plattformen verfügbar (Windows, Linux, Mac, Android,...) und sowohl Client als auch Server-Applikation sind kostenfrei erhältlich.
+OpenVPN ist ein Open Source-Projekt, es nutzt Transport Layer Security (TLS) für die verschlüsselte Übertragung von Daten via UDP oder TCP. Das Protokoll ist auf OSI-Schicht 7 zu finden. Es wird vor allem für Client-to-Site-Verbindungen genutzt (C2S): Passende Software ist für viele verschiedene Plattformen verfügbar (Windows, Linux, Mac, Android,...) und sowohl Client als auch Server-Applikation sind kostenfrei erhältlich.
 
 %ROUTE BASED VS POLICY BASED?
-Angesprochene MTU-Probleme / MSS (s.o.)
+Angesprochene MTU-Probleme (s.o.) können sich bei einer getunnelten Verbindung auf Grund der zusätzlichen Enkapsulierung zeigen. Eine IP-Fragmentierung sollte optimalerweise verhindert werden.
+
+\section{Cloud}\label{cloud}
+%VyOS PaaS? VyOS kann als hybrid zwischen IaaS und PaaS angesehen werden, da man die virtuelle Maschine bis auf CPU nichts weiter konfigurieren kann... und sie ist für Infrastruktur verantwortlich...
+Der Cloud-Begriff kann je nach Literatur variieren. Diese Arbeit verweist an dieser Stelle auf die Definition des \textit{National Institute of Standards and Technology (NIST)}. Ebenso werden dort die drei typischen \textit{Cloud Delivery}-Modelle Software as a Service (SaaS), Platform as a Service (PaaS) und Infrastructure as a Service (IaaS) definiert, welche fortan als bekannt vorausgesetzt werden.\cite{mell2011}
+
+\subsection{Public und Private Cloud}
+
+Auch für die so genannten \textit{Cloud Deployment}-Modelle wird auf die Definition des NIST verwiesen.\cite{mell2011}
+
+Allerdings soll an dieser Stelle auf ein häufiges Missverständnis verwiesen werden. Eine Private Cloud existiert nicht zwingend \textit{On-premises} einer Organisation, also bspw. im eigenen Rechenzentrum. Sie kann ebenso über öffentliche Cloud-Plattformen abgebildet werden. Allerdings ist die Voraussetzung, dass alle genutzten Ressourcen dann exklusiv für die Organisation zur Verfügung stehen (exclusive use). Sie werden nicht mit weiteren Parteien geteilt (open use).\\
+%https://www.openstack.org/
+%Abgrenzung Private Cloud ...irgendwo... einarbeiten. Es wird angenommen, dass die Private Cloud schon besteht. Router interessiert, bißchen Infrastrukut (Webserver), Rest interessiert nicht...
+Die Public-Cloud-Provider, welche in dieser Arbeit genutzt werden, sind Amazon Web Services (AWS) und Microsoft Azure. Eine Private Cloud lässt sich bspw. mit OpenStack abbilden.
+
+\subsection{Multi und Hybrid Cloud}
+Eine Multi Cloud besteht aus gleichen Cloud Deployments-Bausteinen. So können zwei oder mehrere Public Clouds zu einer Multi Cloud zusammengefasst werden. Das gleiche gilt für Private Clouds.\\
+Bei einer Hybrid Cloud werden unterschiedliche Bausteine zusammengefasst. In dieser Arbeit soll eine Hybrid Cloud aus AWS, Azure (Public) und Private Cloud deployet werden.
+
+
+%die Infrastruktur gehört _mir_, egal wo gehostet
