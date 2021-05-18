@@ -2,6 +2,7 @@
 
 \section{Internet Protocol Version 4 (IPv4)} \label{ipv4}
 \subsection{Allgemeines und Adressierungsschema}
+%OSI https://web.archive.org/web/20210225232853/https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-X.200-199407-I!!PDF-E&type=items
 Das Internet Protocol ist im OSI-Modell auf Schicht 3 (Network-Layer) anzusiedeln. Es dient der \textit{Paketierung} von Daten und anschließenden Ende-zu-Ende-Vermittlung dieser \textit{Pakete} zwischen Netzwerk-Systemen. Dafür notwendig ist eine Adressierung: eine IPv4-Adresse besteht aus einer 32 Bit-Zahl, welche typischerweise dezimal dargestellt wird in so genannter \glqq dotted decimal\grqq{}-Schreibweise. Dafür wird die Binärzahl in vier Oktette mit einem Punkt aufgeteilt und die jeweiligen Oktette in dezimal umgerechnet.
 
 00000001000000100000001100000100 (32-Bit Integer) ->  00000001.00000010.00000011.00000100 (dotted binary) -> 1.2.3.4 (dotted decimal)
@@ -249,6 +250,7 @@ Angesprochene MTU-Probleme (s.o.) können sich bei einer getunnelten Verbindung 
 Der Cloud-Begriff kann je nach Literatur variieren. Diese Arbeit verweist an dieser Stelle auf die Definition des \textit{National Institute of Standards and Technology (NIST)}. Ebenso werden dort die drei typischen \textit{Cloud Delivery}-Modelle Software as a Service (SaaS), Platform as a Service (PaaS) und Infrastructure as a Service (IaaS) definiert, welche fortan als bekannt vorausgesetzt werden.\cite{mell2011}
 
 \subsection{Public und Private Cloud}
+%die Infrastruktur gehört _mir_, egal wo gehostet
 
 Auch für die so genannten \textit{Cloud Deployment}-Modelle wird auf die Definition des NIST verwiesen.\cite{mell2011}
 
@@ -283,6 +285,85 @@ Azure NSGs können Instanzen als auch Subnets zugewiesen werden. NSGs für Subne
 \subsection{VPN}
 AWS bringt in Form von Virtual Private Gateway und Transit Gateway Möglichkeiten mit, IPSEC-basierte S2S-Verbindungen zu terminieren. Ersteres kann Verbindungen nur innerhalb eines VPC terminieren. Transit Gateway bietet die Möglichkeit, verschiedene VPCs miteinander zu \textit{peeren}. VPN-Verbindungen können auf Transit Gateway terminiert werden und Pakete, die über VPN reinkommen, können alle gepeerten VPCs erreichen.\\
 Azure Virtual network gateway kann analog zu AWS Virtual Private Gateway IPSEC-Tunnel in einem VNET terminieren.\\
-AWS und Azure ermöglichen innerhalb der Tunnel mit Hilfe von BGP, dynamisch Routing-Informationen miteinander auszutauschen.
+AWS und Azure ermöglichen innerhalb der Tunnel die Nutzung von BGP, um dynamische Routing-Informationen miteinander auszutauschen.
 
-%die Infrastruktur gehört _mir_, egal wo gehostet
+\section{Automatisierung}\label{automatisierung}
+
+Diverse Automatisierungswerkzeuge ermöglichen es, gewünschte Endzustände von Systemen zu definieren. Mit heutigen Werkzeugen wie z.B. Ansible muss ein Administrator wenig Programmiererfahrungen mitbringen und schreibt die gewünschten Parameter in eine Konfigurationsdatei, die zu einem gewünschten Zeitpunkt auf Systeme ausgerollt werden. Viele Probleme wurden bereits von anderen Community-Mitgliedern gelöst und es gibt entsprechende Beispiele oder es werden Erweiterungen in Form von Plugins geschrieben.\\
+Man muss bei Automatisierungswerkzeugen zwischen \textit{Configuration Management} (CM) und \textit{Provisioning} unterscheiden. Provisioner dienen der grundsätzlichen Erstellung einer Infrastruktur, während CM-Werkzeuge diese Infrastruktur als vorhanden wahrnehmen und weitere Konfigurationen auf den jeweiligen Komponenten tätigen\cite[S.20]{Brikman2019}. Eine Analogie aus dem Hausbau: Provisioner setzen das Haus irgendwo an eine Straße und das CM macht daraufhin die Innenaustattung. Oder um in den Sphären der Informatik zu bleiben: Provisioner sorgen dafür, dass viele Ubuntu-Maschinen aufgesetzt werden und erreichbar sind. Das CM macht daraufhin Paketupdates und installiert einen Apache-Webserver.\\
+Es gibt keine klare Linie zwischen den beiden Typen von Werkzeugen. So können viele CM-Werkzeuge auch eine Provisionierung von Infrastruktur abbilden, während Provisioner auch grundlegendes Configuration Management leisten können\cite[S.20]{Brikman2019}.\\
+Passende Schnittstellen, z.B. in Form einer REST-API, sind Voraussetzung, um Automatisierungswerkzeuge mit entsprechenden Komponenten nutzen zu können.
+
+Ansible muss mehr manuell auf Plausibilität geprüft werden...
+
+\subsection{Terraform}
+Das Werkzeug, das hauptsächlich für Automatisierungs-Schritte in dieser Arbeit verwendet wird, ist \textit{Terraform} der Firma Hashicorp. Es ist ein Provisioner mit begrenzten Möglichkeiten für Configuration Management. Es besitzt eine Vielzahl an \textit{Resources}, welche es ermöglichen, Infrastruktur-Komponenten  reproduzierbar  zu  deployen. Es wird eine deklarativer Sprachstil genutzt, um gewünschte Zustände der Infrastruktur zu beschreiben. Man spricht auch von \textit{Infrastructure as Code} (IaC).
+
+\textbf{\underline{Provider}}\\
+%https://registry.terraform.io/browse/providers
+%https://registry.terraform.io/providers/hashicorp/aws/latest
+Provider sind die Grundvoraussetzung, um die Automatisierung einer Plattform mit Terraform bewerkstelligen zu können. Sie ermöglichen es, mit entsprechenden Schnittstellen der Anbieter, z.B. REST, zu interagieren. Provider beinhalten \textit{Resources}, welche Veränderungen tätigen können und \textit{Data Sources}, welche \glqq lesend\grqq auf die Infrastruktur zugreifen, um Informationen zurückzuliefern. Diese können dann anderen \textit{Modulen} zur Verfügung gestellt werden.\\
+%Serifen-Schrift für Dateinamen...
+Terraform arbeitet stateful: Nach jedem \texttt{terraform apply}, welches zur Erstellung der gewünschten Infrastruktur führt, werden Referenzen aller Infrastrukturkomponenten in der Datei \underline{terraform.tfstate} gespeichert. Ein erneuter Aufruf von \texttt{terraform apply} würde, insofern keine Konfigurationsänderungen gemacht wurden, die Infrastruktur so belassen und sie nicht nochmal deployen bzw. erweitern. Per \texttt{terraform destroy} kann die Infrastruktur wieder zurückgebaut werden.
+Im folgenden Beispiel wird der Provider \textit{aws} in einer spezifischen Version eingebunden. Der Constraint \glqq $\sim$>\grqq{} sorgt dafür, dass nur Versionen des Providers innerhalb des 3.35.x Branches benutzt werden (\glqq Minor Patches\grqq{}).
+
+\begin{minted}[breaklines,frame=single]{tf}
+terraform {
+    required_providers {
+        aws = {
+            source = "hashicorp/aws"
+            version = "~> 3.35.0"
+        }
+    }
+}
+\end{minted}
+
+\textbf{\underline{Resource}}
+Resources erstellen Infrastuktur-Komponenten und statten diese mit den richtigen Parametern aus. Folgend wird ein VPC mit dem CIDR-Block 10.0.0.0/16 und ein darunterliegendes Subnet 10.0.1.0/24 erstellt.
+
+\begin{minted}[breaklines,frame=single]{tf}
+resource "aws_subnet" "example_subnet" {
+    vpc_id            = aws_vpc.example_vpc.id
+    cidr_block        = "10.0.1.0/24"
+    availability_zone = "eu-central-1"
+}
+resource "aws_vpc" "example_vpc" {
+    cidr_block = "10.0.0.0/16"
+}
+\end{minted}
+
+Dabei zeigt sich auch der deklarative Aspekt von Terraform. Die Resource \glqq aws_subnet\grqq{} mit dem Namen \glqq example_subnet\grqq{} kommt als erstes im Code vor, referenziert jedoch das VPC \glqq example_vpc\grqq{}. Durch diese impliziete Abhängigkeit wird die Resource \glqq example_vpc\grqq{} als erstes erstellt. Man beschreibt also, \textit{was} benötigt wird. \textit{Wie} und in welcher Reihenfolge das Rollout gemacht wird, obliegt Terraform.
+
+\textbf{\underline{Module}}
+%https://www.terraform.io/docs/language/modules/syntax.html
+%https://web.archive.org/web/20210323202054if_/https://www.terraform.io/docs/language/modules/syntax.html
+Terraform Module sind \textit{Container}, die mehrere Resources in *.tf-Dateien zusammenfassen. Es ist zwar möglich, alle Resources in einer großes *.tf-Datei zu konfigurieren, allerdings ist es \textit{best practice}, verschiedene Aspekte wegen der Übersichtlichkeit aufzuteilen und in einer geeigneten Ordnerstruktur unterzubringen. Die jeweiligen Dateien innerhalb eines Ordners heißen dann \underline{main.tf}. Um Attribute an andere Module weiterzugeben, werden \textit{Outputs} genutzt. 
+
+\textbf{\underline{Data Source und Outputs}}
+Data Sources führen keine Änderung herbei, sondern werden genutzt, um detaillierte Informationen zu Infrastruktur-Komponenten zurückzugeben oder um etwas zu finden. Im Beispiel wird nach einem Amazon Machine Image (AMI) für Ubuntu gesucht. Die ID (image\_id) für das \textit{most recent} Release kann per Output an andere Module weitergegeben werden. Diese können die ID dann z.B. nutzen, um per Resource eine virtuelle Maschine mit dem gewünschten Ubuntu-Image bereitzustellen.
+
+\begin{minted}[breaklines,frame=single]{tf}
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  owners = ["099720109477"] # Canonical
+}
+output "ubuntu_ami_id" {
+  value = data.aws_ami.ubuntu.image_id
+}
+\end{minted}
+
+\subsection{IP-Adressverwaltung}
+%Kuchenbild?
+
+\ifFalse
+siehe Vorauswahl Use-Case 1
+ Im  Gegensatz  zu  anderen  Automatisierungsfra-meworks  wie  Ansible  werden  durch  die  implizite  Referenzierung  zwischen  RessourcenInfrastruktur-Abhängigkeiten aufgelöst. Die Reihenfolge von Resource-Aufrufen innerhalbder Terraform-Module spielt keine Reihenfolge. So lassen sich komplexere Infrastruktureninstallieren, ohne die Abhängigkeiten manuell auflösen zu müssen. Ressourcen, die keineAbhängigkeiten zueinander haben, werden parallel installiert.
+\fi

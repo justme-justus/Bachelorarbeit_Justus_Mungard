@@ -436,7 +436,8 @@ root@openvpn-client:~# dig +short vpn.ba.mungard.de A
 %normal
 Weiter wurde getestet, ob sich ein VPN-Client mit dem lokalen VPN-Konzentrator verbindet, hier wieder Azure:
 Der Filterausdruck ist für IPv4-Adressen und macht das Verbindungs-Log übersichtlicher.
-\begin{lstlisting}[label=connection-to-vpn-normal,caption=.]
+%begin{lstlisting}[label=connection-to-vpn-normal,caption=.]
+\begin{minted}[breaklines,frame=single]{text}
 ubuntu@vpn-client-azure:~$ sudo openvpn --config config.ovpn 2>&1 | grep -E '(([0-9]{,3})\.){3}[0-9]{,3}'
 Wed May 12 11:27:26 2021 TCP/UDP: Preserving recently used remote address: [AF_INET]94.245.93.144:61231
 Wed May 12 11:27:26 2021 UDP link remote: [AF_INET]94.245.93.144:61231
@@ -446,19 +447,22 @@ Wed May 12 11:27:27 2021 PUSH: Received control message: 'PUSH_REPLY,dhcp-option
 Wed May 12 11:27:27 2021 ROUTE_GATEWAY 10.42.0.1/255.255.255.0 IFACE=eth0 HWADDR=00:0d:3a:dc:ec:4f
 Wed May 12 11:27:27 2021 /sbin/ip addr add dev tun0 10.32.1.2/24 broadcast 10.32.1.255
 Wed May 12 11:27:27 2021 /etc/openvpn/update-systemd-resolved tun0 1500 1557 10.32.1.2 255.255.255.0 init
-<14>May 12 11:27:27 update-systemd-resolved: Adding IPv4 DNS Server 192.168.201.1
+May 12 11:27:27 update-systemd-resolved: Adding IPv4 DNS Server 192.168.201.1
 Wed May 12 11:27:27 2021 /sbin/ip route add 10.32.0.0/16 via 10.32.1.1
 Wed May 12 11:27:27 2021 /sbin/ip route add 10.33.0.0/16 via 10.32.1.1
 Wed May 12 11:27:27 2021 /sbin/ip route add 192.168.201.0/24 via 10.32.1.1
-\end{lstlisting}
+\end{minted}
+%end{lstlisting}
 
 Um den Fallback zu testen, wurde eine spezielle iptables-Regel eingerichtet, die ausgehende Pakete, in denen der String \glqq vpn\grqq{} (für vpn.ba.mungard.de - DNS ist Klartext!) enthalten ist, verwirft. vpn-default ist hingegen erlaubt: die Regel wird über der erstgenannten Regel ausgewertet.
 
-\begin{lstlisting}[label=iptables-drop-dns,caption=.]
+%begin{lstlisting}[label=iptables-drop-dns,caption=.]
+\begin{minted}[breaklines,frame=single]{bash}
 $ sudo iptables-save | grep vpn
 -A OUTPUT -p udp -m string --string "default-vpn" --algo bm --to 65535 -m udp --dport 53 -j ACCEPT
 -A OUTPUT -p udp -m string --string "vpn" --algo bm --to 65535 -m udp --dport 53 -j DROP
-\end{lstlisting}
+\end{minted}
+%end{lstlisting}
 
 Die Domain vpn.ba.mungard.de ist daraufhin nicht mehr auflösbar, default-vpn.ba.mungard.de hingegen schon.
 
