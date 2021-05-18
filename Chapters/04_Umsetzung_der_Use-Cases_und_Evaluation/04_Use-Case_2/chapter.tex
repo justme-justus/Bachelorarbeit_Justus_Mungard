@@ -282,7 +282,7 @@ data "terraform_remote_state" "base_deployment" {
 \end{lstlisting}
 
 Der Remote-State-Import dauert einen kurzen Moment, wird aber in der folgenden Betrachtung vernachlässigt.
-Effektiv ist die Laufzeit des Deployments damit:\\
+Unter der Annahme, dass Use-Case 1 bereits deployet wurde, ist die Laufzeit des Deployments effektiv:\\
 $t_{gesamt} = t_{Infrastruktur_{U2}}$
 
 Im Allgemeinen hat sich dieser \glqq Teile-und-herrsche\grqq{}-Ansatz im Zusammenspiel mit Terraform als sehr hilfreich erwiesen, um Konsistenz-Probleme der asynchronen Cloud-APIs während der Deployment-Phase zu verringern \cite[S.183-184]{Brikman2019}. Probleme während des Deployments entstanden v.a. dann, wenn \glqq zu viele\grqq{} Abhängigkeiten der Infrastruktur-Komponenten im Spiel waren. Für die Verschaltung von \textit{gesplitteten} Terraform-Deployments eignet sich das Werkzeug Terragrunt \cite[S.98]{Brikman2019}.
@@ -297,7 +297,7 @@ Folgende Fehlermeldung meldet das Amazon Dashboard beim Versuch, diese Route anz
 
 \begin{figure}[h]
   \centering
-  \includegraphics{Figures/more_specific_not_allowed_aws.PNG}
+  \includegraphics[scale=0.4]{Figures/more_specific_not_allowed_aws.PNG}
   \caption{BLUB}
   \label{grafik:more_specific_not_allowed_aws}
 \end{figure}\FloatBarrier

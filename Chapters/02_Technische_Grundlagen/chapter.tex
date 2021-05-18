@@ -5,41 +5,69 @@
 %OSI https://web.archive.org/web/20210225232853/https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-X.200-199407-I!!PDF-E&type=items
 Das Internet Protocol ist im OSI-Modell auf Schicht 3 (Network-Layer) anzusiedeln. Es dient der \textit{Paketierung} von Daten und anschließenden Ende-zu-Ende-Vermittlung dieser \textit{Pakete} zwischen Netzwerk-Systemen. Dafür notwendig ist eine Adressierung: eine IPv4-Adresse besteht aus einer 32 Bit-Zahl, welche typischerweise dezimal dargestellt wird in so genannter \glqq dotted decimal\grqq{}-Schreibweise. Dafür wird die Binärzahl in vier Oktette mit einem Punkt aufgeteilt und die jeweiligen Oktette in dezimal umgerechnet.
 
-00000001000000100000001100000100 (32-Bit Integer) ->  00000001.00000010.00000011.00000100 (dotted binary) -> 1.2.3.4 (dotted decimal)
-
+{\centering 32 Bit Integer:\\
+\textbf{00000001 0000001 000000011 00000100}\\
+$\Downarrow$\\
+\glqq Dotted Binary\grqq{}:\\
+\textbf{00000001.00000010.00000011.00000100}\\
+$\Downarrow$\\
+Dotted Decimal (bekannte Schreibweise):\\
+{\textbf{1.2.3.4}}\\
+}\par\\~\\
 Mit Hilfe von Netzmasken wird die Netzwerkgröße bestimmt. Der Host mit der IP-Adresse 1.2.3.4 und einer Netzmaske von bspw. 255.255.255.0. Diese Netzmaske entspricht in dotted binary:
 
-11111111.11111111.11111111.00000000
+{\centering\textbf{11111111.11111111.11111111.00000000}\par}
 
 Die ersten 24 Bit sind für das Netzwerk reserviert (Network bits), die letzte 8 Bit sind Host bits. Dieses Netzwerk kann somit theoretisch aus $2^8 = 256$ Hosts bestehen, wobei die erste und letzte Adresse reserviert sind (Netzwerkadresse und Broadcast-Adresse).
 
 Heutzutage üblich ist die so genannte CIDR-Notation, welche IP-Addresse und Subnetzmaske vereint. Wenn man die erwähnten Beispiele aus Adresse und Subnetzmaske zusammenführt, erhält man die IP-Adresse in CIDR-Notation: 1.2.3.4/24. /24 entspricht dabei den gesetzten Network bits.
 
-Mit Hilfe der IP-Adresse und Netzmaske lässt sich ermitteln, ob sich ein anderer Host im gleichen \textit{Subnetz} befindet. Dafür berechnet man die Netzwerkadresse per logisch-AND:
+Mit Hilfe der IP-Adresse und Netzmaske lässt sich ermitteln, ob sich ein anderer Host im gleichen \textit{Subnetz} befindet. Dafür berechnet man zuerst (ebenso wie ein Programm!) die eigene Netzwerkadresse per logical-AND aus eigener IP und Netzmaske:
 
-\begin{lstlisting}[label=local-ip-address-AND-subnet,caption=Blub]
-... 00000001.00000010.00000011.00000100
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{text}
+    00000001.00000010.00000011.00000100
 AND 11111111.11111111.11111111.00000000
-  = 00000001.00000010.00000011.00000000 => Netzwerkadresse: 1.2.3.0/24
-\end{lstlisting}
+  = 00000001.00000010.00000011.00000000
+  => Netzwerkadresse: 1.2.3.0/24
+\end{minted}
+\label{own-ip-address-AND-subnet}
+\caption{Ermittlung der Netzwerkadresse durch 1.2.3.4 AND 255.255.255.0}
+\end{listing}
     
-Hat man nun zwei Hosts 1.2.3.240 und 8.9.10.23, mit denen man eine IP-Verbindung aufbauen will, so prüft der Initiator zuerst, ob das jeweilige Netz \textit{link-lokal} erreichbar ist, also im gleichen IP-Netzwerk wie der Initiator liegt.
+Hat man nun zwei Hosts 1.2.3.240 und 8.9.10.23, mit denen man eine IP-Verbindung aufbauen will, so prüft der Initiator zuerst, ob das jeweilige Netz \textit{link-lokal} erreichbar ist, also im gleichen IP-Netzwerk wie der Initiator liegt. Es ist verhält sich ähnlich zu vorherigem Beispiel, nur dass an dieser Stelle die IP der Gegenstelle genutzt wird.
 
 Für 1.2.3.240:
 
-\begin{lstlisting}[label=local-ip-address-AND-subnet-same,caption=Blun]
-... 00000001.00000010.00000011.11110000
+%gleiche Adresse wie in Listing... 
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{text}
+    00000001.00000010.00000011.11110000
 AND 11111111.11111111.11111111.00000000
-  = 00000001.00000010.00000011.00000000 => Netzwerkadresse: 1.2.3.0/24 (gleiche Netzwerkadresse wie oben, link-lokal erreichbar)
-\end{lstlisting}
+  = 00000001.00000010.00000011.00000000
+  => Netzwerkadresse: 1.2.3.0/24
+\end{minted}
+\label{local-ip-address-AND-subnet}
+\caption{1.2.3.240 AND 255.255.255.0}
+\end{listing}
+
+In diesem Beispiel ist die Netzwerkadresse die gleiche (s.o. Listing...), daher kann das Paket link-lokal zum Ziel gesendet werden.
 
 Für 8.9.10.23:
 
-\begin{lstlisting}[label=local-ip-address-AND-subnet-different,caption=Blub]
+%\begin{lstlisting}[label=local-ip-address-AND-subnet-different,caption=Blub]
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{text}
 ... 00001000.00001001.00001010.00010111
 AND 11111111.11111111.11111111.00000000
-  = 00001000.00001001.00001010.00010111 => Netzwerkadresse: 8.9.10.0/24 (andere Netzwerkadresse: das Paket muss \textit{geroutet} werden)
-\end{lstlisting}
+  = 00001000.00001001.00001010.00010111
+  => Netzwerkadresse: 8.9.10.0/24
+\end{minted}
+\label{remote-ip-address-AND-subnet}
+\caption{8.9.10.23 AND 255.255.255.0}
+\end{listing}
+
+Da in diesem Fall das Netzwerk außerhalb des eigenen liegt, muss das Paket \textit{geroutet}, also zu einem Router geschickt werden.
 
 \subsection{RFC 1918-Adressen}
 %https://datatracker.ietf.org/doc/html/rfc1918
@@ -70,7 +98,7 @@ In der Praxis sieht man kaum noch Endsysteme (darunter fallen Client und Server)
 Das Setzen der Default Route garantiert allerdings nicht, dass ein Ziel auch wirklich erreicht werden kann, z.B. weil es gar nicht existiert oder das Zielnetzwerk nicht in der Routing-Tabelle eines (Next-Hop-)Routers vorhanden ist. Ein Hilfsprotokoll zur Signalisierung von Erreichbarkeit ist dabei das Internet Control Message Protocol (ICMP). Das bekannte Werkzeug \textit{ping} nutzt Nachrichten in Form von ICMP Echo Request und ICMP Echo Response, um die Erreichbarkeit via IP eines Endsystems zu prüfen.
 \begin{figure}[h]
   \centering
-  \includegraphics{Figures/next_hop_routing_default_route.pdf}
+  \includegraphics[scale=0.95]{Figures/next_hop_routing_default_route.pdf}
   \caption{Next Hop Routing mit Default Route}
   \label{grafik: next_hop_routing_with_default_route}
 \end{figure}\FloatBarrier
@@ -92,7 +120,7 @@ Im Folgenden soll das Routing-Protokoll BGP betrachet werden. Dieses ist durch d
 
 \begin{figure}[h]
   \centering
-  \includegraphics{Figures/ebgp_peerings.pdf}
+  \includegraphics[scale=0.8]{Figures/ebgp_peerings.pdf}
   \caption{Beispielbild eBGP / iBGP Speaker}
   \label{grafik: ebgp_peerings}
 \end{figure}\FloatBarrier
@@ -103,7 +131,7 @@ Anmerkung: R2-AS10 kann mit dem Next-Hop 10.0.0.1 aus der Tabelle nichts anfange
 
 \begin{figure}[h]
   \centering
-  \includegraphics{Figures/ebgp_peerings_additional_connection.pdf}
+  \includegraphics[scale=0.8]{Figures/ebgp_peerings_additional_connection.pdf}
   \caption{Beispielbild eBGP / iBGP Speaker mit weiterer Verbindung}
   \label{grafik: ebgp_peerings_additional_connection}
 \end{figure}\FloatBarrier
@@ -142,7 +170,7 @@ Im Beispiel werden drei Clients hinter einem Router geNATtet. Alle eingehenden P
 
 \begin{figure}[h]
   \centering
-  \includegraphics{Figures/napt.pdf}
+  \includegraphics[scale=0.90]{Figures/napt.pdf}
   \caption{Beispiel Network Address Translation}
   \label{grafik: napt}
 \end{figure}\FloatBarrier
@@ -183,28 +211,28 @@ Endgeräte machen diese iterative Namensauflösung typischerweise nicht selbst, 
   \label{grafik: dns-resolver}
 \end{figure}\FloatBarrier
 
-\begin{lstlisting}[label=dig-example-fh-kiel,caption=Eine DNS-Auflösung für einen A-Record (www01.fh-kiel.de) gegen den Resolver von Google (8.8.8.8)]
-$ dig www01.fh-kiel.de A @8.8.8.8
-
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
+$ dig www01.fh-kiel.de @8.8.8.8 | grep -v '^$'
 ; <<>> DiG 9.11.9 <<>> www01.fh-kiel.de @8.8.8.8
 ;; global options: +cmd
 ;; Got answer:
-;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 56486
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 11777
 ;; flags: qr rd ra ad; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 1
-
 ;; OPT PSEUDOSECTION:
 ; EDNS: version: 0, flags:; udp: 512
 ;; QUESTION SECTION:
 ;www01.fh-kiel.de.              IN      A
-
 ;; ANSWER SECTION:
-www01.fh-kiel.de.       21425   IN      A       149.222.20.63
-
-;; Query time: 20 msec
+www01.fh-kiel.de.       21599   IN      A       149.222.20.63
+;; Query time: 60 msec
 ;; SERVER: 8.8.8.8#53(8.8.8.8)
-;; WHEN: Sun May 16 15:55:30 CEST 2021
+;; WHEN: Tue May 18 22:21:45 CEST 2021
 ;; MSG SIZE  rcvd: 61
-\end{lstlisting}
+\end{minted}
+\label{dig-example-fh-kiel}
+\caption{Eine DNS-Auflösung für einen A-Record (www01.fh-kiel.de) gegen den Resolver von Google (8.8.8.8)}
+\end{listing}
 
 
 
@@ -233,7 +261,7 @@ In diesem Beispiel werden Daten von Client A zu Client B über das Internet zwis
 
 \begin{figure}[h]
   \centering
-  \includegraphics{Figures/vpn-example.pdf}
+  \includegraphics[scale=0.75]{Figures/vpn-example.pdf}
   \caption{Übertragung eines IP-Pakets über einen VPN-Tunnel}
   \label{grafik: vpn-example}
 \end{figure}\FloatBarrier
@@ -318,7 +346,7 @@ terraform {
 }
 \end{minted}
 
-\textbf{\underline{Resource}}
+\textbf{\underline{Resource}}\\
 Resources erstellen Infrastuktur-Komponenten und statten diese mit den richtigen Parametern aus. Folgend wird ein VPC mit dem CIDR-Block 10.0.0.0/16 und ein darunterliegendes Subnet 10.0.1.0/24 erstellt.
 
 \begin{minted}[breaklines,frame=single]{tf}
@@ -334,12 +362,12 @@ resource "aws_vpc" "example_vpc" {
 
 Dabei zeigt sich auch der deklarative Aspekt von Terraform. Die Resource \glqq aws_subnet\grqq{} mit dem Namen \glqq example_subnet\grqq{} kommt als erstes im Code vor, referenziert jedoch das VPC \glqq example_vpc\grqq{}. Durch diese impliziete Abhängigkeit wird die Resource \glqq example_vpc\grqq{} als erstes erstellt. Man beschreibt also, \textit{was} benötigt wird. \textit{Wie} und in welcher Reihenfolge das Rollout gemacht wird, obliegt Terraform.
 
-\textbf{\underline{Module}}
+\textbf{\underline{Module}}\\
 %https://www.terraform.io/docs/language/modules/syntax.html
 %https://web.archive.org/web/20210323202054if_/https://www.terraform.io/docs/language/modules/syntax.html
 Terraform Module sind \textit{Container}, die mehrere Resources in *.tf-Dateien zusammenfassen. Es ist zwar möglich, alle Resources in einer großes *.tf-Datei zu konfigurieren, allerdings ist es \textit{best practice}, verschiedene Aspekte wegen der Übersichtlichkeit aufzuteilen und in einer geeigneten Ordnerstruktur unterzubringen. Die jeweiligen Dateien innerhalb eines Ordners heißen dann \underline{main.tf}. Um Attribute an andere Module weiterzugeben, werden \textit{Outputs} genutzt. 
 
-\textbf{\underline{Data Source und Outputs}}
+\textbf{\underline{Data Source und Outputs}}\\
 Data Sources führen keine Änderung herbei, sondern werden genutzt, um detaillierte Informationen zu Infrastruktur-Komponenten zurückzugeben oder um etwas zu finden. Im Beispiel wird nach einem Amazon Machine Image (AMI) für Ubuntu gesucht. Die ID (image\_id) für das \textit{most recent} Release kann per Output an andere Module weitergegeben werden. Diese können die ID dann z.B. nutzen, um per Resource eine virtuelle Maschine mit dem gewünschten Ubuntu-Image bereitzustellen.
 
 \begin{minted}[breaklines,frame=single]{tf}
@@ -360,10 +388,12 @@ output "ubuntu_ami_id" {
 }
 \end{minted}
 
-\subsection{IP-Adressverwaltung}
-%Kuchenbild?
+\subsection{IP Address Management (IPAM)}
+Ein IPAM ist wichtig, insofern die Adressverwaltung automatisiert werden soll. Statisch konfigurierte CIDR-Blöcke im Code sorgen für eine schlechte Wiederverwendbarkeit und Skalierbarkeit von Modulen. IP-Blöcke müssen dann jedes Mal händisch reserviert und in den gewünschten Modulen untergebracht werden. Einfacher ist es, im Modul lediglich festzulegen, welche Subnetzgröße erforderlich ist: ein IPAM gibt dann den nächsten freien Block in der Größe zurück. Es wird lediglich ein großer Block vorreserviert, aus dem die freien Blöcke entnommen werden können.
 
-\ifFalse
-siehe Vorauswahl Use-Case 1
- Im  Gegensatz  zu  anderen  Automatisierungsfra-meworks  wie  Ansible  werden  durch  die  implizite  Referenzierung  zwischen  RessourcenInfrastruktur-Abhängigkeiten aufgelöst. Die Reihenfolge von Resource-Aufrufen innerhalbder Terraform-Module spielt keine Reihenfolge. So lassen sich komplexere Infrastruktureninstallieren, ohne die Abhängigkeiten manuell auflösen zu müssen. Ressourcen, die keineAbhängigkeiten zueinander haben, werden parallel installiert.
-\fi
+\begin{figure}[h]
+  \centering
+  \includegraphics{Figures/ipam_cake.pdf}
+  \caption{Beispielbild IPAM}
+  \label{grafik: ipam_ip_reservation}
+\end{figure}\FloatBarrier

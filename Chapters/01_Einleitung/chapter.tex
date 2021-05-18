@@ -1,6 +1,71 @@
-%Alle Codebeispiele finden sich im Github
 %SASE? https://en.wikipedia.org/wiki/Secure_Access_Service_Edge
-blub
+%keine KMU => kleine und mittlere Skalierungen
+\chapter{Einleitung}
+
+Viele Kunden der NetUSE AG wechseln auf Cloud-basierte Dienste, um ehemals hausinterne IT-Infrastruktur dorthin zu verlagern bzw. zu erweitern. Auf der technischen Ebene spricht dafür oftmals, dass passende Infrastruktur für einen Dienst \texit{on premise}\footnote{\url{https://web.archive.org/web/20200515145106/https://www.cloudcomputing-insider.de/was-ist-on-premises-a-623402/}} nicht zur Verfügung steht. \textit{Entscheider} sehen in der Cloud eine Möglichkeit der Kosteneinsparung zusammen mit einer besseren Aufschlüsselung, welche Kosten für den Betrieb eines Dienstes verursacht werden. Kosten bspw. für den Aufbau und Betrieb können sich in der konventionellen Infrastruktur über verschiedene Teams erstrecken. Das wären bspw. bei der NetUSE AG: Server-Einbau und -Installation (Team \glqq{Infrastruktur}\grqq{}), Netzwerk-Anbindung (Team \glqq{Netzwerk}\grqq{}), Pflege von Firewall-Regeln (Team \glqq{Security}\grqq{}).\\
+In der Cloud werden diese Schritte zusammengefasst und per Knopfdruck können Maschinen deployed\footnote{\url{https://web.archive.org/web/20190430104856/https://www.cloudcomputing-insider.de/was-ist-deployment-a-614153/}} werden. Dies passiert in größeren Skalierungen automatisiert, z.B. Skript-gesteuert oder mit Hilfe von Automatisierungs-Frameworks wie Ansible\foo/tnote{\url{https://web.archive.org/web/20200917042646/https://docs.ansible.com/ansible/latest/index.html}} oder Terraform\footnote{\url{https://web.archive.org/web/20201003060715if\_/https://www.terraform.io/intro/index.html}}, wobei Cloud-Anbieter die passenden Schnittstellen zur Orchestrierung\footnote{\url{https://web.archive.org/web/20201027094107/https://www.redhat.com/de/topics/automation/what-is-orchestration}} anbieten.\\
+Cloud-Dienste bringen damit einen Paradigmenwechsel in die IT-Landschaft: Server, auf denen gewünschte Dienste installiert sind, sind nicht mehr vor Ort beim Kunden oder bei einem Managed Service Provider\footnote{\url{https://web.archive.org/web/20201010111438/https://www.it-business.de/was-ist-ein-managed-service-provider-msp-a-577911/}} angesiedelt. Typische Prozesse wie die Grundinstallation eines Betriebssystems erübrigen sich. Analog dazu sind viele Software-Lösungen bereits über einen Cloud-Marketplace erhältlich, so dass diese gleich mit der Initialisierung der Cloud-Instanz starten.\\
+Ebenso gibt es in der Cloud keine klassische Netzwerk-Infrastruktur: Broadcast-fähige Layer-2-Domänen, welche ursprünglich notwendig waren, um lokale Netzwerkteilnehmer (ARP [IPv4] bzw. Neighbor Discovery [IPv6]) zu finden, werden nicht mehr benötigt: Die Cloud \textit{kennt} naturgemäß alle Teilnehmer und es ist nach Belieben möglich, Konnektivität zwischen diesen zu erlauben bzw. zu verbieten.\\
+Netzwerke in der Cloud sind Software-Defined (SDN)\footnote{\url{https://web.archive.org/web/20151002095242/http://www.heise.de/ix/heft/Losgelassen-2556771.html}}, was zur Folge hat, dass gewohnte Werkzeuge eines Netzwerk-Ingenieurs wegfallen, während gleichzeitig neue dazu gekommen sind, um Netzwerke (wieder-)herzustellen.\\
+Die NetUSE AG sieht zur Zeit zwei \texit{public Cloud}-Anbieter für ihr Geschäft im Fokus: Amazon Web Services (AWS) und Microsoft Azure. Weiterhin unterstützt die Firma Kunden beim Aufbau einer \glqq{private Cloud}\grqq{} mit Red Hat OpenShift. Unterhält ein Unternehmen mehr als eine Cloud-Plattform, wird dies als Hybrid-Cloud bezeichnet.\footnote{\url{https://web.archive.org/web/20201025235403/https://www.redhat.com/de/topics/cloud-computing/what-is-hybrid-cloud}}\\
+Eine Vernetzung zwischen den Plattformen ist nicht trivial, insofern man nicht mit öffentlicher IP-Adressierung jeder Maschine in der Cloud arbeiten möchte.
+Die Bachelor-Arbeit zielt darauf ab, wie ein möglichst generisches \texit{Netzwerk-Overlay}\footnote{\url{https://web.archive.org/web/20180610164252/https://link.springer.com/referenceworkentry/10.1007\%2F978-0-387-39940-9\_1231}} zwischen verschiedenen Cloud-Anbietern herzustellen ist. Dies soll automatisiert passieren, sodass eine IP-Konnektivität neuer Maschinen und \glqq{Cloud-Domänen}\grqq{} über die Anbietergrenzen hinweg in kurzer Zeit gegeben ist. Die Konfigurationen sollen möglichst über die bereits verfügbaren Schnittstellen der Anbieter stattfinden. Sobald die Netzwerkumgebung zur Verfügung steht, soll anhand typischer Use-Cases von kleinen und mittelständischen Unternehmen gezeigt werden, wie typische (Server-)Dienste und Fail-Over-Szenarien\footnote{\url{https://web.archive.org/web/20201202083146/https://www.itwissen.info/failover-Failover.html}} in einem Cloud-Netzwerk abgebildet werden können.
+
+\chapter{Inhalt und Ziel}
+\section{Ziel}
+
+Es existieren bereits proprietäre Lösungen am Markt, um eine Vernetzung über Cloud-Anbieter hinweg zu ermöglichen. Sie fallen in die Kategorie \textit{Software-Defined Wide Area Network (SD-WAN)} und sind nicht interoperabel zu SD-WAN-Lösungen anderer Hersteller.\\
+Ziel der Arbeit wird sein, ein möglichst agnostisches Netzwerk-Overlay zwischen verschiedenen Cloud-Plattformen herzustellen. Es soll gezeigt werden, wie neue Cloud-Instanzen automatisiert in das Netzwerk des Inhabers eingebunden werden, so dass sie für alle berechtigten Teilnehmer über eine vom Internet isolierte Netzwerk-Infrastruktur erreichbar sind. Dies soll möglichst mit freier, offener Software und RFC-konformen Protokollen\footnote{\url{https://web.archive.org/web/20200912183838/https://www.ietf.org/standards/rfcs/}} geschehen.\\
+Interessant ist diese Lösung bspw. für Unternehmen, welche die Lizenzkosten für proprietäre Lösungen sparen wollen oder bevorzugt auf offene Systeme bzw. Standards setzen, welche eine hohe Interoperabilität zu anderen Systemen versprechen. Auch können so auf eine schnelle Art und Weise neue Cloud-Netzwerke in die konventionelle Firmen-Infrastruktur eingebunden werden.
+
+\section{Inhalt}
+%Es soll ein Katalog erstellt werden, welcher typische Anforderungen von kleinen und mittelständischen Kunden der NetUSE AG auflistet. Dieser umfasst vsl. Punkte der Skalierbarkeit, Orchestration, Performanz und Sicherheit hinsichtlich einer Cloud-Vernetzung.\\
+%Da die NetUSE AG jahrelanger Partner des Netzwerk-Ausrüsters Cisco ist, soll untersucht werden, welche Lösungen in diesem Feld bereits von Cisco angeboten werden. Dabei wird der entworfene Anforderungskatalog zu Hilfe genommen.\\
+%Aus diesem Erkenntnisgewinn soll ein Design für eine offene Lösung erarbeitet und in einem Proof-of-Concept manifestiert werden. Um eine Automatisierung zu erlangen, werden evtl. Programmierarbeiten erforderlich.\\
+Es sollen verschiedene Use-Cases erarbeitet werden, die im Kontext einer Cloud-Vernetzung geeignet erscheinen, um verschiedene Netzwerkdienste (redundant) anzubieten. Grundlegend wird davon ausgegangen, dass ein Kunde diese Dienste sowohl bei sich vor Ort als auch bei den Cloud-Providern Amazon Web Services und Microsoft Azure in Anspruch nehmen möchte, um eine Hochverfügbarkeit bzw. einen Lastenausgleich zu erreichen.\\
+Im ersten Schritt muss dafür ein geeignetes Design für die Vernetzung zwischen den verschiedenen Standorten gefunden werden. Dieses Design soll mit Hilfe geeigneter technischer Werkzeuge umgesetzt werden und dient im Anschluss als Grundlage für die Abbildung der vorher definierten Use-Cases.
+Diese technisch abgebildeten Use-Cases sind im Einzelnen als Proof-of-Concept anzusehen und sollen abschließend in Bezug auf im Voraus formulierte Anforderungen und Kriterien analysiert und bewertet werden.
+Es ist davon auszugehen, dass im Rahmen der Umsetzung der Autor mit diversen technischen Problemen konfrontiert sein wird. Die Analyse und Diskussion dieser Problemstellungen soll zu geeigneten Lösungsansätzen führen.
+
+\subsection{Aspekte, die die Bachelor-Arbeit herausstellen soll}
+\begin{itemize}
+    \item Kein Vendor Lock-In\footnote{\url{https://web.archive.org/web/20200919040133/https://journalofcloudcomputing.springeropen.com/articles/10.1186/s13677-016-0054-z}} des Cloud-Anbieters, da das Netzwerk über mehrere Cloud-Anbieter gespannt wird
+    \item Möglichkeit der Hochverfügbarkeit und des Lastenausgleichs für Netzwerkdienste über mehrere Cloud-Plattformen hinweg
+    \item Projekte oder Dienste, die eine bestimmte Cloud-Plattform erfordern, können einfach für weitere (Cloud-)Standorte verfügbar gemacht werden
+    \item Latenz- oder Bandbreitenanforderungen können durch eine Hybrid-Cloud-Strategie u.U. besser eingehalten werden
+    \item Neue Cloud-Netzwerke können dynamisch und automatisiert aufgebaut werden und sind im Anschluss für alle berechtigten Teilnehmer verfügbar
+\end{itemize}
+
+\subsection{Fragestellungen, auf die diese Arbeit eingehen wird}
+\begin{itemize}
+    \item Mit Hilfe welcher Technologien und Systemkomponenten lässt sich so eine Lösung aufbauen?
+    \item Welche Schnittstellen werden bei den jeweiligen Cloud-Plattformen angeboten, um eine automatisierte Vernetzung zu bewerkstelligen?
+    \item Welche Werkzeuge können mit diesen Schnittstellen genutzt werden?
+    \item Welche Netzwerk-Topologien bieten sich an, um mehrere Cloud-Plattformen miteinander zu verbinden?
+    \item Welche Netzwerk-Protokolle bieten sich an, um mehrere Cloud-Plattformen miteinander zu verbinden?
+    \item Wie kann eine hohe Sicherheit im Netzwerkverkehr zwischen den Plattformen gewährleistet werden, um fremde Zugriffe zu verhindern?
+    \item Sind Bandbreiten- und Latenzanforderungen in typischen Szenarien erfüllbar? Wie kann u.U. ein Lastenausgleich herbeigeführt werden?
+\end{itemize}
+
+\subsection{Abgrenzung der Arbeit}
+
+\begin{itemize}
+%Nicht Overlay... Abstraktion, um per IPv4 eine Ende-zu-Ende-Konnektivität herzustellen
+\item Es wird herausgearbeitet, wie ein IPv4-Overlay geschaffen werden kann. Dies soll mit privaten RFC1918-Adressen geschehen und dies automatisiert evtl. unter Zuhilfenahme eines IP Adressmanagements (IPAM)\footnote{\url{https://www.ip-insider.de/was-ist-ipam-ip-address-management-a-771675/}}. Öffentliche IPv4-Netzwerke werden nicht berücksichtigt.
+\item IPv6-Adressierung wird in dieser Arbeit nicht berücksichtigt: IPv6-Unterstützung ist auf den Cloud-Plattformen teilweise eingeschränkt und Kunden nutzen meist noch IPv4 für interne Adressierungen.
+\item Broadcast- und Multicast-Anwendungen werden in den Use-Cases nicht berücksichtigt. Auch hier gibt es nur eingeschränkte Unterstützung seitens der Cloud-Dienstleister.
+%\item Hochverfügbarkeit von Internetdiensten (bspw. ein MySQL-Cluster) über mehrere Cloud-Plattformen hinweg ist nicht Teil der Bachelor-Arbeit.
+\item Weitere Cloud-Anbieter wie Google oder IBM werden nicht berücksichtigt. Das Hauptaugenmerk liegt auf Amazon Web Services, Microsoft Azure und der Integration von \textit{klassischer} Netzwerk-Infrastruktur, wie man sie bei typischen kleinen und mittelständischen Unternehmen der NetUSE AG vorfindet.
+\item Typische On-Premise Cloud-Lösungen wie OpenStack oder OpenShift werden auf Grund ihrer hohen Komplexität in der Bachelor-Arbeit nicht berücksichtigt. Solche Standorte sollen in der Bachelor-Arbeit durch eine Abstraktion dargestellt werden. Darauf wird in der Bachelor-Arbeit näher eingangen.
+\item Vernetzungskonzepte \textit{innerhalb} eines Cloud-Netzwerkes sind nicht Teil der Bachelor-Arbeit. Sie werden aber evtl. zur Bearbeitung bestimmter Use-Cases benötigt. Ggf. werden diese Konzepte dann genauer erläutert.
+\item Die zu bearbeitenden Use-Cases und Fail-Over-Szenarien werden im Verlauf der Bachelor-Arbeit aufgeschlüsselt und sind nicht Teil dieses Proposals.
+% auch SLA genannt
+\item Entgegen des initialen Proposals zielt die Arbeit nicht mehr auf kleine und mittelständische Unternehmen, sondern auf kleine bis mittelgroße \textbf{Skalierungen} ab. Es hat sich während der praktischen Bearbeitung der Use-Cases herausgestellt, dass die genutzten Technologien so robust sind, dass ein Einsatz auch im \glqq größeren \textbf{technischen} Rahmen\grqq{} machbar ist. Aus technischer Sicht stellt sich nicht die Frage, wie \glqq groß\grqq{} ein Kunde ist, sondern welche Anforderungen (Latenz, Bandbreite, Uptime, etc.) in der Praxis tatsächlich vorherrschen. Es wird daher zum Ende der Arbeit noch ein Ausblick gegeben, wie beliebig große Skalierungen mit schärferen Performance-Kriterien, neben den erarbeiteten Lösungsvorschlägen, auch bedient werden können. 
+%Kein Best Practice Security, DH etc...
+
+%BFD, SLA, QoS, VNET / VPC Peering / Microsoft SDWAN / TG?
+
+\end{itemize}
 
 \ifFalse
 Serifen Schrit für Programmnamen?
@@ -22,4 +87,5 @@ Linux-Grundlagen werden vorausgesetzt, iptables, cat, head, tail,
 Alle Zeichnungen wurden draw.io gemacht. Auch die Shapes entstammen draw.io
 Monospace für Programmaufrufe
 Unterstrichen für Dateinamen
+Alle Codebeispiele finden sich im Github
 \fi

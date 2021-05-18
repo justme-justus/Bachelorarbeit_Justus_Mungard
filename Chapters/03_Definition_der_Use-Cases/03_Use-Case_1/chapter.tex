@@ -35,6 +35,7 @@ Weiterhin kann innerhalb der Tunnel BGP gesprochen werden, um ein dynamisches Ro
 %In technischen Grundlagen erwähnen: IaC, Provider, Module
 %Mozilla Public License v2.0[2]
 %Beispiel aus der Realität nennen: Switch - Kabel - Server
+%MIT TECHNISCHEN GRUNDLAGEN ABGLEICHEN!!!
 Für das automatisierte Deployment der Infrastruktur eignet sich Terraform der Firma Hashicorp. Es besitzt eine Vielzahl an \textit{Resources}, welche es ermöglichen, Infrastrukturkomponenten \texit{reproduzierbar} zu deployen. Im Gegensatz zu anderen Automatisierungsframeworks wie Ansible werden durch die implizite Referenzierung zwischen Ressourcen Infrastruktur-Abhängigkeiten aufgelöst.
 Die Reihenfolge von Resource-Aufrufen innerhalb der Terraform-Module spielt keine Reihenfolge. So lassen sich komplexere Infrastrukturen installieren, ohne die Abhängigkeiten manuell auflösen zu müssen. Ressourcen, die keine Abhängigkeiten zueinander haben, werden parallel installiert.
 
@@ -57,6 +58,7 @@ resource "aws_vpc" "example_vpc" {
 %https://blog.vyos.io/vyos-rolling-release-has-got-an-http-api
 %https://web.archive.org/web/20210405210638/https://docs.vyos.io/en/latest/automation/vyos-api.html
 
+%MIT TECHNISCHEN GRUNDLAGEN ABGLEICHEN!!!
 Darüber hinaus wird ein IPAM benötigt zur IPv4-Adressverwaltung. Die automatische Zuteilung von Adressbereichen darf nicht dazu führen, dass Adressbereiche mehrfach verteilt werden oder sich Adressbereiche überlappen. Gewählt wurde hier das Werkzeug PHPIPAM: Es lässt sich sehr gut mit Terraform integrieren, da ein entsprechender Provider zur Verfügung steht.\\
 Die VPN-Gateways, die das Backbone aufspannen, sind mit \textit{Virtual private gateway} bei AWS und \textit{VPN Gateway} bei Azure gesetzt. Dies sind die typischen \textit{Building-Blocks}, die von den Herstellern für VPN-Verbindungen angeboten werden. Nur wenn sich im Laufe der Arbeit herausstellen sollte, dass diese Systeme nicht interoperabel arbeiten, wird versucht, Alternativen zu finden. Als Router, der die Private Cloud repräsentiert, wurde ein VyOS Router gewählt. Dieser steht als Open Source zur Verfügung, es gibt allerdings auch bezahlten Support für Produktionsumgebungen. Der Router hat IPSEC- und BGP-Unterstützung und besitzt ein Command Line Interface, welches sich für das automatisierte Deployment mit Terraform als sehr vorteilhaft erweist, obwohl bisher kein Terraform Provider zur Verfügung steht (vgl. später). Eine REST-API steht ebenso zur Verfügung, aber diese ist zum Stand der Bachelor-Arbeit \textit{bleeding edge} und bisher eher dürftig dokumentiert. Die Annahme ist, dass der Router und das IPAM in der Private Cloud bereits vorhanden sind. Diese Komponenten sind nicht Teil des (Terraform-)Deployments.\\
 Prinzipiell lassen sich viele Router-Modelle nutzen, insofern die Unterstützung für genannte Techniken vorhanden ist, bspw. CSR 1000V der Firma Cisco \cite{Durai2016}. Der offene VyOS Router bietet den Vorteil, dass keine Lizenzen für die Nutzung hinterlegt werden müssen, was in vielen Fällen manuelle Konfigurationen erfordert. Außerdem hätten passende Lizenzen beschafft werden müssen, was u.U. zu Verzögerungen der Bachelor-Arbeit geführt hätte.
