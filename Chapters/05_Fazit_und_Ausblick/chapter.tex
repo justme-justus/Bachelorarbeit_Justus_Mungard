@@ -3,35 +3,88 @@
 %Gleiches Profil für alle VPN-Konzentratoren
 
 \section{Fazit}
-In dieser Arbeit konnte gezeigt werden, dass eine sichere und isolierte Hybrid Cloud-Vernetzung ohne den Einsatz von proprietären Herstellerlösungen möglich ist. Robuste und offen dokumentierte Technologien wie IPSEC, DNS und BGP, welche im Internet schon seit Jahrzehnten genutzt werden, haben auch in \glqq modernen\grqq{} Cloud-Umgebungen weiterhin ihre Berechtigung. Im Allgemeinen konnten die Vorerfahrungen des Autors aus dem \textit{klassischen} Netzwerkbereich gewinnbringend genutzt werden, um sie auf Ideen und Technologien des (hybriden) Cloud-Networkings zu übertragen: Am Ende des Tages werden auch in dieser Disziplin Pakete von A nach B geschickt et vice versa und auch die Cloud-Ingenieure der \textit{Big Player} AWS und Azure wollen nicht jedes Mal das Rad neu erfinden.\\
-Es reicht aber auch nicht, sich ausschließlich auf das vorhandene Skill-Set zu berufen. Es haben eben nicht mehr alle Paradigmen aus der \glqq alten Welt\grqq{} ihre Gültigkeit: Technologien kamen dazu, wurden neu erfunden oder es wurden alte Zöpfe abgeschnitten. So sind OSI-Layer 1 und 2 für den Netzwerk-Administrator in der Cloud quasi nicht existent und spielen keine Rolle mehr. Im Gegenzug muss dieser sich jedoch mit neuen Werkzeugen beschäftigen, das hier genutzte Automatisierungswerkzeug Terraform ist nur eines von vielen. Auch ein klassisches Silodenken, welches bspw. trennt zwischen Netzwerk, Security und Applikation ist dann nicht mehr zeitgemäß, da diese Komponenten im Cloud-Umfeld viel enger vermascht sind.\\
+
+In dieser Arbeit konnte gezeigt werden, dass eine sichere und isolierte Hybrid Cloud-Vernetzung ohne den Einsatz von proprietären Herstellerlösungen möglich ist. Robuste und offen dokumentierte Technologien wie IPsec, DNS oder BGP, welche im Internet schon seit Jahrzehnten genutzt werden, haben auch in \glqq modernen\grqq{} Cloud-Umgebungen weiterhin ihre Berechtigung.\\
+Im Allgemeinen konnten die Vorerfahrungen des Autors aus dem \textit{klassischen} Netzwerkbereich gewinnbringend genutzt werden, um sie auf Ideen und Technologien des (hybriden) Cloud-Networkings zu übertragen: Am Ende des Tages werden auch in dieser Disziplin Pakete von A nach B verschickt et vice versa. Cloud-Ingenieure der \textit{Big Player} AWS und Azure werden nicht bei jeder erdenklichen Möglichkeit das Rad neu erfinden.\\
 %https://web.archive.org/web/20210409184929/https://www.handelsblatt.com/technik/it-internet/it-dienstleister-brand-im-rechenzentrum-warum-eine-cloud-strategie-so-wichtig-ist/27074336.html
-Die Entkoppelung von der \glqq wahren\grqq{}, physischen Infrastruktur und die dadurch unterstützte Annahme, dass durch die \glqq Cloud-Magie\grqq{} alles problemlos und für alle Ewigkeiten funktioniert, ist jedoch fahrlässig. Man muss bzw. kann gar nicht mehr wissen, \glqq welches Bit über welchen Draht im Rechenzentrum läuft\grqq{}, aber eine gute technische Ressourcenplanung und das Durchdenken von Fail-Over-Szenarien sind nach wie vor unentbehrliche Prozesse. Dies hat der Brand im Straßburger Rechenzentrum des Cloud-Providers OVH nochmal deutlich vor Augen geführt.\\
+Es reicht aber auch nicht, sich ausschließlich auf das vorhandene Skill-Set zu berufen. Es haben eben nicht mehr alle Paradigmen aus der \glqq alten Welt\grqq{} ihre Gültigkeit: Technologien kamen dazu, wurden neu erfunden oder es wurden alte Zöpfe abgeschnitten. So sind OSI-Layer 1 und 2 für den Netzwerk-Administrator in der Cloud quasi nicht existent und spielen keine Rolle mehr. Im Gegenzug muss dieser sich jedoch mit neuen Werkzeugen beschäftigen. Das hier genutzte Automatisierungswerkzeug Terraform ist nur eines unter vielen.\\
+Silodenken, bei dem Netzwerk, Security, Datenbanken, etc. in Einzeldisziplinen aufgeteilt werden, ist nicht mehr zeitgemäß, da diese Komponenten im Cloud-Umfeld noch viel enger vermascht sind. Auch die Entkoppelung von der \glqq wahren\grqq{}, physischen Infrastruktur und die dadurch unterstützte Annahme, dass durch eine \glqq Cloud-Magie\grqq{} alles problemlos und für alle Ewigkeiten funktioniert, kann sich dabei als fahrlässig herausstellen. So kann (und will) man gar nicht mehr wissen, \glqq welches Bit über welchen Draht im Rechenzentrum läuft\grqq{}, aber eine gute technische Ressourcenplanung und das Durchdenken von Fail-Over-Szenarien sind nach wie vor unentbehrliche Prozesse. Dies hat der Brand im Straßburger Rechenzentrum des Cloud-Providers OVH nochmal deutlich vor Augen geführt.\\
 So konnte mit Use-Case 1 demonstriert werden, wie ein verteilter Internetdienst über Cloud-Grenzen hinweg existieren und dadurch redundant ausgelegt werden kann. Ein Re-Routing von Paketen erfolgt, falls eine Verbindung zwischen Cloud-Standorten wegfällt. Es lassen sich dabei noch weitere VPN-Verbindungen zu Gegenstellen bereitstellen, um die Redundanz und Bandbreite nochmals zu erhöhen (s. Ausblick).
+%Neben Roadwarrior Infrastruktur irgendwo hinpacken, wo sie gebraucht wird...
+In Use-Case 2 konnte vor allem demonstriert werden, wie geobasiertes DNS genutzt werden kann, um Verbindungen mit niedrigen Latenzen zu gewährleisten. Weiterhin ist es möglich, Infrastruktur neu zu provisionieren und daraufhin direkt per DNS erreichbar zu machen. 
 
-Alle Use-Cases können mit Hilfe von Terrafom und IPAM automatisiert ausgebracht und zurückgebaut werden. In der Praxis, in der beim Kunden keine \glqq grüne Wiese\grqq{} vorherrscht, kann u.U. nicht auf dieses Tooling zurückgegriffen werden und es muss im Einzelfall betrachtet werden, welche Schnittstellen und Werkzeuge bereits zur Verfügung stehen. Automatisierungsthemen tragen daher meist einen \glqq Projekt-Charakter\grqq{} in sich, bei denen vorab erst einmal eine genaue Analyse stattfinden muss, welche Prozesse der Kunde hat und wo...
+Die in der Arbeit aufgezeigten Use-Cases können mit Hilfe von Terrafom und IPAM automatisiert ausgerollt und wieder zurückgebaut werden. In der Praxis, bei der bei Kunden keine \glqq grüne Wiese\grqq{} vorherrscht, kann u.U. nicht auf dieses Tooling zurückgegriffen und es muss im Einzelfall betrachtet werden, welche Schnittstellen und Werkzeuge bereits genutzt werden bzw. sinnvoll erscheinen. Grundlegend lässt sich sagen, dass sich viele Themen mit Fokus Cloud in irgendeiner Form automatisieren lassen. Public Clouds sind grob umschrieben große \glqq Baukasten-Systeme\grqq{} mit diversen Kombinationsmöglichkeiten. Dabei spielt das eigentliche Tooling nur eine untergeordnete Rolle: wichtig ist im Kundensinne eine Kostensenkung durch fehlerärmere und optimierte Prozesse. Bevor Prozesse automatisiert abgebildet werden können, bedürfen sie einer genaue Erfassung mit gleichzeitiger Formulierung von messbaren (Kosten-)Kriterien.% Ein kompletter Umstieg auf Cloud-Computing inkl. Automatisierungs-Layer bedeutet dabei nicht pauschal die \glqq beste\grqq{} Lösung.\\
 
--> Building-Block-System!
-
-Latenz mit Use-Case 2 und DNS
-
-
-DNS?
-%kleinster gemeinsamer Nenner
-
-%Man muss sich somit keine Gedanken machen, welche Bits über welchen Draht laufen oder wie die aktuelle Spanning-Tree-Topologie ist. Allerdings kann man sich auch nicht darauf verlassen, dass alles funktioniert... Ressourcenplanung, Durchdenken von Fail-Over-Szenarien weiterhin wichtig OVH BRAND!!! Fail-Over-Szenarien 
-%Teilweise müssen jedoch Workarounds gefunden werden, da sich eben nicht mehr alle Paradigmen aus der \glqq alten Welt\grqq{} ihre Gültigkeit haben
-
-
-
-
-z.B (s. ...) (Workarounds mit TG, Route Table, Next Hop Routing...). Kleinster gemeinsamer Nenner...
-
-
+%MPLS LINK
+%2. Satz in Einleitung
+%https://steve-yegge.medium.com/dear-google-cloud-your-deprecation-policy-is-killing-you-ee7525dc05dc
+%Bei SD-WAN geht es z.B. darum, verschiedene (Cloud-)Standorte miteinander zu vernetzen, ohne auf teure Anschlüsse wie MPLS angewiesen zu sein. Durch geeignete Abstraktionsschichten soll ähnlich wie in der Arbeit eine Ende-zu-Ende-Konnektivität über Standorte ermöglicht werden. 
+%https://aws.amazon.com/marketplace/search?searchTerms=sd-wan
+%Viele Hersteller haben die Zeichen der Zeit erkannt und versprechen, den Umstieg auf Cloud zu erleichtern und warten mit einem großen Produktportfolio auf. Eine Gefahr, neben dem bereits angesprochenen Vendor Lock-In, besteht für den Kunden allerdings bei solchen Lösungen darin, dass Cloud-Computing stetig im Wandel ist - im Gegensatz zum klassischen Betrieb eines Rechenzentrums. APIs oder Technologien können abgekündigt werden. Gehen die Hersteller dann schnellstmöglich auf Änderungen ein? Können neue Features und Bugfixes dann eingespielt werden, ohne die Produktion zu gefährden? Wohlgemerkt kann eine Abkündigung ebenso Tools wie Terraform treffen. Optimalerweise ohne Änderungen am Code zu machen.   
 %Alter Wein aus neuen Schläuchen
-viele Hersteller versprechen, dass alles bleibt wie es ist... aber das ist der falsche Ansatz / Portierung von alt nach neu kann auch gefährlich sein... das holt einen ein... Freischaltungen??
+
+%Wohlgemerkt kann dies auch die hier vorgestellten Automatisierungstools treffen, Terraform hat eine große, wachsende Community. Bei Problemen ist man alleine auf den Hersteller angewiesen
+%ist der falsche Ansatz / Portierung von alt nach neu kann auch gefährlich sein... das holt einen ein... Freischaltungen??
+%vielleicht wirds vorher schon in Terraform gefixt
+%z.B (s. ...) (Workarounds mit TG, Route Table, Next Hop Routing...). Kleinster gemeinsamer Nenner...
 
 \section{Ausblick}
-%ECMP / Redundanz
-%Monitoring pro Cloud-Standort -> im Zweifel abreißen mit Terraform
+Wie bereits in der Abgrenzung geschrieben, sollte in dieser Arbeit wenig auf Bandbreiten eingegangen werden, da diese von zu vielen Faktoren beeinflusst werden kann:
+\begin{itemize}
+    \item Wird auf einer Verbindung fragmentiert? Wie wirken sich verschiedene MTU-Parameter aus?
+    \item Sind die virtuellen Maschinen performant genug, um die verfügbare Bandbreiten auszunutzen?
+    \item Sind die Verschlüsselungsparameter der Tunnel optimal gewählt?
+    \item Unterscheiden sich Bandbreiten zwischen verschiedenen Protokollen (UDP \textit{versus} TCP bspw.) eklatant? Wo liegen die Ursachen?
+    \item Ermöglichen Cloud-Plattformen Optimierungen wie z.B. TCP-Offloading?
+    %https://aws.amazon.com/premiumsupport/knowledge-center/transit-gateway-ecmp-multiple-tunnels/
+    %https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-highlyavailable
+    \item Wie kann sich Equal Cost Multipath (ECMP) auf die verfügbare Bandbreite auswirken? Funktioniert ECMP richtungsunabhängig?
+\end{itemize}
+Grundsätzlich hat sich im Laufe dieser Arbeit gezeigt, dass die Verbindungen, auch durch die zusätzliche Redundanz des Backbones, stabil sind. Weiterhin war \textit{subjektiv} die Performance gut, wenn zum Beispiel über den Tunnel auf entfernten Systemen gearbeitet wurde per SSH.\\
+Es wurden vereinzelte Messungen in verschiedene Richtungen mit dem Tool \textsf{iperf3} gemacht, die grundsätzlich \glqq ordentliche\grqq{} Bandbreiten versprechen, so bspw.:
 
+%Messung vyos-aws -> vyos-azure
+\begin{minted}[breaklines,frame=single]{bash}
+root@vyos-aws-ovpn-gw:~# iperf3 -c 10.32.0.5
+Connecting to host 10.32.0.5, port 5201
+[  4] local 10.33.2.93 port 44298 connected to 10.32.0.5 port 5201
+[ ID] Interval           Transfer     Bandwidth       Retr  Cwnd
+[  4]   0.00-1.00   sec  32.8 MBytes   275 Mbits/sec   45   1.52 MBytes
+[  4]   1.00-2.00   sec  41.2 MBytes   346 Mbits/sec    0   1.66 MBytes
+[  4]   2.00-3.00   sec  40.0 MBytes   336 Mbits/sec    0   1.78 MBytes
+[  4]   3.00-4.00   sec  37.5 MBytes   315 Mbits/sec   17   1.33 MBytes
+[  4]   4.00-5.00   sec  33.8 MBytes   283 Mbits/sec    0   1.40 MBytes
+[  4]   5.00-6.00   sec  41.2 MBytes   346 Mbits/sec    0   1.45 MBytes
+[  4]   6.00-7.00   sec  41.2 MBytes   346 Mbits/sec    0   1.49 MBytes
+[  4]   7.00-8.00   sec  43.8 MBytes   367 Mbits/sec    0   1.51 MBytes
+[  4]   8.00-9.00   sec  42.5 MBytes   357 Mbits/sec    0   1.52 MBytes
+[  4]   9.00-10.00  sec  41.2 MBytes   346 Mbits/sec    0   1.53 MBytes
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bandwidth       Retr
+[  4]   0.00-10.00  sec   395 MBytes   332 Mbits/sec   62             sender
+[  4]   0.00-10.00  sec   394 MBytes   330 Mbits/sec                  receiver
+\end{minted}
+
+Dabei besitzt die Azure-VM nur einen CPU-Kern. Es wurden meist kleine Maschinentypen gewählt:
+
+\begin{minted}[breaklines,frame=single]{bash}
+root@vyos-azure-ovpn-gw:~# grep -E 'processor|model name' < /proc/cpuinfo
+processor       : 0
+model name      : Intel(R) Xeon(R) Platinum 8171M CPU @ 2.60GHz
+\end{minted}
+
+Natürlich halten solche \textit{subjektiven} Aussagen keiner wissenschaftlichen Auseinandersetzung stand und eine weitere Ausarbeitung wäre notwendig. Dort könnte z.B. nach Definition von Performancekriterien typischer Anwendungen untersucht werden, wie sich Variationen in vorher genannten Punkten auf Bandbreiten auswirken. Jitter, Latenz und Paketverlust wären weitere Parameter, die man untersuchen könnte. 
+
+Performancekriterien typischer Anwendungen mit $n$ Benutzern definiert und daraufhin untersucht, wie Variationen in den vorher genannten Punkten zu einer Verbesserung bzw. Verschlechterung führen.
+%ECMP / Redundanz
+
+und es wird auf die SLAs von AWS und Microsoft zu den Themen verwiesen.
+Es gibt viele weitere Guides... für Härtung und Bandbreiten MTU usw... eigene BA
+%Monitoring pro Cloud-Standort -> im Zweifel abreißen mit Terraform
+%Keine Bandbreiten gemessen in Use-Case 1 und 2: Dafür zu viele Variablen: eigener Standort, Hardware etc. -> Verweis auf SLAs, iperf3
+%BFD
+
+Härtungsmaßnahmen und wie sich Parameter optimieren lassen
+Bandbreitenmessungen oder Benchmarking einiger typischer Anwendungen, evtl. mit Benutzerumfragen...
+Wie ließe sich das Ganze mit Direct Connect / Express Route umsetzen?
+BYOIP
