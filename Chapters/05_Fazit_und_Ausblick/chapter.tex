@@ -1,0 +1,37 @@
+\chapter{Fazit und Ausblick} \label{Fazit und Ausblick}
+%Anforderung: Ende-zu-Ende-Erreichbarkeit! Für z.B. Endpoint Scanning
+%Gleiches Profil für alle VPN-Konzentratoren
+
+\section{Fazit}
+In dieser Arbeit konnte gezeigt werden, dass eine sichere und isolierte Hybrid Cloud-Vernetzung ohne den Einsatz von proprietären Herstellerlösungen möglich ist. Robuste und offen dokumentierte Technologien wie IPSEC, DNS und BGP, welche im Internet schon seit Jahrzehnten genutzt werden, haben auch in \glqq modernen\grqq{} Cloud-Umgebungen weiterhin ihre Berechtigung. Im Allgemeinen konnten die Vorerfahrungen des Autors aus dem \textit{klassischen} Netzwerkbereich gewinnbringend genutzt werden, um sie auf Ideen und Technologien des (hybriden) Cloud-Networkings zu übertragen: Am Ende des Tages werden auch in dieser Disziplin Pakete von A nach B geschickt et vice versa und auch die Cloud-Ingenieure der \textit{Big Player} AWS und Azure wollen nicht jedes Mal das Rad neu erfinden.\\
+Es reicht aber auch nicht, sich ausschließlich auf das vorhandene Skill-Set zu berufen. Es haben eben nicht mehr alle Paradigmen aus der \glqq alten Welt\grqq{} ihre Gültigkeit: Technologien kamen dazu, wurden neu erfunden oder es wurden alte Zöpfe abgeschnitten. So sind OSI-Layer 1 und 2 für den Netzwerk-Administrator in der Cloud quasi nicht existent und spielen keine Rolle mehr. Im Gegenzug muss dieser sich jedoch mit neuen Werkzeugen beschäftigen, das hier genutzte Automatisierungswerkzeug Terraform ist nur eines von vielen. Auch ein klassisches Silodenken, welches bspw. trennt zwischen Netzwerk, Security und Applikation ist dann nicht mehr zeitgemäß, da diese Komponenten im Cloud-Umfeld viel enger vermascht sind.\\
+%https://web.archive.org/web/20210409184929/https://www.handelsblatt.com/technik/it-internet/it-dienstleister-brand-im-rechenzentrum-warum-eine-cloud-strategie-so-wichtig-ist/27074336.html
+Die Entkoppelung von der \glqq wahren\grqq{}, physischen Infrastruktur und die dadurch unterstützte Annahme, dass durch die \glqq Cloud-Magie\grqq{} alles problemlos und für alle Ewigkeiten funktioniert, ist jedoch fahrlässig. Man muss bzw. kann gar nicht mehr wissen, \glqq welches Bit über welchen Draht im Rechenzentrum läuft\grqq{}, aber eine gute technische Ressourcenplanung und das Durchdenken von Fail-Over-Szenarien sind nach wie vor unentbehrliche Prozesse. Dies hat der Brand im Straßburger Rechenzentrum des Cloud-Providers OVH nochmal deutlich vor Augen geführt.\\
+So konnte mit Use-Case 1 demonstriert werden, wie ein verteilter Internetdienst über Cloud-Grenzen hinweg existieren und dadurch redundant ausgelegt werden kann. Ein Re-Routing von Paketen erfolgt, falls eine Verbindung zwischen Cloud-Standorten wegfällt. Es lassen sich dabei noch weitere VPN-Verbindungen zu Gegenstellen bereitstellen, um die Redundanz und Bandbreite nochmals zu erhöhen (s. Ausblick).
+
+Alle Use-Cases können mit Hilfe von Terrafom und IPAM automatisiert ausgebracht und zurückgebaut werden. In der Praxis, in der beim Kunden keine \glqq grüne Wiese\grqq{} vorherrscht, kann u.U. nicht auf dieses Tooling zurückgegriffen werden und es muss im Einzelfall betrachtet werden, welche Schnittstellen und Werkzeuge bereits zur Verfügung stehen. Automatisierungsthemen tragen daher meist einen \glqq Projekt-Charakter\grqq{} in sich, bei denen vorab erst einmal eine genaue Analyse stattfinden muss, welche Prozesse der Kunde hat und wo...
+
+-> Building-Block-System!
+
+Latenz mit Use-Case 2 und DNS
+
+
+DNS?
+%kleinster gemeinsamer Nenner
+
+%Man muss sich somit keine Gedanken machen, welche Bits über welchen Draht laufen oder wie die aktuelle Spanning-Tree-Topologie ist. Allerdings kann man sich auch nicht darauf verlassen, dass alles funktioniert... Ressourcenplanung, Durchdenken von Fail-Over-Szenarien weiterhin wichtig OVH BRAND!!! Fail-Over-Szenarien 
+%Teilweise müssen jedoch Workarounds gefunden werden, da sich eben nicht mehr alle Paradigmen aus der \glqq alten Welt\grqq{} ihre Gültigkeit haben
+
+
+
+
+z.B (s. ...) (Workarounds mit TG, Route Table, Next Hop Routing...). Kleinster gemeinsamer Nenner...
+
+
+%Alter Wein aus neuen Schläuchen
+viele Hersteller versprechen, dass alles bleibt wie es ist... aber das ist der falsche Ansatz / Portierung von alt nach neu kann auch gefährlich sein... das holt einen ein... Freischaltungen??
+
+\section{Ausblick}
+%ECMP / Redundanz
+%Monitoring pro Cloud-Standort -> im Zweifel abreißen mit Terraform
+

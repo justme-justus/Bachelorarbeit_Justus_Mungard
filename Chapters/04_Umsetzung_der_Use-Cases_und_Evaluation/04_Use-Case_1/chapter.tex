@@ -6,7 +6,7 @@
 %TF: Resource, Data, Modul, Provider
 \subsection{Umsetzung: Kerntätigkeiten}
 
-Im PHPIPAM müssen mehrere Netzbereiche reserviert werden. Es werden Netzbereiche benötigt, in denen Maschinen per IPv4 kommunizieren können. Diese Netze werden mit VPC bzw. VNET assoziiert. Für VNET wurde der Netzblock \glqq 10.32.0.0/16\grqq{} und für VPC der Netzblock \glqq 10.33.0.0/16\grqq{} vorreserviert, aus dem kleinere {Subnets} für die jeweilige Cloud entnommen werden können. Weiterhin ist die Annahme, dass die Private Cloud bereits einen Netzbereich besitzt, in dem Maschinen angesiedelt sind: \glqq 192.168.201.0/24.\grgg{}\\
+Im PHPIPAM müssen mehrere Netzbereiche reserviert werden. Es werden Netzbereiche benötigt, in denen Maschinen per IPv4 kommunizieren können. Diese Netze werden mit VPC bzw. VNET assoziiert. Für VNET wurde der Netzblock \glqq 10.32.0.0/16\grqq{} und für VPC der Netzblock \glqq 10.33.0.0/16\grqq{} vorreserviert, aus dem kleinere Subnets für die jeweilige Cloud entnommen werden können. Weiterhin ist die Annahme, dass die Private Cloud bereits einen Netzbereich besitzt, in dem Maschinen angesiedelt sind: \glqq 192.168.201.0/24.\grqq{}\\
 %https://docs.aws.amazon.com/vpn/latest/s2svpn/VPNTunnels.html
 %https://docs.microsoft.com/de-de/azure/vpn-gateway/bgp-howto
 Weiterhin benötigt man {Transfernetzwerke}, über die die IPv4-Pakete geschickt werden und die BGP-Präfixe ausgetauscht werden können. AWS sieht hierfür /30-Präfixe aus dem Bereich \glqq 169.254.0.0/16\grqq{} vor, Azure hat eine Range reserviert: \glqq 169.254.21.0 - 169.254.22.255\grqq{}. Als Kompromiss können daher nur Netze aus den Azure-Bereichen genutzt werden, da die Bereiche, die AWS zur Verfügung stellt, größtenteils außerhalb dieser Range liegen. Auch diese Netzbereiche müssen im IPAM vorreserviert werden, auch die Transfernetze automatisiert ausgebracht werden.\\
@@ -106,7 +106,7 @@ resource "null_resource" "vyos_config" {
 %https://github.com/hashicorp/terraform-provider-aws/issues/396
 AWS VPN-Verbindungen bieten aus Redundanzgründen standardmäßig zwei IPs pro Gegenstelle an. 
 
-\begin{lstlisting}[label=tf-xml-response-aws,caption=Die ursprüngliche (gekürzte) XML-Antwort der AWS API, welche in der Datei terraform.tfstate gespeichert wurde.]
+\begin{lstlisting}[label=tf-xml-response-aws,caption=Die ursprüngliche (gekürzte) XML-Antwort der AWS API.]
 <?xml version="1.0" encoding="UTF-8"?>
 <vpn_connection id="vpn-096f7fc91dc77cc74">
   [...]
@@ -146,7 +146,7 @@ Wie man sieht, taucht das XML-Element ipsec\_tunnel zwei Mal auf, ist dabei jedo
 Der Terraform-Provider aws\_vpn\_connection nutzt diese XML-Antwort, um daraus die Rückgabewerte tunnel1\_* und tunnel2\_* zu erzeugen, die in der weiteren Ausführung von anderen Modulen wiederverwendet werden. Bei einigen Ausführungen wurden diese Elemente Terraform-intern vertauscht: Da nun weder IPSEC-Schlüssel noch interne BGP-Peering-Gegenstellen stimmen, kommen weder IPSEC-Tunnel noch die BGP-Peering-Sessions hoch.
 
 %https://docs.aws.amazon.com/AWSEC2/latest/APIReference/throttling.html
-Mit einem Bash-Skript konnte zumindest ein Workaround gefunden werden, um ein erfolgreiches Deployment sicherzustellen. Die Grundannahme ist, dass pro Präfix zwei Pfade auf dem Private Cloud-Router existieren. Wenn nur ein Pfad pro Präfix zur Verfügung steht, kam es mit einer hohen Wahrscheinlichkeit zu einer Vertauschung und es wird redeployed (destroy -> apply). Es wird maximal drei Mal versucht, ein funktionierendes Deployment hochzuziehen, um die APIs der Cloud-Anbieter zu \texit{schonen} und kein Rate-Limiting zu triggern.
+Mit einem Bash-Skript konnte zumindest ein Workaround gefunden werden, um ein erfolgreiches Deployment sicherzustellen. Die Grundannahme ist, dass pro Präfix zwei Pfade auf dem Private Cloud-Router existieren. Wenn nur ein Pfad pro Präfix zur Verfügung steht, kam es mit einer hohen Wahrscheinlichkeit zu einer Vertauschung und es wird redeployed (destroy -> apply). Es wird maximal drei Mal versucht, ein funktionierendes Deployment hochzuziehen, um die APIs der Cloud-Anbieter zu \textit{schonen} und kein Rate-Limiting zu triggern.
 
 \begin{lstlisting}[label=tf-base-deployment-bgp-ok,caption=BGP Status]
 vyos@vyos-cloud:~$ sh ip bgp | grep -A1 -E '10.3[2|3]'
@@ -169,7 +169,7 @@ vyos@vyos-cloud:~$ sh ip bgp | grep -A1 -E '10.3[2|3]'
 Durch das Bash-Skript wurde dieser Bug nicht zum Showstopper, allerdings hat das Deployment manchmal länger gedauert (Normale Deployment Zeit * Versuche).
 
 %FIX vom https://github.com/hashicorp/terraform-provider-aws/pull/19077
-Dieser Bug wurde angeblich noch kurz vor Abgabe dieser Arbeit mit PR# gefixt, allerdings konnte das nicht mehr getestet werden. Es ist im Commit ersichtlich, dass es sich um einen Bug in der Sortierfunktion handelte.
+Dieser Bug wurde angeblich noch kurz vor Abgabe dieser Arbeit mit PR\# gefixt, allerdings konnte das nicht mehr getestet werden. Es ist im Commit ersichtlich, dass es sich um einen Bug in der Sortierfunktion handelte.
 
 \textbf{\underline{Zustandslose VyOS-Konfiguration}}\\
 %Terraform Einleitung
@@ -182,7 +182,7 @@ vyos@vyos-cloud# set system time-zone Europe/Berlin
 vyos@vyos-cloud# delete system time-zone Europe/Berlin
 [edit]
 \end{lstlisting}
-Per \texit{Destroy-Time Provisioner} würde dieses Template nur bei einem \texit{terraform destroy} genutzt werden. Das Problem ist, dass schon bei minimalen Änderungen des Deploy-Templates auch das Destroy-Template angepasst werden muss. Weiterhin sind die IPSEC-Konfigurationen relativ umfangreich. Es war zu befürchten, dass Relikte aus der Konfiguration übrig bleiben, wenn die Negation aus unbekannten Gründen fehlschlug.
+Per \textit{Destroy-Time Provisioner} würde dieses Template nur bei einem \textit{terraform destroy} genutzt werden. Das Problem ist, dass schon bei minimalen Änderungen des Deploy-Templates auch das Destroy-Template angepasst werden muss. Weiterhin sind die IPSEC-Konfigurationen relativ umfangreich. Es war zu befürchten, dass Relikte aus der Konfiguration übrig bleiben, wenn die Negation aus unbekannten Gründen fehlschlug.
 
 Eine weitere Idee war, mit dem VyOS-Feature "rollback" zu arbeiten. Über eine commit-History werden alle Änderungen an dem System dokumentiert.
 \begin{lstlisting}[label=commit-history-vyos,caption=Commit History VyOS]
@@ -192,7 +192,7 @@ vyos@vyos-cloud:~$ show system commit | head -3
 2   2021-05-04 21:17:57 by vyos via cli
 \end{lstlisting}
 
-So würde man die letzte Revision \textit{vor} der Konfiguration der Backbone-Verbindungen festhalten, um bei einem \texit{terraform destroy} darauf zurückgehen zu können.
+So würde man die letzte Revision \textit{vor} der Konfiguration der Backbone-Verbindungen festhalten, um bei einem \textit{terraform destroy} darauf zurückgehen zu können.
 
 \begin{lstlisting}[label=rollback-cmd-vyos,caption=Rollback auf Revision N nach Reboot]
 vyos@vyos-cloud# rollback
@@ -205,7 +205,7 @@ Possible completions:
     2   2021-05-04 21:17:57 vyos by cli
 \end{lstlisting}
 
-Es wurden zwei Bash-Skripte geschrieben: \texit{save\_last\_manual\_commit.sh} speichert die letzte Revision lokal auf dem VyOS-Router, \texit{apply\_last\_manual\_commit.sh} macht einen Rollback.
+Es wurden zwei Bash-Skripte geschrieben: \textit{save\_last\_manual\_commit.sh} speichert die letzte Revision lokal auf dem VyOS-Router, \textit{apply\_last\_manual\_commit.sh} macht einen Rollback.
 
 \begin{lstlisting}[label=save-last-commit-vyos,caption=Bla]
 resource "null_resource" "vyos_config" {
@@ -222,14 +222,14 @@ resource "null_resource" "vyos_config" {
 }
 \end{lstlisting}
 
-Nach \texit{terraform apply} liegt auf dem VyOS-Router eine Datei, die den letzten Timestamp der letzten \glqq händischen\grqq{} festhält.
+Nach \textit{terraform apply} liegt auf dem VyOS-Router eine Datei, die den letzten Timestamp der letzten \glqq händischen\grqq{} festhält.
 
 \begin{lstlisting}[label=save-last-commit-file-vyos,caption=Blub]
 vyos@vyos-cloud# cat ~tf/last_manual_commit.txt
 2021-05-05 09:47:51 by tf via cli
 \end{lstlisting}
 
-Bei \texit{terraform destroy} wird das Skript \texit{apply\_last\_manual\_commit.sh} via Terraform \texit{Destroy-Time Provisioner} ausgeführt, welches den Rollback hin zu dem gespeicherten Zeitpunkt auf dem VyOS Router veranlasst.
+Bei \textit{terraform destroy} wird das Skript \textit{apply\_last\_manual\_commit.sh} via Terraform \textit{Destroy-Time Provisioner} ausgeführt, welches den Rollback hin zu dem gespeicherten Zeitpunkt auf dem VyOS Router veranlasst.
 
 \begin{lstlisting}[label=apply-last-commit-vyos,caption=Blub]
 resource "null_resource" "vyos_config_destroy" {
@@ -318,7 +318,7 @@ rtt min/avg/max/mdev = 25.729/25.729/25.729/0.000 ms
 %BFD für schneller Konvergenzzeiten? -> Ausblick...
 %RTT und Ping in Einleitung / ICMP
 
-Es wurden außerdem in von allen Teilnehmern zu allen Teilnehmern Ping-Tests gemacht und währenddessen eine Verbindung getrennt. Da ein Präfix über zwei Pfade zu sehen ist, ist die Erwartung, dass ein Backup-Pfad genutzt wird. Man kann an folgendem Beispiel sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \texit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde ICMP-Echo-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung im unteren Beispiel etwa 44 Sekunden unterbrochen war.\\
+Es wurden außerdem in von allen Teilnehmern zu allen Teilnehmern Ping-Tests gemacht und währenddessen eine Verbindung getrennt. Da ein Präfix über zwei Pfade zu sehen ist, ist die Erwartung, dass ein Backup-Pfad genutzt wird. Man kann an folgendem Beispiel sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \textit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde ICMP-Echo-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung im unteren Beispiel etwa 44 Sekunden unterbrochen war.\\
 Weiterhin hat sich die Round-Trip-Time von ~20 ms auf ~62 ms erhöhtt. Dies ist eine logische Konsequenz, da Pakete nun längere Wege zurücklegen müssen. Alle Ping-Tests waren trotz Kappen einer Verbindung erfolgreich. Man muss dabei allerdings Paketverluste während der Konvergenzzeit hinnehmen.
 %Typische BGP Konvergenzzeiten?
 
@@ -337,7 +337,7 @@ PING 10.33.0.121 (10.33.0.121) 56(84) bytes of data.
 64 bytes from 10.33.0.121: icmp_seq=16 ttl=61 time=24.3 ms
 64 bytes from 10.33.0.121: icmp_seq=17 ttl=61 time=19.6 ms
 64 bytes from 10.33.0.121: icmp_seq=18 ttl=61 time=19.7 ms <-- Kappen einer Verbindung
-64 bytes from 10.33.0.121: icmp_seq=62 ttl=61 time=67.4 ms <-- Revovery über Backup-Pfad
+64 bytes from 10.33.0.121: icmp_seq=62 ttl=61 time=67.4 ms <-- Revovery ueber Backup-Pfad
 64 bytes from 10.33.0.121: icmp_seq=63 ttl=61 time=62.2 ms
 64 bytes from 10.33.0.121: icmp_seq=64 ttl=61 time=62.5 ms
 64 bytes from 10.33.0.121: icmp_seq=65 ttl=61 time=62.4 ms

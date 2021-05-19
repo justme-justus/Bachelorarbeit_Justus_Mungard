@@ -12,8 +12,8 @@ $\Downarrow$\\
 \textbf{00000001.00000010.00000011.00000100}\\
 $\Downarrow$\\
 Dotted Decimal (bekannte Schreibweise):\\
-{\textbf{1.2.3.4}}\\
-}\par\\~\\
+{\textbf{1.2.3.4}}\par}
+
 Mit Hilfe von Netzmasken wird die Netzwerkgröße bestimmt. Der Host mit der IP-Adresse 1.2.3.4 und einer Netzmaske von bspw. 255.255.255.0. Diese Netzmaske entspricht in dotted binary:
 
 {\centering\textbf{11111111.11111111.11111111.00000000}\par}
@@ -125,9 +125,9 @@ Im Folgenden soll das Routing-Protokoll BGP betrachet werden. Dieses ist durch d
   \label{grafik: ebgp_peerings}
 \end{figure}\FloatBarrier
 
-Wie man auf dem Bild sieht, werden drei Präfixe aus drei verschiedenen AS bekannt gemacht. Der AS-Pfad zeigt an, über welche AS ein Präfix erreicht werden kann. \texit{i} steht dabei für internal und stellt immer den Ursprung des Präfixes dar: der Pfad wird von rechts (Ursprung) nach links (letztes AS vor dem eigenen - \glqq Nachbar\grqq).\cite{odom2010}
+Wie man auf dem Bild sieht, werden drei Präfixe aus drei verschiedenen AS bekannt gemacht. Der AS-Pfad zeigt an, über welche AS ein Präfix erreicht werden kann. \textit{i} steht dabei für internal und stellt immer den Ursprung des Präfixes dar: der Pfad wird von rechts (Ursprung) nach links (letztes AS vor dem eigenen - \glqq Nachbar\grqq).\cite{odom2010}
 
-Anmerkung: R2-AS10 kann mit dem Next-Hop 10.0.0.1 aus der Tabelle nichts anfangen: Dieser ist nur für R1-AS10 erreichbar. Im iBGP nutzt man daher das Attribut Next-Hop-Self, womit iBGP-Nachbarn signalisiert wird, dass Next-Hop-Erreichbarkeit für ein Präfix \textit{über einen selbst} gegeben ist.\cite[S.468-471]
+Anmerkung: R2-AS10 kann mit dem Next-Hop 10.0.0.1 aus der Tabelle nichts anfangen: Dieser ist nur für R1-AS10 erreichbar. Im iBGP nutzt man daher das Attribut Next-Hop-Self, womit iBGP-Nachbarn signalisiert wird, dass Next-Hop-Erreichbarkeit für ein Präfix \textit{über einen selbst} gegeben ist.\cite[S.468-471]{odom2010}
 
 \begin{figure}[h]
   \centering
@@ -138,7 +138,7 @@ Anmerkung: R2-AS10 kann mit dem Next-Hop 10.0.0.1 aus der Tabelle nichts anfange
 
 In diesem Beispiel wurde noch eine Verbindung zwischen AS 10 und AS 30 hinzugefügt. Damit werden alle Präfixe, bis auf die eigenen, doppelt sichtbar, da sie nun über verschiedene Pfade erreicht werden können. Im Standardfall wird das Präfix mit dem kürzeren AS-Pfad bevorzugt. Die Präfixe mit roter Schriftart sind dabei allerdings nicht nutzlos. Sie können als Backup-Pfad dienen, falls der bessere Pfad wegfallen sollte. Falls bspw. die Verbindung zwischen AS 10 und AS 30 ausfällt, \textit{konvergiert} das BGP auf allen Routern wieder hin zu Fall 1 (Listing...).
 
-https://datatracker.ietf.org/doc/html/rfc4271#section-9.1.2
+%https://datatracker.ietf.org/doc/html/rfc4271#section-9.1.2
 BGP-Router ignorieren AS-Pfade, in denen die eigene AS-Nummer bereits vorkommt. Pakete werden dann gemäß RFC verworfen werden. Dadurch werden effektiv Routing-Schleifen verhindert.
 
 %https://datatracker.ietf.org/doc/html/rfc6996
@@ -360,7 +360,7 @@ resource "aws_vpc" "example_vpc" {
 }
 \end{minted}
 
-Dabei zeigt sich auch der deklarative Aspekt von Terraform. Die Resource \glqq aws_subnet\grqq{} mit dem Namen \glqq example_subnet\grqq{} kommt als erstes im Code vor, referenziert jedoch das VPC \glqq example_vpc\grqq{}. Durch diese impliziete Abhängigkeit wird die Resource \glqq example_vpc\grqq{} als erstes erstellt. Man beschreibt also, \textit{was} benötigt wird. \textit{Wie} und in welcher Reihenfolge das Rollout gemacht wird, obliegt Terraform.
+Dabei zeigt sich auch der deklarative Aspekt von Terraform. Die Resource \glqq aws\_subnet\grqq{} mit dem Namen \glqq example\_subnet\grqq{} kommt als erstes im Code vor, referenziert jedoch das VPC \glqq example\_vpc\grqq{}. Durch diese impliziete Abhängigkeit wird die Resource \glqq example\_vpc\grqq{} als erstes erstellt. Man beschreibt also, \textit{was} benötigt wird. \textit{Wie} und in welcher Reihenfolge das Rollout gemacht wird, obliegt Terraform.
 
 \textbf{\underline{Module}}\\
 %https://www.terraform.io/docs/language/modules/syntax.html

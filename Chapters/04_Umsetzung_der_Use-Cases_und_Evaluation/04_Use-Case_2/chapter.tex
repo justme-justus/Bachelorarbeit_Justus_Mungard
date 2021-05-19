@@ -71,7 +71,7 @@ eth0             UP             10.42.0.4/24
 
 Internet-Traffic ist möglich, Zugriff auf interne Ressourcen ist nicht möglich: 192.168.201.1 ist eine IP-Adresse der Private Cloud.
 
-\begin{lstlisting}[label=internet-access-roadwarrior,caption=Der Roadwarrior-Client kann auf das Internet zugreifen, jedoch nicht auf interne Ressourcen ohne VPN-Einwahl]
+\begin{lstlisting}[label=internet-access-roadwarrior,caption=Der Roadwarrior-Client kann auf das Internet zugreifen - kein Zugriff auf interne Ressourcen.]
 #Internet-Traffic
 ubuntu@vpn-client-azure:~$ ping -c 1 8.8.8.8
 PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
@@ -156,7 +156,7 @@ provider "dns" {
                 server        = "192.168.200.29"
                 key_name      = "db-vpn.ba.mungard.de."
                 key_algorithm = "hmac-sha256"
-                //Key für die Dokumentation aus Sicherheitsgründen geändert
+                //Key fuer die Dokumentation aus Sicherheitsgruenden geaendert
                 key_secret    = "9jzMaHwILwTzx9b/Ws8RAfBwC+eJpjOI2hEmAgCjV/4="
         }
 }
@@ -291,7 +291,7 @@ Im Allgemeinen hat sich dieser \glqq Teile-und-herrsche\grqq{}-Ansatz im Zusamme
 %Warum brauchen wir more specifics?
 %CIDR / Subnet / Route Tables in Azure und AWS in technische Grundlagen
 \textbf{\underline{More-Specific Route nicht möglich in VPC Routing-Tabelle}}\\
-Die Roadwarrior Clients müssen in einem Subnetz \glqq hinter\grqq{} dem VPN-Konzentrator terminiert werden. Dafür werden Routing-Einträge notwendig, damit AWS VPC bzw. Azure VNET die Information besitzen, über welchen \texit{Next-Hop} das Client-VPN-Subnetz erreicht werden kann. Durch \textit{Route Tables} stellt dies auch keine Hürde dar in Azure. AWS hingegen bietet keine Möglichkeit, Subnetze mit einer längeren Netzmaske in der Route Table zu hinterlegen, falls sie ein Subnetz des VPC CIDR darstellen würden. Man spricht auch von \glqq more specifics\grqq{}.\\
+Die Roadwarrior Clients müssen in einem Subnetz \glqq hinter\grqq{} dem VPN-Konzentrator terminiert werden. Dafür werden Routing-Einträge notwendig, damit AWS VPC bzw. Azure VNET die Information besitzen, über welchen \textit{Next-Hop} das Client-VPN-Subnetz erreicht werden kann. Durch \textit{Route Tables} stellt dies auch keine Hürde dar in Azure. AWS hingegen bietet keine Möglichkeit, Subnetze mit einer längeren Netzmaske in der Route Table zu hinterlegen, falls sie ein Subnetz des VPC CIDR darstellen würden. Man spricht auch von \glqq more specifics\grqq{}.\\
 Im folgenden Beispiel sei das VPC CIDR 192.168.0.0/16 (Target: local). Es soll eine Route auf ein Netzwerk 192.168.100.0/24 über die AWS Instance \glqq i-06230ccaa[...]\grqq{} (Next-Hop) gesetzt werden, was eine more specific Route zum VPC CIDR darstellt.
 Folgende Fehlermeldung meldet das Amazon Dashboard beim Versuch, diese Route anzulegen:
 
@@ -394,8 +394,8 @@ $ whois 94.245.93.144 | grep mnt | uniq
 mnt-by:         MICROSOFT-MAINT
 \end{lstlisting}
 
-\begin{lstlisting}[label=ping-microsoft-ip,caption=.]
 Das Ziel ist ca. 1 Millisekunde entfernt. Für diesen Test wurde ICMP eingehend manuell erlaubt in der Network Security Group, im Default Deployment erfolgt für ICMP Echo Request ein \textit{Dropping}:
+\begin{lstlisting}[label=ping-microsoft-ip,caption=.]
 ubuntu@vpn-client-azure:~$ ping 94.245.93.144
 PING 94.245.93.144 (94.245.93.144) 56(84) bytes of data.
 64 bytes from 94.245.93.144: icmp_seq=1 ttl=57 time=1.21 ms

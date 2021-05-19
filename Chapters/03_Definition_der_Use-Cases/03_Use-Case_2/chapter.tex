@@ -36,7 +36,7 @@ Die Infrastruktur-Komponenten aus Use-Case 1 werden als vorhanden und funktionie
 \subsection{Vorauswahl geeigneter technischer Komponenten}
 Zur Terminierung der Roadwarrior-Clients muss pro Cloud-Standort ein VPN-Konzentrator zur Verfügung stehen. Mit \textit{Client VPN Endpoint} (AWS) bzw. \textit{Point-to-site} Azure bieten bereits Lösungen, um Roadwarrior-Clients zu terminieren. Nach längerer Evaluation dieser Building Blocks erwiesen sich diese Lösungen für das Ziel der Arbeit als nicht tauglich:
 \begin{itemize}
-\item Bei AWS werden Client-VPN-Verbindungen eingehend geNATted (\texit{NAT Masquerading}). Damit sind alle Clients intern mit der gleichen Absender-IP zu sehen. Dies verletzt den Anspruch der Arbeit, eine Ende-zu-Ende-Konnektivität zu ermöglichen.
+\item Bei AWS werden Client-VPN-Verbindungen eingehend geNATted (\textit{NAT Masquerading}). Damit sind alle Clients intern mit der gleichen Absender-IP zu sehen. Dies verletzt den Anspruch der Arbeit, eine Ende-zu-Ende-Konnektivität zu ermöglichen.
 \item Obwohl Azure als auch AWS OpenVPN für Roadwarrior-VPNs benutzen, sind die Client-VPN-Konfigurationen nicht \glqq deckungsgleich\grqq{} zu bekommen. Um den sich mit dem nächstgelegenen VPN-Konzentrator zu verbinden, wäre eine manuelle Interaktion des Benutzers notwendig, was mit den Evaluationskriterien nicht vereinbar ist. Weiterhin kann der Benutzer nicht immer wissen, wo der nächstgelegene Standort ist. Man kann nicht von jedem Mitarbeiter tiefe Topologiekenntnisse des Netzwerks abverlangen.
 \end{itemize}
 
@@ -120,7 +120,7 @@ Als stellvertretender \glqq Applikations-Server\grqq{} soll ein simpler Apache2 
 \subsection{Evaluationskriterien}
 \begin{itemize}
 \item Roadwarrior-Clients werden simuliert, indem an den entsprechenden Standort (Kiel, Dublin bzw. Frankfurt) eine weitere virtuelle Maschine installiert wird, die VPN-Verbindungen zu den jeweiligen Konzentratoren aufbaut.
-\item Ein Roadwarrior-Client verbindet sich immer mit dem nächstgelegen Standort. Die DNS-Antworten werden per \texit{dig}- und \textit{whois}-Kommando verifiziert.
+\item Ein Roadwarrior-Client verbindet sich immer mit dem nächstgelegen Standort. Die DNS-Antworten werden per \textit{dig}- und \textit{whois}-Kommando verifiziert.
 \item Der Client hat keine Wahl, mit welchem Standort dieser verbunden wird.
 \item Ist ein Cloud-Standort nicht verfügbar (z.B. weil defekt oder nicht deployed), \textit{muss} der Client auf den \textit{default} Standort (Kiel) zurückfallen.
 \item Sobald ein Client mit einem VPN verbunden ist, muss er die entsprechende interne Server-Ressource ansprechen, die am jeweiligen Standort zur Verfügung steht.
