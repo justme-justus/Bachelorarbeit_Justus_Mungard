@@ -62,7 +62,9 @@ Es ist davon auszugehen, dass im Rahmen der Umsetzung der Autor mit diversen tec
 % auch SLA genannt
 \item Ausblick Härtung Encryption..
 \item Auf Bandbreitenmessungen wird in dieser Arbeit bewusst verzichtet, da Bandbreiten von zu vielen Faktoren abhängig ist, es werden allerdings im Ausblick ggf. Optimierungen dargelegt...
-\item Entgegen des initialen Proposals zielt die Arbeit nicht mehr auf kleine und mittelständische Unternehmen, sondern auf kleine bis mittelgroße \textbf{Skalierungen} ab. Es hat sich während der praktischen Bearbeitung der Use-Cases herausgestellt, dass die genutzten Technologien so robust sind, dass ein Einsatz auch im \glqq größeren \textbf{technischen} Rahmen\grqq{} machbar ist. Aus technischer Sicht stellt sich nicht die Frage, wie \glqq groß\grqq{} ein Kunde ist, sondern welche Anforderungen (Latenz, Bandbreite, Uptime, etc.) in der Praxis tatsächlich vorherrschen. Es wird daher zum Ende der Arbeit noch ein Ausblick gegeben, wie beliebig große Skalierungen mit schärferen Performance-Kriterien, neben den erarbeiteten Lösungsvorschlägen, auch bedient werden können. 
+\item Entgegen des initialen Proposals zielt die Arbeit nicht mehr auf kleine und mittelständische Unternehmen, sondern auf kleine bis mittelgroße \textbf{Skalierungen} ab. Es hat sich während der praktischen Bearbeitung der Use-Cases herausgestellt, dass die genutzten Technologien so robust sind, dass ein Einsatz auch im \glqq größeren \textbf{technischen} Rahmen\grqq{} machbar ist. Aus technischer Sicht stellt sich nicht die Frage, wie \glqq groß\grqq{} ein Kunde ist, sondern welche Anforderungen (Latenz, Bandbreite, Uptime, etc.) in der Praxis tatsächlich vorherrschen. Es wird daher zum Ende der Arbeit noch ein Ausblick gegeben, wie beliebig große Skalierungen mit schärferen Performance-Kriterien, neben den erarbeiteten Lösungsvorschlägen, auch bedient werden können.
+\item Auf Grund der zuvor genannten Punkte ist "letzer Punkt Fragestellung" nicht im vollen Maße mit dieser Arbeit zu erfüllen und könnte eigene Arbeit werden (s. Ausblick)
+\item Ende-zu-Ende-Konnektivität gegeben (wegen Amazon NAT z.B.)
 %Kein Best Practice Security, DH etc...
 
 %BFD, SLA, QoS, VNET / VPC Peering / Microsoft SDWAN / TG?
@@ -75,7 +77,6 @@ Teilweise gekürzt mit [...] oder Funktionsnamen der Einfachheit umbenannt oder 
 RFC-Doku-Addressen
 Getestet mit Terraform Version...
 Abkürzungen AWS, VPC werden einmal erläutert, danach Schicht im Schacht
-Abgrenzung: Ende-zu-Ende-Konnektivität gegeben (wegen Amazon NAT)
 Rein technischer Natur, es wird nicht auf Kostenoptimierung eingangen -> dafür ist Cloud-Costs zu komplex
 Abgrenzung: alle Public-IP und Private-IP beziehen sich auf IPv3!!!
 Kommandos sind mit Dollar markiert. Sie werden genutzt, wenn ein Filterausdruck erkennbar sein soll, oftmals mit grep

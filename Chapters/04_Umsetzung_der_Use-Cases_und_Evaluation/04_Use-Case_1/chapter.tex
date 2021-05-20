@@ -314,6 +314,44 @@ PING 10.32.0.4 (10.32.0.4) 56(84) bytes of data.
 rtt min/avg/max/mdev = 25.729/25.729/25.729/0.000 ms
 \end{lstlisting}
 
+Es wurden vereinzelte Messungen in verschiedene Richtungen mit dem Tool \textsf{iperf3} gemacht, die grundsätzlich \glqq ordentliche\grqq{} Bandbreiten versprechen, so bspw.:
+
+%Messung Sender vyos-aws -> vyos-azure
+\begin{minted}[breaklines,frame=single]{bash}
+root@vyos-aws-ovpn-gw:~# iperf3 -c 10.32.0.5
+Connecting to host 10.32.0.5, port 5201
+[  4] local 10.33.2.93 port 44298 connected to 10.32.0.5 port 5201
+[ ID] Interval           Transfer     Bandwidth       Retr  Cwnd
+[  4]   0.00-1.00   sec  32.8 MBytes   275 Mbits/sec   45   1.52 MBytes
+[  4]   1.00-2.00   sec  41.2 MBytes   346 Mbits/sec    0   1.66 MBytes
+[  4]   2.00-3.00   sec  40.0 MBytes   336 Mbits/sec    0   1.78 MBytes
+[  4]   3.00-4.00   sec  37.5 MBytes   315 Mbits/sec   17   1.33 MBytes
+[  4]   4.00-5.00   sec  33.8 MBytes   283 Mbits/sec    0   1.40 MBytes
+[  4]   5.00-6.00   sec  41.2 MBytes   346 Mbits/sec    0   1.45 MBytes
+[  4]   6.00-7.00   sec  41.2 MBytes   346 Mbits/sec    0   1.49 MBytes
+[  4]   7.00-8.00   sec  43.8 MBytes   367 Mbits/sec    0   1.51 MBytes
+[  4]   8.00-9.00   sec  42.5 MBytes   357 Mbits/sec    0   1.52 MBytes
+[  4]   9.00-10.00  sec  41.2 MBytes   346 Mbits/sec    0   1.53 MBytes
+- - - - - - - - - - - - - - - - - - - - - - - - -
+[ ID] Interval           Transfer     Bandwidth       Retr
+[  4]   0.00-10.00  sec   395 MBytes   332 Mbits/sec   62             sender
+[  4]   0.00-10.00  sec   394 MBytes   330 Mbits/sec                  receiver
+\end{minted}
+
+Man sieht allerdings an der vorletzten Zeile (\glqq Retr 62\grqq{}), dass TCP Retransmissions stattgefunden haben. Es ist wahrscheinlich, dass ein \textit{Bottleneck} existiert, Paketverluste konnten mit diversen Ping-Messungen (s.o.) nicht festgestellt werden. Wie in der Abgrenzung geschrieben, werden Bandbreiten, insofern sich nicht ein deutlicher negativer \textit{Impact} bemerkbar macht, in dieser Arbeit nicht tiefergehend untersucht, s. Ausblick...
+
+Floodping:
+\begin{minted}[breaklines,frame=single]{bash}
+root@vyos-azure-ovpn-gw:~# /bin/ping -s 1200 -c 1000 -f 10.33.2.93
+PING 10.33.2.93 (10.33.2.93) 1200(1228) bytes of data.
+
+--- 10.33.2.93 ping statistics ---
+1000 packets transmitted, 1000 received, 0% packet loss, time 13370ms
+rtt min/avg/max/mdev = 25.968/28.533/173.755/10.763 ms, pipe 11, ipg/ewma 13.384/27.159 ms
+\end{minted}
+\fi
+
+
 %Härtung IPSEC Parameter? GCM usw...
 %BFD für schneller Konvergenzzeiten? -> Ausblick...
 %RTT und Ping in Einleitung / ICMP

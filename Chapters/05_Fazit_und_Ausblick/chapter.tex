@@ -8,12 +8,32 @@ In dieser Arbeit konnte gezeigt werden, dass eine sichere und isolierte Hybrid C
 Im Allgemeinen konnten die Vorerfahrungen des Autors aus dem \textit{klassischen} Netzwerkbereich gewinnbringend genutzt werden, um sie auf Ideen und Technologien des (hybriden) Cloud-Networkings zu übertragen: Am Ende des Tages werden auch in dieser Disziplin Pakete von A nach B verschickt et vice versa. Cloud-Ingenieure der \textit{Big Player} AWS und Azure werden nicht bei jeder erdenklichen Möglichkeit das Rad neu erfinden.\\
 %https://web.archive.org/web/20210409184929/https://www.handelsblatt.com/technik/it-internet/it-dienstleister-brand-im-rechenzentrum-warum-eine-cloud-strategie-so-wichtig-ist/27074336.html
 Es reicht aber auch nicht, sich ausschließlich auf das vorhandene Skill-Set zu berufen. Es haben eben nicht mehr alle Paradigmen aus der \glqq alten Welt\grqq{} ihre Gültigkeit: Technologien kamen dazu, wurden neu erfunden oder es wurden alte Zöpfe abgeschnitten. So sind OSI-Layer 1 und 2 für den Netzwerk-Administrator in der Cloud quasi nicht existent und spielen keine Rolle mehr. Im Gegenzug muss dieser sich jedoch mit neuen Werkzeugen beschäftigen. Das hier genutzte Automatisierungswerkzeug Terraform ist nur eines unter vielen.\\
+%Silos wie sie auch bei NetUSE der Fall sind...
 Silodenken, bei dem Netzwerk, Security, Datenbanken, etc. in Einzeldisziplinen aufgeteilt werden, ist nicht mehr zeitgemäß, da diese Komponenten im Cloud-Umfeld noch viel enger vermascht sind. Auch die Entkoppelung von der \glqq wahren\grqq{}, physischen Infrastruktur und die dadurch unterstützte Annahme, dass durch eine \glqq Cloud-Magie\grqq{} alles problemlos und für alle Ewigkeiten funktioniert, kann sich dabei als fahrlässig herausstellen. So kann (und will) man gar nicht mehr wissen, \glqq welches Bit über welchen Draht im Rechenzentrum läuft\grqq{}, aber eine gute technische Ressourcenplanung und das Durchdenken von Fail-Over-Szenarien sind nach wie vor unentbehrliche Prozesse. Dies hat der Brand im Straßburger Rechenzentrum des Cloud-Providers OVH nochmal deutlich vor Augen geführt.\\
 So konnte mit Use-Case 1 demonstriert werden, wie ein verteilter Internetdienst über Cloud-Grenzen hinweg existieren und dadurch redundant ausgelegt werden kann. Ein Re-Routing von Paketen erfolgt, falls eine Verbindung zwischen Cloud-Standorten wegfällt. Es lassen sich dabei noch weitere VPN-Verbindungen zu Gegenstellen bereitstellen, um die Redundanz und Bandbreite nochmals zu erhöhen (s. Ausblick).
 %Neben Roadwarrior Infrastruktur irgendwo hinpacken, wo sie gebraucht wird...
 In Use-Case 2 konnte vor allem demonstriert werden, wie geobasiertes DNS genutzt werden kann, um Verbindungen mit niedrigen Latenzen zu gewährleisten. Weiterhin ist es möglich, Infrastruktur neu zu provisionieren und daraufhin direkt per DNS erreichbar zu machen. 
 
 Die in der Arbeit aufgezeigten Use-Cases können mit Hilfe von Terrafom und IPAM automatisiert ausgerollt und wieder zurückgebaut werden. In der Praxis, bei der bei Kunden keine \glqq grüne Wiese\grqq{} vorherrscht, kann u.U. nicht auf dieses Tooling zurückgegriffen und es muss im Einzelfall betrachtet werden, welche Schnittstellen und Werkzeuge bereits genutzt werden bzw. sinnvoll erscheinen. Grundlegend lässt sich sagen, dass sich viele Themen mit Fokus Cloud in irgendeiner Form automatisieren lassen. Public Clouds sind grob umschrieben große \glqq Baukasten-Systeme\grqq{} mit diversen Kombinationsmöglichkeiten. Dabei spielt das eigentliche Tooling nur eine untergeordnete Rolle: wichtig ist im Kundensinne eine Kostensenkung durch fehlerärmere und optimierte Prozesse. Bevor Prozesse automatisiert abgebildet werden können, bedürfen sie einer genaue Erfassung mit gleichzeitiger Formulierung von messbaren (Kosten-)Kriterien.% Ein kompletter Umstieg auf Cloud-Computing inkl. Automatisierungs-Layer bedeutet dabei nicht pauschal die \glqq beste\grqq{} Lösung.\\
+
+Sollte eine Hybrid Cloud-Strategie in Erwägung gezogen werden, muss man sich bewusst sein, dass man technologisch oftmals mit dem \textit{kleinsten gemeinsamen Vielfachen (kgV)} arbeitet. Dieses Projekt war insofern eine dankbare Aufgabe, da die Public Cloud-Provider AWS und Azure offene Technologien für VPN und Routing anbieten. Würde jedoch nur eine Plattform bspw. keine BGP-Unterstützung haben, hätte sich das kgV verändert: Änderungen der Topologie oder ein kompletter Verzicht auf dynamisches Routing hätte in Betracht gezogen werden müssen. Kleinere aber lösbare Probleme offenbarten sich bereits bei der Auswahl des richtigen Transfernetzes für das BGP-Peering (s. Basis Deployment) oder der Auswahl des VPN-Konzentrators für Roadwarrior.\\
+Hersteller von SD-WAN Lösungen versuchen diese Probleme zu umgehen, indem mehr oder weniger \textbf{alle} Netzwerk-Logiken in virtuelle Maschinen ausgelagert werden. Nachteile wurden mit Vendor Lock-In und somit fehlender Interoperabilität bereits genannt. Weiterhin ist dabei die Annahme, dass alles so bleibt wie zum Zeitpunkt des Deployments. Dabei ist Cloud technologisch ein \textit{moving target}: APIs oder notwendige Technologien können sich jederzeit ändern oder abgekündigt werden (Google API). Gehen Hersteller dann schnellstmöglich auf Änderungen bei den Cloud-Providern ein? Können Bugfixes dann problemlos eingespielt werden, ohne die Produktion zu gefährden?\\ 
+Die Gefahr, dadurch einen Single-Point-Of-Failure ins Netzwerk zu integrieren, ist hoch, wenn man bedenkt, dass vergleichbare Lösungen meist ohne den Einsatz von \glqq Proxies\grqq{} erreicht werden können und direkt von den Cloud-Providern unterstützt werden.
+
+
+%Industriedruck...
+%
+%Die Hoffnung ist, dass die Standards von AWS und Azure direkt supportet werden...
+%AWS Azure machen Änderungen wenn unten drunter... SPOF?
+%Außerdem beschäftigt man sich nicht mit Cloud...
+
+
+
+%Das hätte auch für das interne Routing sicherlich Konsequenzen gehabt... (das was am Ende auch SD-WAN Anbieter machen...) aber auch hier (s. Transfernetzwerk...) Dies kann je nach Definition des Scopes unterschiedliche Auswirkungen haben.
+%
+%Spezielle Building Blocks... nicht erreichbar für andere Teilnehmer, nicht vorhanden in anderen Clouds...
+%
+%dass alle Buildings Blocks, die genutzt werden, möglichst generisch nutzbar sein müssen. Spezielle
 
 %MPLS LINK
 %2. Satz in Einleitung
@@ -29,51 +49,62 @@ Die in der Arbeit aufgezeigten Use-Cases können mit Hilfe von Terrafom und IPAM
 %z.B (s. ...) (Workarounds mit TG, Route Table, Next Hop Routing...). Kleinster gemeinsamer Nenner...
 
 \section{Ausblick}
-Wie bereits in der Abgrenzung geschrieben, sollte in dieser Arbeit wenig auf Bandbreiten eingegangen werden, da diese von zu vielen Faktoren beeinflusst werden kann:
+Wie bereits in der Abgrenzung geschrieben, sollte in dieser Arbeit wenig auf (mögliche) Bandbreiten eingegangen werden, da diese von zu vielen Faktoren beeinflusst werden kann:
 \begin{itemize}
-    \item Wird auf einer Verbindung fragmentiert? Wie wirken sich verschiedene MTU-Parameter aus?
-    \item Sind die virtuellen Maschinen performant genug, um die verfügbare Bandbreiten auszunutzen?
+    \item Sind die virtuellen Maschinen und VPN Building Blocks performant genug, um die verfügbare Bandbreiten auszunutzen?
     \item Sind die Verschlüsselungsparameter der Tunnel optimal gewählt?
     \item Unterscheiden sich Bandbreiten zwischen verschiedenen Protokollen (UDP \textit{versus} TCP bspw.) eklatant? Wo liegen die Ursachen?
     \item Ermöglichen Cloud-Plattformen Optimierungen wie z.B. TCP-Offloading?
+    \item Wird auf einer Verbindung fragmentiert? Wie wirken sich verschiedene MTU-Parameter aus?
     %https://aws.amazon.com/premiumsupport/knowledge-center/transit-gateway-ecmp-multiple-tunnels/
     %https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-highlyavailable
     \item Wie kann sich Equal Cost Multipath (ECMP) auf die verfügbare Bandbreite auswirken? Funktioniert ECMP richtungsunabhängig?
 \end{itemize}
-Grundsätzlich hat sich im Laufe dieser Arbeit gezeigt, dass die Verbindungen, auch durch die zusätzliche Redundanz des Backbones, stabil sind. Weiterhin war \textit{subjektiv} die Performance gut, wenn zum Beispiel über den Tunnel auf entfernten Systemen gearbeitet wurde per SSH.\\
-Es wurden vereinzelte Messungen in verschiedene Richtungen mit dem Tool \textsf{iperf3} gemacht, die grundsätzlich \glqq ordentliche\grqq{} Bandbreiten versprechen, so bspw.:
+Grundsätzlich hat sich im Laufe dieser Arbeit gezeigt, dass die Verbindungen, auch durch die zusätzliche Redundanz des Backbones, stabil sind. Weiterhin war \textit{subjektiv} die Performance gut, wenn zum Beispiel über den Tunnel auf entfernten Systemen gearbeitet wurde per SSH. Wie vereinzelte Messungen (s. ...) zeigen, existiert wahrscheinlich zwischen AWS und Azure ein \textit{Bottleneck}. Hohe Paketverluste, die dies rechtfertigen würden, sind nicht zu messen.
+Um genauere Aussagen diesbezüglich treffen zu können, wäre eine weitere Ausarbeitung in Form einer Bachelor-/Master-Arbeit vorstellbar. Dort könnte z.B. nach Definition von Performancekriterien typischer Anwendungen untersucht werden, wie sich Variationen in oben genannten Punkten auf Bandbreiten auswirken. Jitter, Latenz und Paketverlust wären weitere Parameter, die man untersuchen könnte. Als Basiswert könnten Service-Level-Agreements von AWS und Azure herangezogen werden.\\
+Weiterhin könnte ein geeignetes Tooling entwickelt werden, um Standorte dauerhaft zu messen und ggf. temporär aus einer Topologie herauszunehmen, sollten Kriterien nicht mehr erfüllbar sein. Durch geeignete Automatisierungsmechanismen müssten verbliebene User auf andere Standorte \glqq umgelenkt\grqq{} werden.
+%https://aws.amazon.com/de/directconnect/faqs/
+%https://docs.microsoft.com/en-us/azure/expressroute/expressroute-faqs
+%https://docs.microsoft.com/de-de/azure/vpn-gateway/vpn-gateway-about-vpngateways
+%https://aws.amazon.com/vpn/faqs/
+%https://www.de-cix.net/de/de-cix-service-world/cloud-exchange/directcloud
+%https://www.de-cix.net/de/de-cix-service-world/cloud-exchange/how-to-connect-to-amazon-web-services-via-de-cixs-directcloud-platform
+%https://docs.microsoft.com/de-de/azure/expressroute/expressroute-bfd
+%https://aws.amazon.com/premiumsupport/knowledge-center/enable-bfd-direct-connect/
+Weiterhin wurde in der Abgrenzung angedeutet, dass diese Arbeit Use-Cases für kleine bis mittelgroße Skalierungen herausstellen wird. Während die in dieser Arbeit verwendeten VPN Konzentratoren der Public Cloud-Provider \textit{bis zu} 1,25 Gbit/s Bandbreite (pro VPN-Verbindung) zusichern, sind es bei AWS Direct Connect und Azure Express Route bis zu 100 Gbit/s. Dies sind dedizierte Layer-2-Verbindungen vom eigenen Rechenzentrum bis zum Rechenzentrum eines Public Cloud-Providers. Diese Verbindungen sind in der Theorie ausfallsicherer, da die Pakete zwischen den Standorten nicht über das Internet geroutet, sondern mit der Unterstützung des Internet Service Providers direkt zwischen den Rechenzentren \textit{Layer-2 gebridget} werden. Weiterhin lassen sich hier Services wie Bidirectional Forwarding Detection (BFD) nutzen, um schnellere BGP-Konvergenzzeiten zu erreichen (Sekundenbruchteile, vgl...).
+An dieser Stelle könnte angesetzt werden, um mit einer weiteren Arbeit zu untersuchen, inwiefern ein Hybrid Cloud-Setup mit AWS Direct Connect bzw. Azure Express Route automatisiert konfiguriert werden könnte. Auch eine Mischung aus VPN und Direct Connect / Express Route wäre vorstellbar. Man kann die Ergebnisse aus dieser Arbeit heranziehen, um anha
+\begin{itemize}
+    \item Ließe sich ein \textit{Backbone} ausschließlich per AWS Direct Connect und Azure Express Route analog zu dieser Arbeit aufbauen?
+    \item Ist es möglich zwischen direkt zwischen AWS und Azure zu bridgen?
+    \item Wie sind mögliche Ausfallszenarien? Ist ein Re-Routing (vgl...) ebenso gegeben, wenn eine Leitung ausfällt?
+    \item Ist ein Mischbetrieb mit VPN (IPsec), Direct Connect und Express Route möglich? Funktioniert dann noch dynamisches Routing (BGP)?
+\end{itemize}
+Cloud Computing offenbart viele Felder, in denen weitere Ausarbeitungen gemacht werden können und es ist auch beruflich ein immer wichtiger werdendes Themenfeld:
+%https://www.solcom.de/_Resources/Persistent/7ec4e47057b02eed9a0a3f3bd0aa0ed2fb9a4f9b/210315-marktstudie-ausblick%2021-projektmarkt.pdf
+Eine Umfrage unter IT-Freelancern aus dem Jahr 2021 zeigt, dass nach ihrem  Verständnis die Themen Automatisierung, Cloud Computing und Security die größten Chancen haben, trotz Corona-Krise projektiert zu werden. Alle drei Themen wurden in dieser Arbeit bis zu einem gewissen Grad behandelt und Berührungspunkte...
 
-%Messung vyos-aws -> vyos-azure
-\begin{minted}[breaklines,frame=single]{bash}
-root@vyos-aws-ovpn-gw:~# iperf3 -c 10.32.0.5
-Connecting to host 10.32.0.5, port 5201
-[  4] local 10.33.2.93 port 44298 connected to 10.32.0.5 port 5201
-[ ID] Interval           Transfer     Bandwidth       Retr  Cwnd
-[  4]   0.00-1.00   sec  32.8 MBytes   275 Mbits/sec   45   1.52 MBytes
-[  4]   1.00-2.00   sec  41.2 MBytes   346 Mbits/sec    0   1.66 MBytes
-[  4]   2.00-3.00   sec  40.0 MBytes   336 Mbits/sec    0   1.78 MBytes
-[  4]   3.00-4.00   sec  37.5 MBytes   315 Mbits/sec   17   1.33 MBytes
-[  4]   4.00-5.00   sec  33.8 MBytes   283 Mbits/sec    0   1.40 MBytes
-[  4]   5.00-6.00   sec  41.2 MBytes   346 Mbits/sec    0   1.45 MBytes
-[  4]   6.00-7.00   sec  41.2 MBytes   346 Mbits/sec    0   1.49 MBytes
-[  4]   7.00-8.00   sec  43.8 MBytes   367 Mbits/sec    0   1.51 MBytes
-[  4]   8.00-9.00   sec  42.5 MBytes   357 Mbits/sec    0   1.52 MBytes
-[  4]   9.00-10.00  sec  41.2 MBytes   346 Mbits/sec    0   1.53 MBytes
-- - - - - - - - - - - - - - - - - - - - - - - - -
-[ ID] Interval           Transfer     Bandwidth       Retr
-[  4]   0.00-10.00  sec   395 MBytes   332 Mbits/sec   62             sender
-[  4]   0.00-10.00  sec   394 MBytes   330 Mbits/sec                  receiver
-\end{minted}
+NetUSE mehr Anfragen
 
-Dabei besitzt die Azure-VM nur einen CPU-Kern. Es wurden meist kleine Maschinentypen gewählt:
+Wegen enger Vermaschung (s.o.) alles möglich
 
-\begin{minted}[breaklines,frame=single]{bash}
-root@vyos-azure-ovpn-gw:~# grep -E 'processor|model name' < /proc/cpuinfo
-processor       : 0
-model name      : Intel(R) Xeon(R) Platinum 8171M CPU @ 2.60GHz
-\end{minted}
 
-Natürlich halten solche \textit{subjektiven} Aussagen keiner wissenschaftlichen Auseinandersetzung stand und eine weitere Ausarbeitung wäre notwendig. Dort könnte z.B. nach Definition von Performancekriterien typischer Anwendungen untersucht werden, wie sich Variationen in vorher genannten Punkten auf Bandbreiten auswirken. Jitter, Latenz und Paketverlust wären weitere Parameter, die man untersuchen könnte. 
+
+
+
+\iffalse
+
+
+
+
+% Dabei besitzt die Azure-VM nur einen CPU-Kern. Es wurden meist kleine Maschinentypen gewählt:
+
+%\begin{minted}[breaklines,frame=single]{bash}
+%root@vyos-azure-ovpn-gw:~# grep -E 'processor|model name' < /proc/cpuinfo
+%processor       : 0
+%model name      : Intel(R) Xeon(R) Platinum 8171M CPU @ 2.60GHz
+%\end{minted}
+
+Natürlich halten solche \textit{subjektiven} Aussagen keiner wissenschaftlichen Auseinandersetzung stand und eine weitere Ausarbeitung wäre notwendig. Dort könnte z.B. nach Definition von Performancekriterien typischer Anwendungen untersucht werden, wie sich Variationen in vorher genannten Punkten auf Bandbreiten auswirken. Jitter, Latenz und Paketverlust wären weitere Parameter, die man untersuchen könnte. Weiterhin könnte untersucht werden, wie ein geeignetes Tooling entwickelt werden kann, um Standorte dauerhaft zu messen und ggf. herunterzufahren, sollten Kriterien nicht erfüllbar sein
 
 Performancekriterien typischer Anwendungen mit $n$ Benutzern definiert und daraufhin untersucht, wie Variationen in den vorher genannten Punkten zu einer Verbesserung bzw. Verschlechterung führen.
 %ECMP / Redundanz
@@ -88,3 +119,4 @@ Härtungsmaßnahmen und wie sich Parameter optimieren lassen
 Bandbreitenmessungen oder Benchmarking einiger typischer Anwendungen, evtl. mit Benutzerumfragen...
 Wie ließe sich das Ganze mit Direct Connect / Express Route umsetzen?
 BYOIP
+\fi
