@@ -2,8 +2,7 @@
 
 \section{Internet Protocol Version 4 (IPv4)} \label{ipv4}
 \subsection{Allgemeines und Adressierungsschema}
-%OSI https://web.archive.org/web/20210225232853/https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-X.200-199407-I!!PDF-E&type=items
-Das Internet Protocol ist im OSI-Modell auf Schicht 3 (Network-Layer) anzusiedeln. Es dient der \textit{Paketierung} von Daten und anschließenden Ende-zu-Ende-Vermittlung dieser \textit{Pakete} zwischen Netzwerk-Systemen. Dafür notwendig ist eine Adressierung: eine IPv4-Adresse besteht aus einer 32 Bit-Zahl, welche typischerweise dezimal dargestellt wird in so genannter \glqq dotted decimal\grqq{}-Schreibweise. Dafür wird die Binärzahl in vier Oktette mit einem Punkt aufgeteilt und die jeweiligen Oktette in dezimal umgerechnet.
+Das Internet Protocol ist im OSI-Modell auf Schicht 3 (Network-Layer) anzusiedeln \cite{itu1994}. Es dient der \textit{Paketierung} von Daten und anschließenden Ende-zu-Ende-Vermittlung dieser \textit{Pakete} zwischen Netzwerk-Systemen. Dafür notwendig ist eine Adressierung: eine IPv4-Adresse besteht aus einer 32 Bit-Zahl, welche typischerweise dezimal dargestellt wird in so genannter \glqq dotted decimal\grqq{}-Schreibweise. Dafür wird die Binärzahl in vier Oktette mit einem Punkt aufgeteilt und die jeweiligen Oktette in dezimal umgerechnet.
 
 {\centering 32 Bit Integer:\\
 \textbf{00000001 0000001 000000011 00000100}\\
@@ -70,13 +69,12 @@ AND 11111111.11111111.11111111.00000000
 Da in diesem Fall das Netzwerk außerhalb des eigenen liegt, muss das Paket \textit{geroutet}, also zu einem Router geschickt werden.
 
 \subsection{RFC 1918-Adressen}
-%https://datatracker.ietf.org/doc/html/rfc1918
 Ein Großteil der IP-Adressen werden \textit{blockweise} an Provider, Firmen und Forschungseinrichtungen herausgegeben und können fortan im Internet genutzt werden. Mit RFC 1918  wurden Blöcke durch die IANA reserviert, welche ausschließliche für private und firmeninterne Nutzung vorgesehen sind. Sie werden im Internet nicht geroutet. Es handelt sich dabei um die Blöcke:
 \begin{itemize}
 \item 10.0.0.0/8
 \item 172.16.0.0/12
 \item 192.168.0.0/16
-\end{itemize}
+\end{itemize} \cite{rfc1918}
 
 Auf diese Blöcke wird auch in der Bachelor-Arbeit zurückgegriffen, um Zugriff auf \textit{interne}, vom Internet \textit{isolierte} Ressourcen zu ermöglichen.
 
@@ -138,11 +136,9 @@ Anmerkung: R2-AS10 kann mit dem Next-Hop 10.0.0.1 aus der Tabelle nichts anfange
 
 In diesem Beispiel wurde noch eine Verbindung zwischen AS 10 und AS 30 hinzugefügt. Damit werden alle Präfixe, bis auf die eigenen, doppelt sichtbar, da sie nun über verschiedene Pfade erreicht werden können. Im Standardfall wird das Präfix mit dem kürzeren AS-Pfad bevorzugt. Die Präfixe mit roter Schriftart sind dabei allerdings nicht nutzlos. Sie können als Backup-Pfad dienen, falls der bessere Pfad wegfallen sollte. Falls bspw. die Verbindung zwischen AS 10 und AS 30 ausfällt, \textit{konvergiert} das BGP auf allen Routern wieder hin zu Fall 1 (Listing...).
 
-%https://datatracker.ietf.org/doc/html/rfc4271#section-9.1.2
-BGP-Router ignorieren AS-Pfade, in denen die eigene AS-Nummer bereits vorkommt. Pakete werden dann gemäß RFC verworfen werden. Dadurch werden effektiv Routing-Schleifen verhindert.
+BGP-Router ignorieren AS-Pfade, in denen die eigene AS-Nummer bereits vorkommt. Pakete werden dann gemäß RFC verworfen werden. Dadurch werden effektiv Routing-Schleifen verhindert. \cite{rfc4271}
 
-%https://datatracker.ietf.org/doc/html/rfc6996
-BGP sieht analog zu RFC 1918-Adressen Bereiche für AS-Nummern vor, die privat, also nicht im Internet, verwendet werden dürfen. Diese gehen von einschließlich 54512 bis 65534.
+BGP sieht analog zu RFC 1918-Adressen Bereiche für AS-Nummern vor, die privat, also nicht im Internet, verwendet werden dürfen. Diese gehen von einschließlich 64512 bis 65534. \cite{rfc6996}
 
 %Cisco Doku
 %next-hop self?
@@ -161,9 +157,7 @@ BGP sieht analog zu RFC 1918-Adressen Bereiche für AS-Nummern vor, die privat, 
 %In den Ursprüngen des Internets waren IP-Adressen \textit{classful}: die Netzwerkgröße wurde über die Klassenzugehörigkeit einer IP-Adresse bestimmt. Ein Class A Netz fiel in die \textit{Range} 0.0.0.0 - 127.255.255.255. So hätte obige IP-Adresse zu dem Class-A-Netzwerk "1.0.0.0" gehört
 
 \subsection{Network Address Translation (NAT)}
-%https://countrymeters.info/de/World
-%https://web.archive.org/web/20210318145103/https://docs.microsoft.com/en-us/azure/virtual-network/ipv6-overview#limitations
-Grundlegend geht es bei NAT darum, eine IP-Adresse \textit{umzuschreiben}. Dies ist sowohl für die Absender- als auch die Ziel-Adresse möglich. Dies kann verschiedene Gründe haben, die meisten NAT-Mechanismen beruhen aber auf der grundlegenden Idee, IPv4-Adressen einzusparen. Dies ist dem Umstand geschuldet, dass IPv4 nur einen Adressraum von 32 Bit hat, was $2^{32} \approx 4.000.000.000$ Adressen entspricht. Wenn man dagegen hält, dass die Weltbevölkerung bereits knapp $8.000.000.000$ Menschen beträgt und viele Menschen bereits mehr als ein Endgerät besitzen, reicht der Adressraum bei weitem nicht mehr aus.\\
+Grundlegend geht es bei NAT darum, eine IP-Adresse \textit{umzuschreiben}. Dies ist sowohl für die Absender- als auch die Ziel-Adresse möglich. Dies kann verschiedene Gründe haben, die meisten NAT-Mechanismen beruhen aber auf der grundlegenden Idee, IPv4-Adressen einzusparen. Dies ist dem Umstand geschuldet, dass IPv4 nur einen Adressraum von 32 Bit hat, was $2^{32} \approx 4*10^9$ Adressen entspricht. Wenn man dagegen hält, dass die Weltbevölkerung zum Zeitpunkt der Arbeit knapp $8.000.000.000$ Menschen beträgt und viele Menschen bereits mehr als ein Endgerät besitzen, reicht der Adressraum bei weitem nicht mehr aus \cite{weltbevoelkerung2020dsw}.\\
 Langfristig soll IPv6 mit einem Adressraum aus $2^{128}$ Bit IPv4 ablösen, doch selbst im Jahr 2021 fehlt weiterhin die \textbf{vollständige Unterstützung} einiger Hersteller für IPv6. Dies gilt auch für die Public Cloud-Plattformen.\\
 Der häufigste NAT-Mechanismus ist Network Address Port Translation (NAPT). Dabei können $n$ Clients hinter einer einzigen IPv4-Adresse \glqq verborgen\grqq{} und so IP-Adressen eingespart werden. Dafür werden neben der IP-Adresse bspw. noch Information der Transport-Schicht (Layer 4) wie Ports herangezogen, um NAPT-Sessions zuordnen zu können. Ein Router verwaltet diese Sessions in Form einer NAPT-Tabelle. Diese wird notwendig, wenn Rückpakete die verborgenen Clients erreichen sollen.
 In dieser Ausarbeitung ist, wenn von NAT oder NATting gesprochen wird und keine anderweitigen Aussagen getroffen werden, der NAPT-Mechanismus gemeint.\\
@@ -185,9 +179,7 @@ Da die MTU auf dem Weg vom Empfänger zum Ziel variieren und auch mal geringer a
 Man nutzt optimalerweise Path MTU Discovery oder beeinflusst die Maximum Segment Size (MSS) bei Initiierung der Verbindung, um Fragmentierung zu umgehen.
 
 \subsection{GeoIP}
-%https://www.maxmind.com/en/home
-%https://www.maxmind.com/en/locate-my-ip-address
-Mit Hilfe von GeoIP-Datenbanken ist es möglich, den (ungefähren) Standort mit der Absender-IP-Adresse eines Clients zu bestimmen. Verwendung finden solche Datenbanken häufig bei Internet-Streaming-Anbietern, um Zugriffe auf ein Videoangebot aus dem Ausland zu verhindern. Die Firma MaxMind ist dabei führender Anbieter für solche GeoIP-Datenbanken.
+Mit Hilfe von GeoIP-Datenbanken ist es möglich, den (ungefähren) Standort mit der Absender-IP-Adresse eines Clients zu bestimmen. Verwendung finden solche Datenbanken häufig bei Internet-Streaming-Anbietern, um Zugriffe auf ein Videoangebot aus dem Ausland zu verhindern. Die Firma MaxMind ist dabei führender Anbieter für solche GeoIP-Datenbanken \cite{maxmind2021geoip}.
 
 \section{Domain Name System (DNS)}\label{DNS}
 Das DNS ermöglicht, Server im Internet anhand eines Namens, dem Fully Qualified Domain Name (FQDN), zu erreichen. Somit muss sich ein Benutzer einer Webseite keine IP-Adresse merken, sondern lediglich den dazugehörigen FQDN. Die IP-Adresse wird über die \textit{DNS-Auflösung} herausgefunden. Das DNS ist ein hierarchisches Modell, welches mit Domains arbeitet. Diese unterliegen unterschiedlichen Autoritäten. 
@@ -198,9 +190,8 @@ Das DNS ermöglicht, Server im Internet anhand eines Namens, dem Fully Qualified
   \label{grafik: napt}
 \end{figure}\FloatBarrier
 
-%https://www.isc.org/bind/
 Soll z.B. der FQDN www.intern.ba.mungard.de. aufgelöst werden, muss der \textit{Baum} von der Wurzel \glqq .\grqq{} über die Knoten de, mungard, ... bis zum Blatt www durchlaufen werden. Man spricht von einer iterativen Auflösung. Pro Hierarchie-Ebene sind \textit{autoritative Nameserver} verantwortlich für die richtige Delegation des auflösenden Clients.\\
-Das Blatt www wird auch als Resource Record bezeichnet. Für diese Arbeit sind lediglich A-Records relevant, welche FQDN nach IPv4-Adresse auflösen. Viele weitere DNS-Records existieren, z.B. für IPv6-Adressen (AAAA) oder um Mailserver (MX) für eine Domain anzugeben \cite[S.528]{Fall2011}. Ein Beispiel für einen autoritativen Nameserver ist Bind. Innerhalb des Nameservers werden Domains anhand von \textit{Zonen(-Dateien)} verwaltet
+Das Blatt www wird auch als Resource Record bezeichnet. Für diese Arbeit sind lediglich A-Records relevant, welche FQDN nach IPv4-Adresse auflösen. Viele weitere DNS-Records existieren, z.B. für IPv6-Adressen (AAAA) oder um Mailserver (MX) für eine Domain anzugeben \cite[S.528]{Fall2011}. Ein Beispiel für einen autoritativen Nameserver ist Bind \cite{liu2006dns}. Innerhalb des Nameservers werden Domains anhand von \textit{Zonen(-Dateien)} verwaltet.
 
 \subsection{DNS-Resolver}
 Endgeräte machen diese iterative Namensauflösung typischerweise nicht selbst, sondern leiten ihre Anfragen an einen DNS-Resolver weiter (\glqq Forwarding\grqq{}). Dieser ist in folgendem Beispiel dafür verantwortlich, zu einem FQDN eine IPv4-Adresse zu finden (iterativ) und dem Endgerät zurückzuschicken.
@@ -240,7 +231,7 @@ www01.fh-kiel.de.       21599   IN      A       149.222.20.63
 Weiterhin kann ein Resolver Einträge \textit{cachen}, um auf erneute Anfragen schneller antworten zu können.%Der letzte Punkt eines FQDN, welcher die Root-Domain repräsentiert, wird üblicherweise ausgelassen.
 
 \subsection{Split DNS}
-Split DNS ist die Möglichkeit, verschiedene Resource Records anhand der Absender-IP auszuliefern. Dafür pflegen autoritative Nameserver Access Control Lists (ACL) mit verschiedenen IP-Präfixen, um eine Fallunterscheidung treffen zu können. Dies ist z.B. relevant, wenn eine Firma zwischen internen und externen Anfragen unterscheiden muss, um den (richtigen) Zugriff auf Ressourcen zu gewährleisten.
+Split DNS ist die Möglichkeit, verschiedene Resource Records anhand der Absender-IP auszuliefern. Dafür pflegen autoritative Nameserver Access Control Lists (ACL) mit verschiedenen IP-Präfixen, um eine Fallunterscheidung treffen zu können\cite[S.565-567]{Fall2011}. Dies ist z.B. relevant, wenn eine Firma zwischen internen und externen Anfragen unterscheiden muss, um den (richtigen) Zugriff auf Ressourcen zu gewährleisten.
 
 \begin{figure}[h]
   \centering
@@ -250,8 +241,7 @@ Split DNS ist die Möglichkeit, verschiedene Resource Records anhand der Absende
 \end{figure}\FloatBarrier
 
 \subsection{DNS UPDATE}
-%https://datatracker.ietf.org/doc/html/rfc2136
-Die Methode DNS UPDATE ist in RFC 2136 definiert und erlaubt es, autoritative Zonen eines Nameserver während der Laufzeit zu verändern. Somit müssen keine Zonen-Dateien (manuell) verändert werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten Zonen-Dateien neu einzulesen.\\
+Die Methode DNS UPDATE ist in RFC 2136 definiert und erlaubt es, autoritative Zonen eines Nameserver zur Laufzeit zu verändern\cite{rfc2136}. Somit müssen keine Zonen-Dateien (manuell) verändert werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten Zonen-Dateien neu einzulesen.\\
 Clients werden über eine ACL ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP berücksichtigt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen} lassen. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (Pre-Shared Key) eine DNS UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (TSIG) \cite[S.911-914]{Fall2011}.
 %Diese Updates werden vom Nameserver selbstständig in die Zonen-Dateien übernommen und überstehen somit einen Neustart des Servers.
 
@@ -284,9 +274,8 @@ Der Cloud-Begriff kann je nach Literatur variieren. Diese Arbeit verweist an die
 Auch für die so genannten \textit{Cloud Deployment}-Modelle wird auf die Definition des NIST verwiesen.\cite{mell2011}
 
 Allerdings soll an dieser Stelle ein häufiges Missverständnis hingewiesen werden. Eine Private Cloud existiert nicht zwingend \textit{On-premises} einer Organisation, also bspw. im eigenen Rechenzentrum. Sie kann ebenso über öffentliche Cloud-Plattformen abgebildet werden. Allerdings ist die Voraussetzung, dass alle genutzten Ressourcen dann exklusiv für die Organisation zur Verfügung stehen (\textit{exclusive use by a single organization}). Sie werden nicht mit weiteren Parteien geteilt (\textit{open use by the general public}).\\
-%https://www.openstack.org/
 %Abgrenzung Private Cloud ...irgendwo... einarbeiten. Es wird angenommen, dass die Private Cloud schon besteht. Router interessiert, bißchen Infrastrukut (Webserver), Rest interessiert nicht...
-Die Public-Cloud-Provider, welche in dieser Arbeit genutzt werden, sind Amazon Web Services (AWS) und Microsoft Azure. Rechenzentren stehen weltweit zur Verfügung, um eine schnelle und latenzarme Anbindung für die Kunden zu ermöglichen. Eine Private Cloud lässt sich bspw. mit OpenStack abbilden.
+Die Public-Cloud-Provider, welche in dieser Arbeit genutzt werden, sind Amazon Web Services (AWS) und Microsoft Azure. Rechenzentren stehen weltweit zur Verfügung, um eine schnelle und latenzarme Anbindung für die Kunden zu ermöglichen. Eine Private Cloud lässt sich bspw. mit OpenStack abbilden \cite{sefraoui2012openstack}.
 
 \subsection{Multi und Hybrid Cloud}
 Eine Multi Cloud besteht aus gleichen Cloud Deployments-Bausteinen. So können zwei oder mehrere Public Clouds zu einer Multi Cloud zusammengefasst werden. Das gleiche gilt für Private Clouds.\\
@@ -306,8 +295,7 @@ Route Tables ermöglichen es, den Fluss von IP-Pakete innerhalb eines Subnets zu
 Subnets in Azure erfordern keine Route Tables: Alle Maschinen eines VNET erreichen sich untereinander standardmäßig und erreichen Ressourcen im Internet. Sollte ein granulareres Routing gebraucht werden, werden Azure Route Tables erforderlich. Subnets in VPC erhalten immer eine Route Table: Ohne weitere Konfigurationen wird einem Subnet die Main Route Table zugewiesen. Diese kann vorab editiert werden, so dass z.B. kein Internet-Traffic für virtuelle Maschinen möglich ist.
 
 \subsection{Security Groups}
-%https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.146.5044&rep=rep1&type=pdf
-AWS Security Groups (SG) bzw. Azure Network Security Groups bilden \textit{stateful Firewalling} ab. Dabei können sowohl ingress (eingehende), als auch egress (ausgehende) Firewall-Regeln definiert und darauf basierend Pakete gefiltert werden. Typische Protokolle anhand derer Regeln definiert werden können sind UDP, TCP und ICMP.\\
+AWS Security Groups (SG) bzw. Azure Network Security Groups bilden \textit{stateful Firewalling} ab \cite{wool2006packet}. Dabei können sowohl ingress (eingehende), als auch egress (ausgehende) Firewall-Regeln definiert und darauf basierend Pakete gefiltert werden. Typische Protokolle anhand derer Regeln definiert werden können sind UDP, TCP und ICMP.\\
 AWS SGs können einer Instanz zugewiesen werden. Wird keine SG explizit für eine Instanz definiert, kommt eine Default SG zu Einsatz, die vom VPC vorgegeben ist.\\
 Azure NSGs können Instanzen als auch Subnets zugewiesen werden. NSGs für Subnets wirken sich also global für alle VMs eines Subnets aus. Wenn granularer Zugriff auf bestimmte VMs gewünscht ist, können zusätzliche NSGs den jeweiligen Instanzen zugeordnet werden. 
 
@@ -331,9 +319,7 @@ Ansible muss mehr manuell auf Plausibilität geprüft werden...
 Das Werkzeug, das hauptsächlich für Automatisierungs-Schritte in dieser Arbeit verwendet wird, ist \textit{Terraform} der Firma Hashicorp. Es ist ein Provisioner mit begrenzten Möglichkeiten für Configuration Management. Es besitzt eine Vielzahl an \textit{Resources}, welche es ermöglichen, Infrastruktur-Komponenten  reproduzierbar  zu  deployen. Es wird eine deklarativer Sprachstil genutzt, um gewünschte Zustände der Infrastruktur zu beschreiben. Man spricht auch von \textit{Infrastructure as Code} (IaC).
 
 \textbf{\underline{Provider}}\\
-%https://registry.terraform.io/browse/providers
-%https://registry.terraform.io/providers/hashicorp/aws/latest
-Provider sind die Grundvoraussetzung, um die Automatisierung einer Plattform mit Terraform bewerkstelligen zu können. Sie ermöglichen es, mit entsprechenden Schnittstellen der Anbieter, z.B. REST, zu interagieren. Provider beinhalten \textit{Resources}, welche Veränderungen tätigen können und \textit{Data Sources}, welche \glqq lesend\grqq auf die Infrastruktur zugreifen, um Informationen zurückzuliefern. Diese können dann anderen \textit{Modulen} zur Verfügung gestellt werden.\\
+Provider sind die Grundvoraussetzung, um die Automatisierung einer Plattform mit Terraform bewerkstelligen zu können. Sie ermöglichen es, mit entsprechenden Schnittstellen der Anbieter, z.B. REST, zu interagieren. Provider beinhalten \textit{Resources}, welche Veränderungen tätigen können und \textit{Data Sources}, welche \glqq lesend\grqq auf die Infrastruktur zugreifen, um Informationen zurückzuliefern. Diese können dann anderen \textit{Modulen} zur Verfügung gestellt werden.\cite{Brikman2019}\\
 %Serifen-Schrift für Dateinamen...
 Terraform arbeitet stateful: Nach jedem \texttt{terraform apply}, welches zur Erstellung der gewünschten Infrastruktur führt, werden Referenzen aller Infrastrukturkomponenten in der Datei \underline{terraform.tfstate} gespeichert. Ein erneuter Aufruf von \texttt{terraform apply} würde, insofern keine Konfigurationsänderungen gemacht wurden, die Infrastruktur so belassen und sie nicht nochmal deployen bzw. erweitern. Per \texttt{terraform destroy} kann die Infrastruktur wieder zurückgebaut werden.
 Im folgenden Beispiel wird der Provider \textit{aws} in einer spezifischen Version eingebunden. Der Constraint \glqq $\sim$>\grqq{} sorgt dafür, dass nur Versionen des Providers innerhalb des 3.35.x Branches benutzt werden (\glqq Minor Patches\grqq{}).
@@ -366,9 +352,7 @@ resource "aws_vpc" "example_vpc" {
 Dabei zeigt sich auch der deklarative Aspekt von Terraform. Die Resource \glqq aws\_subnet\grqq{} mit dem Namen \glqq example\_subnet\grqq{} kommt als erstes im Code vor, referenziert jedoch das VPC \glqq example\_vpc\grqq{}. Durch diese impliziete Abhängigkeit wird die Resource \glqq example\_vpc\grqq{} als erstes erstellt. Man beschreibt also, \textit{was} benötigt wird. \textit{Wie} und in welcher Reihenfolge das Rollout gemacht wird, obliegt Terraform.
 
 \textbf{\underline{Module}}\\
-%https://www.terraform.io/docs/language/modules/syntax.html
-%https://web.archive.org/web/20210323202054if_/https://www.terraform.io/docs/language/modules/syntax.html
-Terraform Module sind \textit{Container}, die mehrere Resources in *.tf-Dateien zusammenfassen. Es ist zwar möglich, alle Resources in einer großes *.tf-Datei zu konfigurieren, allerdings ist es \textit{best practice}, verschiedene Aspekte wegen der Übersichtlichkeit aufzuteilen und in einer geeigneten Ordnerstruktur unterzubringen. Die jeweiligen Dateien innerhalb eines Ordners heißen dann \underline{main.tf}. Um Attribute an andere Module weiterzugeben, werden \textit{Outputs} genutzt. 
+Terraform Module sind \textit{Container}, die mehrere Resources in *.tf-Dateien zusammenfassen \cite{tfmodule2021}. Es ist zwar möglich, alle Resources in einer großes *.tf-Datei zu konfigurieren, allerdings ist es \textit{best practice}, verschiedene Aspekte wegen der Übersichtlichkeit aufzuteilen und in einer geeigneten Ordnerstruktur unterzubringen. Die jeweiligen Dateien innerhalb eines Ordners heißen dann \underline{main.tf}. Um Attribute an andere Module weiterzugeben, werden \textit{Outputs} genutzt. 
 
 \textbf{\underline{Data Source und Outputs}}\\
 Data Sources führen keine Änderung herbei, sondern werden genutzt, um detaillierte Informationen zu Infrastruktur-Komponenten zurückzugeben oder um etwas zu finden. Im Beispiel wird nach einem Amazon Machine Image (AMI) für Ubuntu gesucht. Die ID (image\_id) für das \textit{most recent} Release kann per Output an andere Module weitergegeben werden. Diese können die ID dann z.B. nutzen, um per Resource eine virtuelle Maschine mit dem gewünschten Ubuntu-Image bereitzustellen.

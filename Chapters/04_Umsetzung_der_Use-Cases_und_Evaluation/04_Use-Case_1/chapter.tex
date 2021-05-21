@@ -7,9 +7,7 @@
 \subsection{Umsetzung: Kerntätigkeiten}
 
 Im PHPIPAM müssen mehrere Netzbereiche reserviert werden. Es werden Netzbereiche benötigt, in denen Maschinen per IPv4 kommunizieren können. Diese Netze werden mit VPC bzw. VNET assoziiert. Für VNET wurde der Netzblock \glqq 10.32.0.0/16\grqq{} und für VPC der Netzblock \glqq 10.33.0.0/16\grqq{} vorreserviert, aus dem kleinere Subnets für die jeweilige Cloud entnommen werden können. Weiterhin ist die Annahme, dass die Private Cloud bereits einen Netzbereich besitzt, in dem Maschinen angesiedelt sind: \glqq 192.168.201.0/24.\grqq{}\\
-%https://docs.aws.amazon.com/vpn/latest/s2svpn/VPNTunnels.html
-%https://docs.microsoft.com/de-de/azure/vpn-gateway/bgp-howto
-Weiterhin benötigt man {Transfernetzwerke}, über die die IPv4-Pakete geschickt werden und die BGP-Präfixe ausgetauscht werden können. AWS sieht hierfür /30-Präfixe aus dem Bereich \glqq 169.254.0.0/16\grqq{} vor, Azure hat eine Range reserviert: \glqq 169.254.21.0 - 169.254.22.255\grqq{}. Als Kompromiss können daher nur Netze aus den Azure-Bereichen genutzt werden, da die Bereiche, die AWS zur Verfügung stellt, größtenteils außerhalb dieser Range liegen. Auch diese Netzbereiche müssen im IPAM vorreserviert werden, auch die Transfernetze automatisiert ausgebracht werden.\\
+Weiterhin benötigt man {Transfernetzwerke}, über die die IPv4-Pakete geschickt werden und die BGP-Präfixe ausgetauscht werden können. AWS sieht hierfür /30-Präfixe aus dem Bereich \glqq 169.254.0.0/16\grqq{} vor \cite{awsvpn2021}, Azure hat eine Range reserviert: \glqq 169.254.21.0 - 169.254.22.255\grqq{} \cite{azurebgp2020}. Als Kompromiss können daher nur Netze aus den Azure-Bereichen genutzt werden, da die Bereiche, die AWS zur Verfügung stellt, größtenteils außerhalb dieser Range liegen. Auch diese Netzbereiche müssen im IPAM vorreserviert werden, auch die Transfernetze automatisiert ausgebracht werden.\\
 Im folgenden Code-Beispiel wird innerhalb des IPAM nach dem Bereich \glqq TF\_CLOUD\_BGP\_TRANSFER\grqq{}, aus dem alle Transfernetze entommen werden, gesucht. Innerhalb des Bereichs wird aus dem vorreservierten Block \glqq Cloud\_Transfer\_BGP\_1\grqq{} ein /30-Netzwerk entnommen. Die Reservierung der Netzblöcke für VPC und VNET erfolgen analog.
 %data vs. resource in Einleitung erläutern?
 \FloatBarrier
@@ -50,7 +48,7 @@ output "azure_vyos_tunnel1_psk" {
 Da, wie bereits erwähnt (vgl. klick), für die VyOS-Router keine Terraform-Integration verfügbar ist, wurde zur Konfiguration des Devices eine Vorlage erstellt.
 
 %https://www.terraform.io/docs/language/functions/templatefile.html
-Die Erzeugung der Vorlage erfolgt über die Funktion templatefile().
+Die Erzeugung der Vorlage erfolgt über die Funktion templatefile() \cite{templatefile2021}.
 
 \begin{lstlisting}[label=tf-call-tpl-generation,caption=Die Funktion templatefile() erzeugt aus einer Template-Datei (vyos\_config.tpl) die Datei /tmp/example.sh. Die Template-Datei wird mit den Variablen var.aws\_vgw\_ip und aws\_tunnel1\_psk befüllt.]
 resource "local_file" "vyos_config" {
@@ -103,7 +101,6 @@ resource "null_resource" "vyos_config" {
 
 \textbf{\underline{Vertauschung von IPSEC-Tunnelparametern}}
 
-%https://github.com/hashicorp/terraform-provider-aws/issues/396
 AWS VPN-Verbindungen bieten aus Redundanzgründen standardmäßig zwei IPs pro Gegenstelle an. 
 
 \begin{lstlisting}[label=tf-xml-response-aws,caption=Die ursprüngliche (gekürzte) XML-Antwort der AWS API.]
@@ -142,11 +139,9 @@ AWS VPN-Verbindungen bieten aus Redundanzgründen standardmäßig zwei IPs pro G
 \end{lstlisting}
 
 Wie man sieht, taucht das XML-Element ipsec\_tunnel zwei Mal auf, ist dabei jedoch unnummeriert.
-%https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpn_connection#attributes-reference
-Der Terraform-Provider aws\_vpn\_connection nutzt diese XML-Antwort, um daraus die Rückgabewerte tunnel1\_* und tunnel2\_* zu erzeugen, die in der weiteren Ausführung von anderen Modulen wiederverwendet werden. Bei einigen Ausführungen wurden diese Elemente Terraform-intern vertauscht: Da nun weder IPSEC-Schlüssel noch interne BGP-Peering-Gegenstellen stimmen, kommen weder IPSEC-Tunnel noch die BGP-Peering-Sessions hoch.
+Der Terraform-Provider aws\_vpn\_connection nutzt diese XML-Antwort, um daraus die Rückgabewerte tunnel1\_* und tunnel2\_* zu erzeugen \cite{awsattributestf2021}, die in der weiteren Ausführung von anderen Modulen wiederverwendet werden. Bei einigen Ausführungen wurden diese Elemente Terraform-intern vertauscht: Da nun weder IPSEC-Schlüssel noch interne BGP-Peering-Gegenstellen stimmen, kommen weder IPSEC-Tunnel noch die BGP-Peering-Sessions hoch. Dieser Bug ist in Github für den AWS Provider seit 2017 dokumentiert \cite{githubbugtf2021}.
 
-%https://docs.aws.amazon.com/AWSEC2/latest/APIReference/throttling.html
-Mit einem Bash-Skript konnte zumindest ein Workaround gefunden werden, um ein erfolgreiches Deployment sicherzustellen. Die Grundannahme ist, dass pro Präfix zwei Pfade auf dem Private Cloud-Router existieren. Wenn nur ein Pfad pro Präfix zur Verfügung steht, kam es mit einer hohen Wahrscheinlichkeit zu einer Vertauschung und es wird redeployed (destroy -> apply). Es wird maximal drei Mal versucht, ein funktionierendes Deployment hochzuziehen, um die APIs der Cloud-Anbieter zu \textit{schonen} und kein Rate-Limiting zu triggern.
+Mit einem Bash-Skript konnte zumindest ein Workaround gefunden werden, um ein erfolgreiches Deployment sicherzustellen. Die Grundannahme ist, dass pro Präfix zwei Pfade auf dem Private Cloud-Router existieren. Wenn nur ein Pfad pro Präfix zur Verfügung steht, kam es mit einer hohen Wahrscheinlichkeit zu einer Vertauschung und es wird redeployed (destroy -> apply). Es wird maximal drei Mal versucht, ein funktionierendes Deployment hochzuziehen, um die APIs der Cloud-Anbieter zu \textit{schonen} und kein Rate-Limiting zu triggern \cite{awsthrottling2021}.
 
 \begin{lstlisting}[label=tf-base-deployment-bgp-ok,caption=BGP Status]
 vyos@vyos-cloud:~$ sh ip bgp | grep -A1 -E '10.3[2|3]'
@@ -168,13 +163,12 @@ vyos@vyos-cloud:~$ sh ip bgp | grep -A1 -E '10.3[2|3]'
 
 Durch das Bash-Skript wurde dieser Bug nicht zum Showstopper, allerdings hat das Deployment manchmal länger gedauert (Normale Deployment Zeit * Versuche).
 
-%FIX vom https://github.com/hashicorp/terraform-provider-aws/pull/19077
-Dieser Bug wurde angeblich noch kurz vor Abgabe dieser Arbeit mit PR\# gefixt, allerdings konnte das nicht mehr getestet werden. Es ist im Commit ersichtlich, dass es sich um einen Bug in der Sortierfunktion handelte.
+Dieser Bug wurde angeblich noch kurz vor Abgabe dieser Arbeit behoben, allerdings konnte das nicht mehr getestet werden. Es ist im Commit ersichtlich, dass es sich um einen Bug in der internen Sortierfunktion handelte.\cite{aswfixtf2021}
 
 \textbf{\underline{Zustandslose VyOS-Konfiguration}}\\
 %Terraform Einleitung
 Terraform speichert, wie bereits erläutert, alle Referenzen auf Infrastrukturkomponenten in der Datei terraform.tfstate. Da es für VyOS keinen vollwertigen Terraform-Provider gibt, wurde mit Templates, die verschiedene set-Kommandos ausführen, gearbeitet. Diese Konfigurationsänderungen sind dadurch völlig zustandlos, da sie nicht invertierbar sind: Terraform kennt nicht die Umkehrung der "set"-Kommandos, welche benötigt würden, um bei einen \glqq terraform destroy\grqq{} die Konfigurationen am VyOS-Router rückgängig zu machen.
-%https://www.terraform.io/docs/language/resources/provisioners/syntax.html#destroy-time-provisioners
+
 Ein Ansatz wäre gewesen, ein weiteres Template zur Verfügung zu stellen, in dem alle set- durch delete-Kommandos negiert werden.\\
 \begin{lstlisting}[label=set-delete-vyos,caption=delete negiert das vorherige set-Kommando.]
 vyos@vyos-cloud# set system time-zone Europe/Berlin
@@ -182,7 +176,7 @@ vyos@vyos-cloud# set system time-zone Europe/Berlin
 vyos@vyos-cloud# delete system time-zone Europe/Berlin
 [edit]
 \end{lstlisting}
-Per \textit{Destroy-Time Provisioner} würde dieses Template nur bei einem \textit{terraform destroy} genutzt werden. Das Problem ist, dass schon bei minimalen Änderungen des Deploy-Templates auch das Destroy-Template angepasst werden muss. Weiterhin sind die IPSEC-Konfigurationen relativ umfangreich. Es war zu befürchten, dass Relikte aus der Konfiguration übrig bleiben, wenn die Negation aus unbekannten Gründen fehlschlug.
+Per \textit{Destroy-Time Provisioner} würde dieses Template nur bei einem \textit{terraform destroy} genutzt werden \cite{destroytimeprovtf2021}. Das Problem ist, dass schon bei minimalen Änderungen des Deploy-Templates auch das Destroy-Template angepasst werden muss. Weiterhin sind die IPsec-Konfigurationen relativ umfangreich. Es war zu befürchten, dass Relikte aus der Konfiguration übrig bleiben, wenn die Negation aus unbekannten Gründen fehlschlug.
 
 Eine weitere Idee war, mit dem VyOS-Feature "rollback" zu arbeiten. Über eine commit-History werden alle Änderungen an dem System dokumentiert.
 \begin{lstlisting}[label=commit-history-vyos,caption=Commit History VyOS]
@@ -241,8 +235,7 @@ resource "null_resource" "vyos_config_destroy" {
 \end{lstlisting}
 
 \textbf{\underline{Lange Laufzeiten für Erstellung von Azure VPN Gateway}}\\
-%https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-about-vpngateways#whatis
-Die Erstellung des Azure VPN Gateways kann bis zu 45 Minuten in Anspruch nehmen. In der Praxis waren es meist ~25 Minuten für den Standort "North Europe". Auch das Löschen eines VPN Gateways via \textit{terraform destroy} dauerte bis zu 15 Minuten. Nur wenn dieses Gateway gelöscht wurde, kann ein \textit{Re-Deploy} erfolgen, welches vor allem dann notwendig ist, wenn die Vertauschung von IPSEC-Parametern (s.o.) eintrifft.\\
+Die Erstellung des Azure VPN Gateways kann bis zu 45 Minuten in Anspruch nehmen \cite{azurevpndeployment2021}. In der Praxis waren es meist ~25 Minuten für den Standort "North Europe". Auch das Löschen eines VPN Gateways via \textit{terraform destroy} dauerte bis zu 15 Minuten. Nur wenn dieses Gateway gelöscht wurde, kann ein \textit{Re-Deploy} erfolgen, welches vor allem dann notwendig ist, wenn die Vertauschung von IPSEC-Parametern (s.o.) eintrifft.\\
 Bei diesem Phänomen handelt es sich nicht um einen Bug im eigentlichen Sinne, macht aber das Deployment z.B. für Live-Demonstrationen nicht praktikabel. Da alle weiteren Use-Cases auf diesem Use-Case 1 aufbauen und ebenso in Terraform abgebildet werden sollten, musste eine Lösung gefunden werden, um die Deployment-Zeiten zu verkürzen, da jede Änderung des Codes ein (teilweises) Re-Deployment notwendig macht (vgl. später).
 
 %Dies wird zum Beispiel gebraucht, wenn an der Konfiguration der Infrastruktur Änderungen vorgenommen werden, da Terraform durch diese State-Datei weiß, dass 

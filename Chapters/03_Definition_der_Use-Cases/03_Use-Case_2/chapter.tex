@@ -6,8 +6,7 @@ Klassischerweise verbindet sich der Roadwarrior mit dem Hauptstandort, um von do
 %Auf Corona-Zeiten eingehen...
 
 \begin{itemize}
-%https://tu-freiberg.de/urz/bandbreite-des-vpn-zugangs-verzehnfacht
-\item Der Hautpstandort muss Bandbreite für alle n Roadwarrior zur Verfügung stellen. V.a. in zu Beginn der Corona-Krise durften viele Unternehmen erfahren, dass sie hier schlecht aufgestellt sind.
+\item Der Hautpstandort muss Bandbreite für alle n Roadwarrior zur Verfügung stellen. V.a. zu Beginn der Corona-Krise durften viele Unternehmen und öffentliche Einrichtungen erfahren, dass sie hier zu schwach aufgestellt sind \cite{tufreiberg2021}.
 \item Der Hauptstandort ist u.U. weit entfernt. Der Mitarbeiter nimmt auf Grund von hohen Latenzen und eventuellen Paketverlusten eine schlechte Applikations-Performance wahr. Dazu wird oftmals über Smartphone-Hotspot, Hotel-WLAN, o.ä. gearbeitet, welche nicht immer eine gute Performance liefern.
 %Fulltunnel als Argument?
 \item Latenzen erhöhen sich zusätzlich, falls bestimmte Applikations-Server gar nicht am Hauptstandort vorhanden sind, z.B. weil sie in die Public Cloud verlagert wurden.
@@ -54,10 +53,7 @@ Weiterhin sind die unterschiedlichen Authentifizierungsmechanismen nur schwierig
 
 Daher wurde für weitere Überlegungen von den offiziellen Building-Blocks abgesehen und entschieden, pro Standort einen eigenen OpenVPN-Server hochzufahren:
 OpenVPN ist freie Software und man muss sich daher nicht mit Lizenzierungen beschäftigen analog zu VyOS.
-%https://aws.amazon.com/marketplace/pp/B07N3X1P1T
-%https://azuremarketplace.microsoft.com/en-us/marketplace/apps/sentriumsl.vyos-1-2-lts-on-azure
-%https://docs.vyos.io/en/latest/configuration/interfaces/openvpn.html#client
-Aus den Erfahrungen aus Use-Case 1 wurde dafür ebenso die Router-Distribution VyOS gewählt. Diese kann nicht nur für Site-to-Site-Tunnel genutzt werden, sondern kann auch für Client-to-Site-Tunnel terminieren, um den Zugang für Roadwarrior zu ermöglichen. Denkbar wäre ebenso eine simple Linux-Distribution mit dem Paket OpenVPN: VyOS bietet den Vorteil, dass sich die notwendigen Konfigurationen ebenso über CLI erledigen lassen und somit per Terraform-Template \textit{automatisiert} ausgebracht werden können. VyOS ist im AWS als auch im Azure Marketplace zu beziehen.
+Aus den Erfahrungen aus Use-Case 1 wurde dafür ebenso die Router-Distribution VyOS gewählt. Diese kann nicht nur für Site-to-Site-Tunnel genutzt werden, sondern kann auch für Client-to-Site-Tunnel terminieren, um den Zugang für Roadwarrior zu ermöglichen. Denkbar wäre ebenso eine simple Linux-Distribution mit dem Paket OpenVPN: VyOS bietet den Vorteil, dass sich die notwendigen Konfigurationen ebenso über CLI erledigen lassen und somit per Terraform-Template \textit{automatisiert} ausgebracht werden können \cite{vyosopenvpn2021}. VyOS ist im AWS als auch im Azure Marketplace zu beziehen.
 %RADIUS
 Ein Problem ergibt sich aus der Authentifizierung und Autorisierung der Roadwarrior-Clients. Wenn Protokolle wie RADIUS als Authentifizierungsmechanismus mit Benutzerkennung und Passwort, muss man entweder\\
 a) einen zentralen RADIUS-Server pro Standort verwalten oder \\
@@ -66,27 +62,22 @@ b) einen zentralen RADIUS-Server für alle Standorte zur Verfügung stellen.\\
 a) bringt ein Skalierungsproblem mit sich. So müssen bspw. Benutzerkennungen und Passwörter lokal auf allen Systemen gepflegt werden, was die Komplexität des Use-Cases deutlich erhöhen würde und auch in Realität schwierig zu warten wäre. Mit b) hätte man einen Single-Point-of-Failure, scheidet also auch aus. Hätte der \textit{zentrale} Authentifizierungsserver ein technisches Problem, wären alle VPN-Konzentratoren betroffen und Roadwarrior könnten sich nicht mehr einwählen.
 
 %LDAP allgemein???
-%https://tools.ietf.org/html/rfc2865
-Lighweight Directory Access Protocol (LDAP) als verteilte Datenbank wäre eine Lösung für genannte Probleme: man müsste pro Standort einen LDAP-Server deployen und durchgehend mit allen weiteren LDAP-Servern synchronisieren. Als Authentifizierungsmechanismus könnte man dann bspw. RADIUS oder gleich LDAP benutzen. \textit{Windows Domänen Controller} implementieren den LDAP-Verzeichnisdienst in Form von \textit{Active Directory} und wären ein Beispiel für solch ein verteiltes Szenario.\cite[S.603-604]{Tanenbaum2003} In der Bachelorarbeit wird von der Implementation abgesehen, da die Komplexität deutlich erhöht und es für den Proof-of-Concept an sich keine gewinnbringenden Erkenntnisse liefern würde.
+Lighweight Directory Access Protocol (LDAP)\cite{rfc4511} als verteilte Datenbank wäre eine Lösung für genannte Probleme: man müsste pro Standort einen LDAP-Server deployen und durchgehend mit allen weiteren LDAP-Servern synchronisieren. Als Authentifizierungsmechanismus könnte man dann bspw. RADIUS\cite{rfc2865} oder gleich LDAP benutzen. \textit{Windows Domänen Controller} implementieren den LDAP-Verzeichnisdienst in Form von \textit{Active Directory} und wären ein Beispiel für solch ein verteiltes Szenario.\cite[S.603-604]{Tanenbaum2003} In der Bachelorarbeit wird von der Implementation abgesehen, da die Komplexität deutlich erhöht und es für den Proof-of-Concept an sich keine gewinnbringenden Erkenntnisse liefern würde.
 
 %Kurzeinstieg PKI?
 Der Lösungsansatz wäre an dieser Stelle, auf eine Zertifikat-basierte Authentifizierung zu setzen. Eine Publik-Key-Infrastruktur benötigt zur Authentifizierung keine Verbindungen zu anderen (Authentifizierungs-)Services. Es reicht, auf dem VPN-Server vertrauenswürdige Root-Zertifikate zu hinterlegen. Diese \textit{vertrauenswürdigen Stellen} signieren mit dem privaten Schlüssel dann die Zertifikate der Roadwarrior-Clients, wodurch das Vertrauensverhältnis zwischen VPN-Server und -Client hergestellt ist.\\
 Auf Prüfung der Gültigkeit von Zertifikaten mittels Certificate Revocation Lists (CRLs) bzw. Online Certificate Status Protocol (OCSP) wird in dieser Bachelor-Arbeit verzichtet. Sie ist aber prinzipiell möglich mit der serverseitigen OpenVPN-Direktive \textit{crl-verify} (CRL-Prüfung) bzw. \textit{tls-verify} (OCSP-Prüfung).\cite[S.116, S.325-327]{Keijser2011}\\
-%https://web.archive.org/web/20210125172757/https://docs.netgate.com/manuals/pfsense/en/latest/the-pfsense-documentation.pdf
 %tf remote
 Als PKI wird eine pfSense-Instanz genutzt. Dieses Firewall-Betriebssystem bietet eine simple PKI, welche via Web-GUI administrierbar ist und so das Ausstellen und die Verwaltung der Client- und Server-Zertifikate erleichtert.\cite[S.376-383]{Netgate2020}
 
-%Split-DNS S.565-567 TCP/IP Illustrated
-%Bind GeoIP Extension: https://kb.isc.org/docs/aa-01149
 %Evaluationskriterien nummerieren
 Der technische Fokus wird in diesem Use-Case auf DNS liegen. Es soll in dem Szenario zwei essenzielle Aufgaben lösen, die durch die Evaluationskriterien vorgegeben werden:
 \begin{itemize}
-%https://bind9.readthedocs.io/en/latest/reference.html?highlight=rrset-order#rrset-ordering
-\item Mit Hilfe von GeoIP-Daten soll ermöglicht werden, immer den nächstgelegenen VPN-Konzentrator zu finden. Wenn kein Server in der Nähe ist, soll ein beliebiger Server kontaktiert werden (random). Wenn das Terraform Deployment noch nicht stattgefunden hat, also keine Cloud-Standorte zur Verfügung stehen, soll sich der Client immer mit dem VPN-Konzentrator der Private Cloud verbinden.
-\item Sobald der Roadwarrior mit einem VPN-Konzentrator verbunden ist, soll immer der (beispielhafte) Server, der am jeweiligen Standort deployed wurde, kontaktiert werden.
+\item Mit Hilfe von GeoIP-Daten soll ermöglicht werden, immer den nächstgelegenen VPN-Konzentrator zu finden. Wenn kein Server in der Nähe ist, soll ein beliebiger Server kontaktiert werden (random) \cite{bindrrset2020}. Wenn das Terraform Deployment noch nicht stattgefunden hat, also keine Cloud-Standorte zur Verfügung stehen, soll sich der Client immer mit dem VPN-Konzentrator der Private Cloud verbinden.
+\item Sobald der Roadwarrior mit einem VPN-Konzentrator verbunden ist, soll immer der (beispielhafte) Server, der am jeweiligen Standort deployet wurde, kontaktiert werden.
 \end{itemize}
 
-Mit Hilfe des Bind 9 Nameservers ab Version 9.10 ist es möglich, die GeoIP-Datenbank des Anbieters MaxMind auszuwerten, um DNS-Anfragen in Abhängigkeit der Absender-IP zu beantworten. Bei dieser IP handelt es sich typischerweise um die Resolver-IP des \textit{lokalen} Internet-Dienstleisters. Die Annahme für diesen Use-Case ist daher, dass der DNS-Resolver in der gleichen Region wie der Roadwarrior steht.\\
+Mit Hilfe des Bind 9 Nameservers ab Version 9.10 ist es möglich, die GeoIP-Datenbank des Anbieters MaxMind auszuwerten, um DNS-Anfragen in Abhängigkeit der Absender-IP zu beantworten \cite{bindgeoip2020}. Bei dieser IP handelt es sich typischerweise um die Resolver-IP des \textit{lokalen} Internet-Dienstleisters. Die Annahme für diesen Use-Case ist daher, dass der DNS-Resolver in der gleichen Region wie der Roadwarrior steht.\\
 Um mit GeoIP-Daten der Firma MaxMind arbeiten zu können, muss Bind 9 mit einem speziellen Flag (--with-maxminddb) kompiliert werden. Im Ubuntu 20.04 Standardpaket von Bind 9 ist dieses Feature bereits vorhanden.
 
 \begin{lstlisting}[label=bind-mmdb-compiler-flag,caption=Das Ubuntu 20.04 Standardpaket wurde bereits mit dem Flag kompiliert.]
@@ -98,17 +89,11 @@ Der Nameserver muss sowohl extern, also aus dem Internet, als auch intern für v
 
 In der Praxis sollte das Deployment von \glqq Secondaries\grqq{} aus Redundanzgründen jedoch dringend in Betracht gezogen werden. Außerdem können \glqq verzögerte\grqq{} DNS-Antworten auf Grund sehr großer Entfernungen negative Auswirkungen auf die Usability haben. Da alle Test-Standorte innerhalb von Europa liegen, ist dieser Effekt im Sinne des Proof-of-Concepts vernachlässigbar.\\
 
-%DNS UPDATE S.555-558 TCP/IP Illustrated
-%https://registry.terraform.io/providers/hashicorp/dns/latest/docs
-Weiterhin müssen Zonen dynamisch editierbar sein, da durch das Terraform-Deployment virtuelle Maschinen mit vorher unbekannten IP-Adressen erstellt werden. Diese IP-Adressen müssen mit den Domains der jeweiligen Zonen kombiniert werden. Dies gilt für extern und intern auflösbare Zonen. Für Terraform steht ein provider \textit{dns} zur Verfügung, der diese dynamischen Updates erlaubt.
+Weiterhin müssen Zonen dynamisch editierbar sein, da durch das Terraform-Deployment virtuelle Maschinen mit vorher unbekannten IP-Adressen erstellt werden. Diese IP-Adressen müssen mit den Domains der jeweiligen Zonen kombiniert werden. Dies gilt für extern und intern auflösbare Zonen. Für Terraform steht ein Provider \textit{dns} zur Verfügung, der diese dynamischen Updates erlaubt \cite{dnstf2021}.
 
-%https://www.terraform.io/docs/language/state/remote-state-data.html
 Das in diesem Kapitel angedeutete Szenario soll wieder per Terraform deployed werden und setzt direkt auf Use-Case 1 auf. Auf Grund der langen Dauer (s. Lösungsfindung...) des Deployments in Use-Case 1 wird erwogen, Use-Case 2 nicht \glqq komplett\grqq{} auszurollen, sondern Use-Case 1 zu belassen und die Infrastruktur-Komponenten aus Use-Case 2 lediglich hinzuzufügen (vgl. später).
 
-%https://aws.amazon.com/marketplace/pp/B07N3X1P1T
-%https://azuremarketplace.microsoft.com/en-us/marketplace/apps/sentriumsl.vyos-1-2-lts-on-azure
-%https://docs.vyos.io/en/latest/configuration/interfaces/openvpn.html#client
-Pro Cloud-Standort wird ein OpenVPN-Server benötigt. Aus den Erfahrungen aus Use-Case 1 wurde dafür ebenso die Router-Distribution VyOS gewählt. Diese kann nicht nur für Site-to-Site-Tunnel benutzt werden, sondern kann auch für Client-to-Site-Tunnel terminieren, um den Zugang für Roadwarrior zu ermöglichen. Denkbar wäre ebenso eine simple Linux-Distribution mit dem Paket OpenVPN: VyOS bietet den Vorteil, dass sich die notwendigen Konfigurationen ebenso über CLI erledigen lassen und somit per Terraform-Template \textit{automatisiert} ausgebracht werden können. Die OpenVPN-Server sollen auflösbar sein unter der Domain vpn.ba.mungard.de.\\
+??? Pro Cloud-Standort wird ein OpenVPN-Server benötigt. Aus den Erfahrungen aus Use-Case 1 wurde dafür ebenso die Router-Distribution VyOS gewählt. Diese kann nicht nur für Site-to-Site-Tunnel benutzt werden, sondern kann auch für Client-to-Site-Tunnel terminieren, um den Zugang für Roadwarrior zu ermöglichen. Denkbar wäre ebenso eine simple Linux-Distribution mit dem Paket OpenVPN: VyOS bietet den Vorteil, dass sich die notwendigen Konfigurationen ebenso über CLI erledigen lassen und somit per Terraform-Template \textit{automatisiert} ausgebracht werden können. Die OpenVPN-Server sollen auflösbar sein unter der Domain vpn.ba.mungard.de.\\
 
 Als stellvertretender \glqq Applikations-Server\grqq{} soll ein simpler Apache2 pro Standort in einer Ubuntu-VM installiert werden. Dieser soll unter über die Domain www.intern.ba.mungard.de erreichbar sein.
 %Simulation Applikation-Server mit Apache2 HTTP Server

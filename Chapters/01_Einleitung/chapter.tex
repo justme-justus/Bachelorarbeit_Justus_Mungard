@@ -52,7 +52,7 @@ Es ist davon auszugehen, dass im Rahmen der Umsetzung der Autor mit diversen tec
 \begin{itemize}
 %Nicht Overlay... Abstraktion, um per IPv4 eine Ende-zu-Ende-Konnektivität herzustellen
 \item Es wird herausgearbeitet, wie ein IPv4-Overlay geschaffen werden kann. Dies soll mit privaten RFC1918-Adressen geschehen und dies automatisiert evtl. unter Zuhilfenahme eines IP Adressmanagements (IPAM). Öffentliche IPv4-Netzwerke dienen dabei nicht der Erreichbarkeit von Services.
-\item IPv6-Adressierung wird in dieser Arbeit nicht berücksichtigt: IPv6-Unterstützung ist auf den Cloud-Plattformen teilweise eingeschränkt und Kunden nutzen meist noch IPv4 für interne Adressierungen.
+\item IPv6-Adressierung wird in dieser Arbeit nicht berücksichtigt: IPv6-Unterstützung ist auf den Cloud-Plattformen teilweise eingeschränkt und Kunden nutzen meist noch IPv4 für interne Adressierungen \cite{azureipv6_2020}.
 \item Broadcast- und Multicast-Anwendungen werden in den Use-Cases nicht berücksichtigt. Auch hier gibt es nur eingeschränkte Unterstützung seitens der Cloud-Dienstleister.
 %\item Hochverfügbarkeit von Internetdiensten (bspw. ein MySQL-Cluster) über mehrere Cloud-Plattformen hinweg ist nicht Teil der Bachelor-Arbeit.
 \item Weitere Cloud-Anbieter wie Google oder IBM werden nicht berücksichtigt. Das Hauptaugenmerk liegt auf Amazon Web Services, Microsoft Azure und der Integration von \textit{klassischer} Netzwerk-Infrastruktur, wie man sie bei typischen kleinen und mittelständischen Unternehmen der NetUSE AG vorfindet.
@@ -74,7 +74,7 @@ Es ist davon auszugehen, dass im Rahmen der Umsetzung der Autor mit diversen tec
 \iffalse
 Serifen Schrit für Programmnamen?
 Teilweise gekürzt mit [...] oder Funktionsnamen der Einfachheit umbenannt oder vereinfacht dargestellt
-RFC-Doku-Addressen
+Todo: RFC 5737 in Einleitung (Documentation IPs)
 Getestet mit Terraform Version...
 Abkürzungen AWS, VPC werden einmal erläutert, danach Schicht im Schacht
 Rein technischer Natur, es wird nicht auf Kostenoptimierung eingangen -> dafür ist Cloud-Costs zu komplex

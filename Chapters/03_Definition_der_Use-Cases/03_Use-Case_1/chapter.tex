@@ -7,7 +7,7 @@
 %Für kleine und mittlere Deployments (nicht KMU) -> keine kaufmännische sondern technologische Betrachtung
 %Weniger Ebenen!
 
-"Qualitätssicherung": Warum haben sich die Erkenntnisse aus dem Proposal zur Arbeit geändert? Halbe Seit
+%"Qualitätssicherung": Warum haben sich die Erkenntnisse aus dem Proposal zur Arbeit geändert? Halbe Seit
 Wie bereits eingangs erwähnt, sollen die Use-Cases typische Bedürfnisse von Unternehmen aus dem kleinen und mittelständischen Bereich widerspiegeln (KMU). So ist die Grundannahme, dass der Kunde bereits Rechenressourcen in Selbstverwaltung (\glqq Private Cloud\grqq{}) besitzt. Weiterhin hat die Integration von Public Cloud-Diensten noch gar nicht oder nur oberflächlich stattgefunden: Es wurden ein paar Maschinen hochgefahren und bestimmte Internetdienste installiert. Über eine tiefergehende Koppelung mit bestehenden Diensten und Systemen hat der Kunde bisher keine Überlegungen angestellt. %Eine private Adressierung der Systeme ist noch nicht möglich, die Maschinen werden über die öffentlichen IPs aus dem Internet erreicht. Die Firma besitzt eine private Cloud
 %ToDo: Genauer beschreiben, was beim Kunden schon zur Verfügung steht (Private Cloud) und dass das abstrahiert (vereinfacht) dargestellt wird
 
@@ -52,15 +52,10 @@ resource "aws_vpc" "example_vpc" {
 \end{lstlisting}
 
 %PHPIPAM: GPLv3, Terraform Provider: Apache License 2.0
-%https://web.archive.org/web/20201122173813/https://github.com/lord-kyron/terraform-provider-phpipam
-%https://github.com/phpipam/phpipam
-%https://web.archive.org/web/20201108102250/https://phpipam.net/
-%https://blog.vyos.io/vyos-rolling-release-has-got-an-http-api
-%https://web.archive.org/web/20210405210638/https://docs.vyos.io/en/latest/automation/vyos-api.html
 
 %MIT TECHNISCHEN GRUNDLAGEN ABGLEICHEN!!!
-Darüber hinaus wird ein IPAM benötigt zur IPv4-Adressverwaltung. Die automatische Zuteilung von Adressbereichen darf nicht dazu führen, dass Adressbereiche mehrfach verteilt werden oder sich Adressbereiche überlappen. Gewählt wurde hier das Werkzeug PHPIPAM: Es lässt sich sehr gut mit Terraform integrieren, da ein entsprechender Provider zur Verfügung steht.\\
-Die VPN-Gateways, die das Backbone aufspannen, sind mit \textit{Virtual private gateway} bei AWS und \textit{VPN Gateway} bei Azure gesetzt. Dies sind die typischen \textit{Building-Blocks}, die von den Herstellern für VPN-Verbindungen angeboten werden. Nur wenn sich im Laufe der Arbeit herausstellen sollte, dass diese Systeme nicht interoperabel arbeiten, wird versucht, Alternativen zu finden. Als Router, der die Private Cloud repräsentiert, wurde ein VyOS Router gewählt. Dieser steht als Open Source zur Verfügung, es gibt allerdings auch bezahlten Support für Produktionsumgebungen. Der Router hat IPSEC- und BGP-Unterstützung und besitzt ein Command Line Interface, welches sich für das automatisierte Deployment mit Terraform als sehr vorteilhaft erweist, obwohl bisher kein Terraform Provider zur Verfügung steht (vgl. später). Eine REST-API steht ebenso zur Verfügung, aber diese ist zum Stand der Bachelor-Arbeit \textit{bleeding edge} und bisher eher dürftig dokumentiert. Die Annahme ist, dass der Router und das IPAM in der Private Cloud bereits vorhanden sind. Diese Komponenten sind nicht Teil des (Terraform-)Deployments.\\
+Darüber hinaus wird ein IPAM benötigt zur IPv4-Adressverwaltung. Die automatische Zuteilung von Adressbereichen darf nicht dazu führen, dass Adressbereiche mehrfach verteilt werden oder sich Adressbereiche überlappen. Gewählt wurde hier das Werkzeug phpIPAM \cite{phpipam2020}: Es lässt sich sehr gut mit Terraform integrieren, da ein entsprechender Provider zur Verfügung steht \cite{phpipamtf2020}.\\
+Die VPN-Gateways, die das Backbone aufspannen, sind mit \textit{Virtual private gateway} bei AWS und \textit{VPN Gateway} bei Azure gesetzt. Dies sind die typischen \textit{Building-Blocks}, die von den Herstellern für VPN-Verbindungen angeboten werden. Nur wenn sich im Laufe der Arbeit herausstellen sollte, dass diese Systeme nicht interoperabel arbeiten, wird versucht, Alternativen zu finden. Als Router, der die Private Cloud repräsentiert, wurde ein VyOS Router gewählt. Dieser steht als Open Source zur Verfügung, es gibt allerdings auch bezahlten Support für Produktionsumgebungen. Der Router hat IPSEC- und BGP-Unterstützung und besitzt ein Command Line Interface, welches sich für das automatisierte Deployment mit Terraform als sehr vorteilhaft erweist, obwohl bisher kein Terraform Provider zur Verfügung steht (vgl. später). Eine REST-API steht ebenso zur Verfügung, aber diese ist zum Stand der Bachelor-Arbeit \textit{cutting edge} und eher dürftig dokumentiert \cite{vyosapi2021}. Die Annahme ist, dass der Router und das IPAM in der Private Cloud bereits vorhanden sind. Diese Komponenten sind nicht Teil des (Terraform-)Deployments.\\
 Prinzipiell lassen sich viele Router-Modelle nutzen, insofern die Unterstützung für genannte Techniken vorhanden ist, bspw. CSR 1000V der Firma Cisco \cite{Durai2016}. Der offene VyOS Router bietet den Vorteil, dass keine Lizenzen für die Nutzung hinterlegt werden müssen, was in vielen Fällen manuelle Konfigurationen erfordert. Außerdem hätten passende Lizenzen beschafft werden müssen, was u.U. zu Verzögerungen der Bachelor-Arbeit geführt hätte.
 
 \begin{figure}[h]
