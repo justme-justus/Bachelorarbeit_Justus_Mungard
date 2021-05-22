@@ -21,7 +21,7 @@ Die ersten 24 Bit sind für das Netzwerk reserviert (Network bits), die letzte 8
 
 Heutzutage üblich ist die so genannte Classless Inter-Domain Routing-Notation (CIDR), welche IP-Addresse und Netzmaske vereint. Wenn man die genannten Beispiele aus Adresse und Subnetzmaske zusammenführt, erhält man die IP-Adresse in CIDR-Notation: 1.2.3.4/24. /24 entspricht dabei den gesetzten Network bits.
 
-Mit Hilfe der IP-Adresse und Netzmaske lässt sich ermitteln, ob sich ein anderer Host im gleichen \textit{Subnetz} befindet. Dafür berechnet das Betriebssystem die eigene Netzwerkadresse per logical-AND aus eigener IP und Netzmaske:
+Mit Hilfe der IP-Adresse und Netzmaske lässt sich ermitteln, ob sich ein anderer Host im gleichen \textit{Subnetz} befindet. Dafür berechnet das Betriebssystem die eigene Netzwerkadresse per Bitwise-AND aus eigener IP und Netzmaske:
 
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
@@ -57,7 +57,7 @@ Für 8.9.10.23\label{ip_ausserhalb}:
 %\begin{lstlisting}[label=local-ip-address-AND-subnet-different,caption=Blub]
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
-... 00001000.00001001.00001010.00010111
+    00001000.00001001.00001010.00010111
 AND 11111111.11111111.11111111.00000000
   = 00001000.00001001.00001010.00010111
   => Netzwerkadresse: 8.9.10.0/24
@@ -66,7 +66,7 @@ AND 11111111.11111111.11111111.00000000
 \caption{Ermittlung der Netzwerkadresse durch 8.9.10.23 AND 255.255.255.0}
 \end{listing}
 
-Da in diesem Fall das Netzwerk außerhalb des eigenen liegt, muss das Paket \textit{geroutet} werden.
+Da in diesem Fall die Netzwerkadresse außerhalb der eigenen liegt, müssen Pakete \textit{geroutet} werden.
 
 \subsection{RFC 1918-Adressen}
 Ein Großteil der IP-Adressen werden \textit{blockweise} an Provider, Firmen und Forschungseinrichtungen herausgegeben und können fortan im Internet genutzt werden. Mit RFC 1918  wurden Blöcke durch die Internet Assigned Numbers Authority (IANA) reserviert, welche ausschließlich für private und firmeninterne Nutzung vorgesehen sind. Sie werden im Internet nicht geroutet. Es handelt sich dabei um die Blöcke:
@@ -176,7 +176,7 @@ NAT verletzt das Prinzip der Ende-zu-Ende-Konnektivität: Findet sich für ein \
 Wenn allerdings eine Client-zu-Client-Kommunikation stattfinden soll, ist man auf aufwändige Mechanismen wie z.B. Hole Punching angewiesen \cite[S.317]{Fall2011}.\\
 Auf NAT soll daher in dieser Arbeit verzichtet werden, wenn dies möglich ist und es soll eine vollwertige Ende-zu-Ende-Konnektivität gewährleistet werden.
 
-\subsection{Maximum Transmission Unit / Maximum Segment Size}
+\subsection{Maximum Transmission Unit / Maximum Segment Size}\label{mtumss}
 Die maximale Paketgröße auf einem Netzwerkmedium wird durch die Maxmimum Transmission Unit (MTU) beschrieben. Im Ethernet ist die \textit{Default}-MTU 1500 Byte.\cite[S.86]{Fall2011} Ethernet ist im Internet inzwischen das meistgenutzte Medium, daher haben sich auch hier diese 1500 Byte manifestiert.\\
 Da die MTU auf dem Weg vom Empfänger zum Ziel variieren und auch mal geringer als 1500 Byte ausfallen kann, kann ein IPv4-Paket \textit{fragmentiert} werden. Dieser Prozess fordert Rechenzeit für Aufteilung und (Wieder-)Zusammensetzung in Fragmente und kann sich negativ auf die Performance (Latenz und Datendurchsatz) auswirken.\\
 Man nutzt optimalerweise Path MTU Discovery oder beeinflusst die Maximum Segment Size (MSS) für TCP bei Initiierung der Verbindung, um Fragmentierung (bestmöglich) zu umgehen.
@@ -244,89 +244,83 @@ Split DNS ist die Möglichkeit, verschiedene Resource Records anhand der Absende
 \end{figure}\FloatBarrier
 
 \subsection{DNS UPDATE}
-Die Methode DNS UPDATE ist in RFC 2136 definiert und erlaubt es, autoritative Zonen eines Nameserver zur Laufzeit zu verändern\cite{rfc2136}. Somit müssen keine Zonen-Dateien (manuell) verändert werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten Zonen-Dateien neu einzulesen.\\
-Clients werden über eine ACL ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP berücksichtigt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen} lassen. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (Pre-Shared Key) eine DNS UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (TSIG) \cite[S.911-914]{Fall2011}.
-%Diese Updates werden vom Nameserver selbstständig in die Zonen-Dateien übernommen und überstehen somit einen Neustart des Servers.
+Die Methode DNS UPDATE ist in RFC 2136 definiert und erlaubt es, autoritative Zonen eines Nameserver zur Laufzeit zu verändern\cite{rfc2136}. Somit müssen keine Zonen-Dateien manuell angepasst werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten Zonen-Dateien neu einzulesen.\\
+Clients werden über eine ACL ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP zur Authentifizierung genutzt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen} lassen. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (\textit{Pre-Shared Key}) eine DNS UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (TSIG) \cite[S.911-914]{Fall2011}.
 
 \section{Virtual Private Network (VPN)}\label{vpn}
-VPNs werden genutzt, um private Netzwerke über eine öffentliche Infrastruktur abbilden zu können. Dies erfolgt zwischen VPN-Endpunkten über eine gängige Enkapsulierung, z.B. Generic Routing Encapsulation (GRE), Encapsulating Security Payload (ESP) oder OpenVPN.
-
-In diesem Beispiel werden Daten von Client A zu Client B über das Internet zwischen Router R1 und Router R2 enkapsuliert. R2 empfängt das Datenpaket, packt es aus und sendet es in der ursprünglichen Form weiter an Client B. Das Diagramm ist nicht spezifisch für eine bestimmte VPN-Technologie, sondern soll die grundsätzliche Idee verdeutlichen. Weiterhin können, je nach Technologie, Nutzdaten verschlüsselt werden. 
-
+VPNs werden genutzt, um private Netzwerke über eine öffentlich genutzte Infrastruktur abbilden zu können. Dies erfolgt zwischen VPN-Endpunkten über gängige Enkapsulierungen, z.B. Generic Routing Encapsulation (GRE), Encapsulating Security Payload (ESP) oder OpenVPN.\\
+In Abbildung \ref{grafik: vpn-example} werden Daten von Client A zu Client B über das Internet zwischen Router R1 und Router R2 enkapsuliert. R2 empfängt das Datenpaket, packt es aus und sendet es in der ursprünglichen Form weiter an Client B.\\
+Das Diagramm ist dabei nicht spezifisch für eine bestimmte VPN-Technologie. Es können, je nach Technologie, Nutzdaten verschlüsselt werden. 
 \begin{figure}[h]
   \centering
-  \includegraphics[scale=0.75]{Figures/vpn-example.pdf}
+  \includegraphics[scale=0.65]{Figures/vpn-example.pdf}
   \caption{Übertragung eines IP-Pakets über einen VPN-Tunnel}
   \label{grafik: vpn-example}
 \end{figure}\FloatBarrier
 
 %Quelle
-Die in dieser Arbeit verwendeten VPN-Technologien sind IPSEC und OpenVPN. IPSEC wird u.a. für die Vernetzung von Standorten, auch Site-to-Site (S2S) genannt, genutzt und arbeitet auf OSI-Schicht 3. Ebenso dient es zur \glqq Einwahl\grqq{} in (Firmen-)Netzwerken.  IPSEC wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
-OpenVPN ist ein Open Source-Projekt, es nutzt Transport Layer Security (TLS) für die verschlüsselte Übertragung von Daten via UDP oder TCP. Das Protokoll ist auf OSI-Schicht 7 zu finden. Es wird vor allem für Client-to-Site-Verbindungen genutzt (C2S): Passende Software ist für viele verschiedene Plattformen verfügbar (Windows, Linux, Mac, Android,...) und sowohl Client als auch Server-Applikation sind kostenfrei erhältlich.
-
-%ROUTE BASED VS POLICY BASED?
-Angesprochene MTU-Probleme (s.o.) können sich bei einer getunnelten Verbindung auf Grund der zusätzlichen Enkapsulierung zeigen. Eine IP-Fragmentierung sollte optimalerweise verhindert werden.
+Die in dieser Arbeit verwendeten VPN-Technologien sind IPsec und OpenVPN. IPsec wird u.a. für die Vernetzung von (Cloud-)Standorten, auch Site-to-Site (S2S) genannt, genutzt und arbeitet auf OSI-Schicht 3. Ebenso dient es zur \textit{Einwahl} in (Firmen-)Netzwerke. IPsec wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
+OpenVPN ist ein Open Source-Projekt und es nutzt \textit{Transport Layer Security} (TLS) für die verschlüsselte Übertragung von Daten via UDP oder TCP. Das Protokoll ist auf OSI-Schicht 7 zu finden und es wird vor allem für Client-to-Site-Verbindungen genutzt (C2S): Passende Software ist für viele verschiedene Plattformen verfügbar (u.a. Windows, Linux, Mac, Android) und sowohl Client- als auch Server-Applikation sind kostenfrei erhältlich.\\
+Angesprochene MTU-Probleme (s. \ref{mtumss}) können sich bei einer getunnelten Verbindung auf Grund des zusätzliches \textit{Overheads} auf Grund der Enkapsulierung zeigen. Eine IP-Fragmentierung sollte optimalerweise verhindert werden.
 
 \section{Cloud}\label{cloud}
 %VyOS PaaS? VyOS kann als hybrid zwischen IaaS und PaaS angesehen werden, da man die virtuelle Maschine bis auf CPU nichts weiter konfigurieren kann... und sie ist für Infrastruktur verantwortlich...
 Der Cloud-Begriff kann je nach Literatur variieren. Diese Arbeit verweist an dieser Stelle auf die Definition des \textit{National Institute of Standards and Technology (NIST)}. Ebenso werden dort die drei typischen \textit{Cloud Delivery}-Modelle Software as a Service (SaaS), Platform as a Service (PaaS) und Infrastructure as a Service (IaaS) definiert, welche fortan als bekannt vorausgesetzt werden.\cite{mell2011}
 
 \subsection{Public und Private Cloud}
-%die Infrastruktur gehört _mir_, egal wo gehostet
-
-Auch für die so genannten \textit{Cloud Deployment}-Modelle wird auf die Definition des NIST verwiesen.\cite{mell2011}
-
-Allerdings soll an dieser Stelle ein häufiges Missverständnis hingewiesen werden. Eine Private Cloud existiert nicht zwingend \textit{On-premises} einer Organisation, also bspw. im eigenen Rechenzentrum. Sie kann ebenso über öffentliche Cloud-Plattformen abgebildet werden. Allerdings ist die Voraussetzung, dass alle genutzten Ressourcen dann exklusiv für die Organisation zur Verfügung stehen (\textit{exclusive use by a single organization}). Sie werden nicht mit weiteren Parteien geteilt (\textit{open use by the general public}).\\
+Auch für die so genannten \textit{Cloud Deployment}-Modelle wird auf die Definition des NIST verwiesen.\cite{mell2011}\\
+Allerdings soll an dieser Stelle ein häufiges Missverständnis hingewiesen werden: Eine Private Cloud existiert nicht zwingend \textit{on-premises} einer Organisation, also bspw. im eigenen Rechenzentrum. Sie kann ebenso über Public Cloud-Plattformen abgebildet werden. Allerdings ist die Voraussetzung, dass alle genutzten Ressourcen dann exklusiv für die Organisation zur Verfügung stehen (\textit{exclusive use by a single organization}). Sie werden nicht mit weiteren Parteien geteilt (\textit{open use by the general public}).\\
 %Abgrenzung Private Cloud ...irgendwo... einarbeiten. Es wird angenommen, dass die Private Cloud schon besteht. Router interessiert, bißchen Infrastrukut (Webserver), Rest interessiert nicht...
-Die Public-Cloud-Provider, welche in dieser Arbeit genutzt werden, sind Amazon Web Services (AWS) und Microsoft Azure. Rechenzentren stehen weltweit zur Verfügung, um eine schnelle und latenzarme Anbindung für die Kunden zu ermöglichen. Eine Private Cloud lässt sich bspw. mit OpenStack abbilden \cite{sefraoui2012openstack}.
+Die Public Cloud-Provider, welche in dieser Arbeit genutzt werden, sind Amazon Web Services (AWS) und Microsoft Azure. Rechenzentren stehen weltweit zur Verfügung, um eine schnelle und latenzarme Anbindung für die Kunden zu ermöglichen. Eine Private Cloud lässt sich bspw. mit OpenStack abbilden\cite{sefraoui2012openstack}.
 
 \subsection{Multi und Hybrid Cloud}
-Eine Multi Cloud besteht aus gleichen Cloud Deployments-Bausteinen. So können zwei oder mehrere Public Clouds zu einer Multi Cloud zusammengefasst werden. Das gleiche gilt für Private Clouds.\\
+Eine Multi Cloud vernetzt \textbf{gleiche} Cloud Deployments miteinander, z.B. Public Cloud 	$\leftrightarrow$ Public Cloud oder Private Cloud $\leftrightarrow$ Private Cloud.\\
 Bei einer Hybrid Cloud werden unterschiedliche Bausteine zusammengefasst. In dieser Arbeit soll eine Hybrid Cloud aus AWS, Azure (Public) und Private Cloud deployet werden.
 
 \section{Public Cloud-Netzwerke}\label{cloud}
-In diesem Kapitel wird näher auf die verschiedenen Netzwerk-\textit{Building Blocks} der Public Cloud-Plattformen AWS und Azure eingegangen. Beide bringen oftmals ähnliche Bausteine mit. Es wird daher stets versucht, im jeweiligen Kontext auf beide Plattformen zugleich einzugehen, um die Grundfunktionalität zu erläutern. %Weiterhin existierien eigene Builing Blocks...
+In diesem Kapitel wird näher auf die verschiedenen Netzwerk-\textit{Building Blocks} der Public Cloud-Plattformen AWS und Azure eingegangen. Beide bringen oftmals ähnliche Bausteine mit. Es wird daher stets versucht, im jeweiligen Kontext auf beide Plattformen zugleich einzugehen, um die Grundfunktionalität zu erläutern.
+Dieses Kapitel vermittelt lediglich Grundlagen, die für das Verständnis der Use-Cases notwendig sind. Besonderheiten und Constraints, die sich im Verlauf der Bearbeitung ergeben haben, werden im jeweiligen Use-Case unter \glqq Probleme und Lösungsfindung\grqq{} zusammengefasst.
 
 \subsection{AWS VPC / Azure VNET}
-AWS Virtual Private Cloud (VPC) und Azure Virtual Network (VNET) bilden private Netzwerke innerhalb eines Cloud-Mandanten ab. Die hier hinterlegten Präfixe bilden eine Menge an möglichen IP-Adressen innerhalb von VPC und VNET ab. Es können sowohl Public IP-Präfixe als auch IPs nach RFC 1918 benutzt werden. Diese Menge an IP-Adressen wird in AWS {CIDR} und in Azure \textit{Address Space} genannt.\\
-Die minimale Länge der Netzmaske eines AWS CIDR ist /16 und maximale Länge /28\cite[S.100]{awsug2020}. Azure VNET ist da großzügiger und es darf eine Länge zwischen /8 und /29 gewählt werden\cite[S.10]{Toroman2019}. 
+AWS Virtual Private Cloud (VPC) und Azure Virtual Network (VNET) bilden private Netzwerke innerhalb eines Cloud-Mandanten ab. Die hier hinterlegten Präfixe bilden eine Menge an möglichen IP-Adressen innerhalb von VPC und VNET ab. Es können sowohl Public IP-Präfixe als auch IPs nach RFC 1918 benutzt werden. Diese Menge an IP-Adressen wird in AWS \textit{CIDR} bzw. Azure \textit{Address Space} als Container zusammengefasst.\\
+AWS gibt /16 als minimale und /28 als maximale Größe des CIDR vor \cite[S.100]{awsug2020}. Azure VNET ist da großzügiger und es darf eine Größe zwischen /8 und /29 gewählt werden\cite[S.10]{Toroman2019}. 
 \subsection{Subnets}
-Innerhalb von VPC und VNET können Subnets angelegt werden. In diesen Subnets können bspw. virtuelle Maschinen mit IPs ausgestattet werden. Wenn also ein VPC ein CIDR-Präfix von 10.0.0.0/16 besitzt, kann z.B. ein Subnet 10.0.1.0/24 \glqq herausgeschnitten\grqq{} werden. Mit Subnets können weitere Objekte verknüpft werden wie z.B. Route Tables, welche das Routing innerhalb eines Subnets steuern.
+Innerhalb von VPC und VNET können Subnets angelegt werden. In diesen Subnets können bspw. virtuelle Maschinen mit IPs ausgestattet werden. Wenn also ein VPC ein CIDR-Präfix von 10.0.0.0/16 besitzt, kann z.B. ein Subnet 10.0.1.0/24 \glqq herausgeschnitten\grqq{} werden. Mit Subnets können weitere Objekte verknüpft werden wie z.B. Route Tables, welche das Routing für das Subnet steuern.
 
 \subsection{Route Tables}
-Route Tables ermöglichen es, den Fluss von IP-Pakete innerhalb eines Subnets zu steuern. So können z.B. statische Routen auf Ziele innerhalb eines Subnets angelegt werden. VNET kann dies, wie aus dem klassischen Netzwerk gewohnt, über Next-Hop IPs abbilden. VPC hingegen unterstützt als Next-Hop virtuelle Maschinen (Instances) und Interfaces von virtuellen Maschinen. Es gibt noch weitere spezielle Ziele adressiert werden wie z.B. VPN Gateways, um \textit{On-premise} Netzwerke zu erreichen.\\
-Subnets in Azure erfordern keine Route Tables: Alle Maschinen eines VNET erreichen sich untereinander standardmäßig und erreichen Ressourcen im Internet. Sollte ein granulareres Routing gebraucht werden, werden Azure Route Tables erforderlich. Subnets in VPC erhalten immer eine Route Table: Ohne weitere Konfigurationen wird einem Subnet die Main Route Table zugewiesen. Diese kann vorab editiert werden, so dass z.B. kein Internet-Traffic für virtuelle Maschinen möglich ist.
+Route Tables ermöglichen es, den Fluss von IP-Pakete innerhalb eines Subnets zu steuern. So können z.B. statische Routen auf Ziele innerhalb eines Subnets angelegt werden. VNET kann dies, wie aus dem klassischen Netzwerk gewohnt, über Next-Hop IPs abbilden. VPC hingegen unterstützt als Next-Hop virtuelle Maschinen (Instances) und Interfaces von virtuellen Maschinen. Es existieren noch weitere spezielle Ziele, die genutzt werden können wie z.B. VPN Gateways, um entfernte Netzwerke zu erreichen.\\
+Subnets in Azure erfordern keine Route Tables: Alle Maschinen eines VNET erreichen sich untereinander standardmäßig und erreichen Ressourcen im Internet. Sollte ein granulareres Routing notwendig sein, werden Azure Route Tables erforderlich.\\
+Subnets in VPC erhalten immer eine Route Table: Ohne weitere Konfigurationen wird einem Subnet die Main Route Table zugewiesen. Diese kann vorab editiert werden, so dass z.B. kein Internet-Traffic für virtuelle Maschinen möglich ist. \textit{Non-Main} Route Tables können für spezielle Anforderungen erstellt und Subnets zugewiesen werden.
 
 \subsection{Security Groups}
-AWS Security Groups (SG) bzw. Azure Network Security Groups bilden \textit{stateful Firewalling} ab \cite{wool2006packet}. Dabei können sowohl ingress (eingehende), als auch egress (ausgehende) Firewall-Regeln definiert und darauf basierend Pakete gefiltert werden. Typische Protokolle anhand derer Regeln definiert werden können sind UDP, TCP und ICMP.\\
+AWS Security Groups (SG) bzw. Azure Network Security Groups (NSG) bilden \textit{stateful Firewalling} ab \cite{wool2006packet}. Dabei können sowohl ingress (eingehende), als auch egress (ausgehende) Firewall-Regeln definiert und darauf basierend Pakete gefiltert werden. Typische Protokolle anhand derer Regeln definiert werden können sind UDP, TCP und ICMP.\\
 AWS SGs können einer Instanz zugewiesen werden. Wird keine SG explizit für eine Instanz definiert, kommt eine Default SG zu Einsatz, die vom VPC vorgegeben ist.\\
-Azure NSGs können Instanzen als auch Subnets zugewiesen werden. NSGs für Subnets wirken sich also global für alle VMs eines Subnets aus. Wenn granularer Zugriff auf bestimmte VMs gewünscht ist, können zusätzliche NSGs den jeweiligen Instanzen zugeordnet werden. 
+Azure NSGs können sowohl Subnets als auch VMs direkt zugewiesen werden. NSGs für Subnets wirken sich global für alle VMs eines Subnets aus. Wenn granularer Zugriff auf bestimmte VMs gewünscht ist, nutzt man zusätzliche NSGs \glqq auf\grqq{} den jeweiligen Instanzen.
 
 \subsection{VPN}
-AWS bringt in Form von Virtual Private Gateway und Transit Gateway Möglichkeiten mit, IPSEC-basierte S2S-Verbindungen zu terminieren. Ersteres kann Verbindungen nur innerhalb eines VPC terminieren. Transit Gateway bietet die Möglichkeit, verschiedene VPCs miteinander zu \textit{peeren}. VPN-Verbindungen können auf Transit Gateway terminiert werden und Pakete, die über VPN reinkommen, können alle gepeerten VPCs erreichen.\\
-Azure Virtual network gateway kann analog zu AWS Virtual Private Gateway IPSEC-Tunnel in einem VNET terminieren.\\
+AWS bringt in Form von Virtual Private Gateway und Transit Gateway Möglichkeiten mit, IPsec-basierte S2S-Verbindungen zu terminieren. Ersteres kann Verbindungen nur innerhalb eines VPC terminieren. Transit Gateway bietet die Möglichkeit, verschiedene VPCs miteinander zu \textit{peeren}. VPN-Verbindungen können auf Transit Gateway terminiert werden und Pakete, die über VPN reinkommen, können alle gepeerten VPCs erreichen.\\
+Azure Virtual network gateway kann analog zu AWS Virtual Private Gateway IPsec-Tunnel in einem VNET terminieren.\\
 AWS und Azure ermöglichen innerhalb der Tunnel die Nutzung von BGP, um dynamische Routing-Informationen miteinander auszutauschen.
 
-Diese kurzen Grundlagen sollen nur als Basis für alle weiteren Use-Cases dienen. Insofern die Infrastrukturkomponenten weiterer Erläuterung bedürfen, wird das in den Use-Cases näher erläutert.
 
 \section{Automatisierung}\label{automatisierung}
 
-Diverse Automatisierungswerkzeuge ermöglichen es, gewünschte Endzustände von Systemen zu definieren. Mit heutigen Werkzeugen wie z.B. Ansible muss ein Administrator wenig Programmiererfahrungen mitbringen und schreibt die gewünschten Parameter in eine Konfigurationsdatei, die zu einem gewünschten Zeitpunkt auf Systeme ausgerollt werden. Viele Probleme wurden bereits von anderen Community-Mitgliedern gelöst und es gibt entsprechende Beispiele oder es werden Erweiterungen in Form von Plugins geschrieben.\\
-Man muss bei Automatisierungswerkzeugen zwischen \textit{Configuration Management} (CM) und \textit{Provisioning} unterscheiden. Provisioner dienen der grundsätzlichen Erstellung einer Infrastruktur, während CM-Werkzeuge diese Infrastruktur als vorhanden wahrnehmen und weitere Konfigurationen auf den jeweiligen Komponenten tätigen\cite[S.20]{Brikman2019}. Eine Analogie aus dem Hausbau: Provisioner setzen das Haus irgendwo an eine Straße und das CM macht daraufhin die Innenaustattung. Oder um in den Sphären der Informatik zu bleiben: Provisioner sorgen dafür, dass viele Ubuntu-Maschinen aufgesetzt werden und erreichbar sind. Das CM macht daraufhin Paketupdates und installiert einen Apache-Webserver.\\
-Es gibt keine klare Linie zwischen den beiden Typen von Werkzeugen. So können viele CM-Werkzeuge auch eine Provisionierung von Infrastruktur abbilden, während Provisioner auch grundlegendes Configuration Management leisten können\cite[S.20]{Brikman2019}.\\
+Diverse Automatisierungswerkzeuge ermöglichen es, gewünschte Endzustände von Systemen zu definieren. Mit heutigen Werkzeugen wie z.B. \textit{Ansible} muss ein Administrator wenig Programmiererfahrungen mitbringen und schreibt die gewünschten Parameter in eine Konfigurationsdatei, die zu einem gewünschten Zeitpunkt auf Systemen ausgerollt werden. Viele Probleme wurden bereits von anderen Community-Mitgliedern gelöst. Für komplexere Sachverhalte existieren Plugins.\\
+Man muss bei Automatisierungswerkzeugen zwischen \textit{Configuration Management} (CM) und \textit{Provisioning} unterscheiden. Provisioner dienen der grundsätzlichen Erstellung einer Infrastruktur, während CM-Werkzeuge diese Infrastruktur als vorhanden annehmen und weitere Konfigurationen auf den jeweiligen Komponenten tätigen\cite[S.20]{Brikman2019}.\\
+Eine Analogie wäre: Provisioner setzen das Haus an eine Straße und das CM macht daraufhin die Innenaustattung. Auf die IT angewendet bedeutet dies, dass Provisioner dafür sorgen, dass Ubuntu-Maschinen aufgesetzt werden und zu erreichen sind. Das CM macht daraufhin Paket-Updates und installiert z.B. einen Apache-Webserver.\\
+Es gibt keine klare Linie zwischen den beiden Typen von Werkzeugen. So können viele CM-Werkzeuge auch eine Provisionierung von Infrastruktur abbilden, während Provisioner auch grundlegendes Configuration Management leisten können\cite[S.20]{Brikman2019}. Das bereits angesprochene Ansible ist eher als CM-Tool zu sehen.\\
 Passende Schnittstellen, z.B. in Form einer REST-API, sind Voraussetzung, um Automatisierungswerkzeuge mit entsprechenden Komponenten nutzen zu können.
-
-Ansible muss mehr manuell auf Plausibilität geprüft werden...
 
 \subsection{Terraform}
 Das Werkzeug, das hauptsächlich für Automatisierungs-Schritte in dieser Arbeit verwendet wird, ist \textit{Terraform} der Firma Hashicorp. Es ist ein Provisioner mit begrenzten Möglichkeiten für Configuration Management. Es besitzt eine Vielzahl an \textit{Resources}, welche es ermöglichen, Infrastruktur-Komponenten  reproduzierbar  zu  deployen. Es wird eine deklarativer Sprachstil genutzt, um gewünschte Zustände der Infrastruktur zu beschreiben. Man spricht auch von \textit{Infrastructure as Code} (IaC).
 
 \textbf{\underline{Provider}}\\
-Provider sind die Grundvoraussetzung, um die Automatisierung einer Plattform mit Terraform bewerkstelligen zu können. Sie ermöglichen es, mit entsprechenden Schnittstellen der Anbieter, z.B. REST, zu interagieren. Provider beinhalten \textit{Resources}, welche Veränderungen tätigen können und \textit{Data Sources}, welche \glqq lesend\grqq auf die Infrastruktur zugreifen, um Informationen zurückzuliefern. Diese können dann anderen \textit{Modulen} zur Verfügung gestellt werden.\cite{Brikman2019}\\
+Provider sind die Grundvoraussetzung, um die Automatisierung einer Plattform mit Terraform bewerkstelligen zu können. Sie ermöglichen es, mit entsprechenden Schnittstellen der Anbieter, z.B. REST, zu interagieren. Provider liefern meist diverse \textit{Resources} mit, welche Veränderungen tätigen können und \textit{Data Sources}, welche \glqq lesend\grqq{} auf die Infrastruktur zugreifen, um Informationen zurückzuliefern. Diese Informationen können dann anderen \textit{Modulen} zur Verfügung gestellt werden.\cite{Brikman2019}\\
 %Serifen-Schrift für Dateinamen...
-Terraform arbeitet stateful: Nach jedem \texttt{terraform apply}, welches zur Erstellung der gewünschten Infrastruktur führt, werden Referenzen aller Infrastrukturkomponenten in der Datei \underline{terraform.tfstate} gespeichert. Ein erneuter Aufruf von \texttt{terraform apply} würde, insofern keine Konfigurationsänderungen gemacht wurden, die Infrastruktur so belassen und sie nicht nochmal deployen bzw. erweitern. Per \texttt{terraform destroy} kann die Infrastruktur wieder zurückgebaut werden.
-Im folgenden Beispiel wird der Provider \textit{aws} in einer spezifischen Version eingebunden. Der Constraint \glqq $\sim$>\grqq{} sorgt dafür, dass nur Versionen des Providers innerhalb des 3.35.x Branches benutzt werden (\glqq Minor Patches\grqq{}).
+Terraform arbeitet stateful: Nach jedem \texttt{terraform apply}, welches zur Erstellung der gewünschten Infrastruktur führt, werden Referenzen aller Infrastrukturkomponenten in der Datei \underline{terraform.tfstate} gespeichert: Ein erneuter Aufruf von \texttt{terraform apply} würde, insofern keine Konfigurationsänderungen gemacht wurden, die Infrastruktur so belassen und sie nicht nochmal deployen bzw. erweitern. Per \texttt{terraform destroy} kann die Infrastruktur wieder zurückgebaut werden.\\
+In Beispiel \ref{tf-aws-provider-example} wird der Provider \textit{aws} in einer spezifischen Version eingebunden. Der Constraint \glqq $\sim$>\grqq{} sorgt dafür, dass nur Versionen des Providers innerhalb des 3.35.x Branches benutzt werden (\glqq Minor Patches\grqq{}).
 
+\begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
 terraform {
     required_providers {
@@ -337,10 +331,14 @@ terraform {
     }
 }
 \end{minted}
+\caption{Terraform AWS Provider}
+\label{tf-aws-provider-example}
+\end{listing}
 
-\textbf{\underline{Resource}}\\
-Resources erstellen Infrastuktur-Komponenten und statten diese mit den richtigen Parametern aus. Folgend wird ein VPC mit dem CIDR-Block 10.0.0.0/16 und ein darunterliegendes Subnet 10.0.1.0/24 erstellt.
+\textbf{\underline{Resources}}\\
+Resources erstellen Infrastuktur-Komponenten und statten diese mit den richtigen Parametern aus. In \ref{deployment_aws_tf} wird ein VPC mit dem CIDR-Block 10.0.0.0/16 und ein darunterliegendes Subnet 10.0.1.0/24 erstellt.
 
+\begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
 resource "aws_subnet" "example_subnet" {
     vpc_id            = aws_vpc.example_vpc.id
@@ -351,15 +349,19 @@ resource "aws_vpc" "example_vpc" {
     cidr_block = "10.0.0.0/16"
 }
 \end{minted}
+\caption{Deployment der Resources \glqq example\_vpc\grqq{} und \glqq example\_subnet\grqq{}}
+\label{deployment_aws_tf}
+\end{listing}
 
 Dabei zeigt sich auch der deklarative Aspekt von Terraform. Die Resource \glqq aws\_subnet\grqq{} mit dem Namen \glqq example\_subnet\grqq{} kommt als erstes im Code vor, referenziert jedoch das VPC \glqq example\_vpc\grqq{}. Durch diese impliziete Abhängigkeit wird die Resource \glqq example\_vpc\grqq{} als erstes erstellt. Man beschreibt also, \textit{was} benötigt wird. \textit{Wie} und in welcher Reihenfolge das Rollout gemacht wird, obliegt Terraform.
 
 \textbf{\underline{Module}}\\
-Terraform Module sind \textit{Container}, die mehrere Resources in *.tf-Dateien zusammenfassen \cite{tfmodule2021}. Es ist zwar möglich, alle Resources in einer großes *.tf-Datei zu konfigurieren, allerdings ist es \textit{best practice}, verschiedene Aspekte wegen der Übersichtlichkeit aufzuteilen und in einer geeigneten Ordnerstruktur unterzubringen. Die jeweiligen Dateien innerhalb eines Ordners heißen dann \underline{main.tf}. Um Attribute an andere Module weiterzugeben, werden \textit{Outputs} genutzt. 
+Terraform Module sind \textit{Container}, die mehrere Resources in *.tf-Dateien zusammenfassen \cite{tfmodule2021}. Es ist zwar möglich, alle notwendigen Resources in einer einzigen *.tf-Datei zu konfigurieren, allerdings ist es \textit{best practice}, verschiedene Resources der Übersichtlichkeit wegen aufzuteilen und in einer geeigneten Ordnerstruktur unterzubringen. Die jeweiligen Dateien innerhalb eines Ordners heißen dann \underline{main.tf}. Um Attribute an andere Module weiterzugeben, werden \textit{Outputs} genutzt. 
 
-\textbf{\underline{Data Source und Outputs}}\\
-Data Sources führen keine Änderung herbei, sondern werden genutzt, um detaillierte Informationen zu Infrastruktur-Komponenten zurückzugeben oder um etwas zu finden. Im Beispiel wird nach einem Amazon Machine Image (AMI) für Ubuntu gesucht. Die ID (image\_id) für das \textit{most recent} Release kann per Output an andere Module weitergegeben werden. Diese können die ID dann z.B. nutzen, um per Resource eine virtuelle Maschine mit dem gewünschten Ubuntu-Image bereitzustellen.
+\textbf{\underline{Data Sources und Outputs}}\\
+Data Sources führen keine Änderung herbei, sondern werden genutzt, um detaillierte Informationen zu Infrastruktur-Komponenten zurückzugeben oder um etwas zu finden. In Beispiel \ref{data-source-find-output-id} wird nach einem Amazon Machine Image (AMI) für Ubuntu gesucht. Die ID (image\_id) für das \textit{most recent} Release kann per Output an andere Module weitergegeben werden. Diese können die ID dann z.B. nutzen, um per Resource eine virtuelle Maschine mit dem gewünschten Ubuntu-Image bereitzustellen.
 
+\begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
 data "aws_ami" "ubuntu" {
   most_recent = true
@@ -377,13 +379,17 @@ output "ubuntu_ami_id" {
   value = data.aws_ami.ubuntu.image_id
 }
 \end{minted}
+\caption{Die Data Source \glqq ubuntu\grqq{} sucht nach dem passenden Ubuntu Image und Output macht die ID global für andere Module verfügbar}
+\label{data-source-find-output-id}
+\end{listing}
 
 \subsection{IP Address Management (IPAM)}
-Ein IPAM ist wichtig, insofern die Adressverwaltung automatisiert werden soll. Statisch konfigurierte CIDR-Blöcke im Code sorgen für eine schlechte Wiederverwendbarkeit und Skalierbarkeit von Modulen. IP-Blöcke müssen dann jedes Mal händisch reserviert und in den gewünschten Modulen untergebracht werden. Einfacher ist es, im Modul lediglich festzulegen, welche Subnetzgröße erforderlich ist: ein IPAM gibt dann den nächsten freien Block in der Größe zurück. Es wird lediglich ein großer Block vorreserviert, aus dem die freien Blöcke entnommen werden können.
+Ein IPAM ist wichtig, insofern die Adressverwaltung automatisiert werden soll. Statisch konfigurierte CIDR-Blöcke im Code sorgen für eine schlechte Wiederverwendbarkeit und Skalierbarkeit von Modulen: IP-Blöcke müssten dann jedes Mal händisch reserviert und in den gewünschten Modulen untergebracht werden.\\
+Einfacher ist es, im Modul lediglich festzulegen, welche Subnetzgröße erforderlich ist: ein IPAM gibt dann den nächsten freien Block in der passenden Größe zurück. Es wird lediglich ein großer Block vorreserviert, aus dem die freien Blöcke entnommen werden können.
 
 \begin{figure}[h]
   \centering
-  \includegraphics{Figures/ipam_cake.pdf}
-  \caption{Beispielbild IPAM}
+  \includegraphics[scale=0.8]{Figures/ipam_cake.pdf}
+  \caption{IPAM-Reservierung von CIDR-Blöcken}
   \label{grafik: ipam_ip_reservation}
 \end{figure}\FloatBarrier
