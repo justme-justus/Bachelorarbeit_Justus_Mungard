@@ -2,69 +2,62 @@
 %keine KMU => kleine und mittlere Skalierungen
 \chapter{Einleitung}
 
-Viele Kunden der NetUSE AG wechseln auf Cloud-basierte Dienste, um ehemals hausinterne IT-Infrastruktur dorthin zu verlagern bzw. zu erweitern. Auf der technischen Ebene spricht dafür oftmals, dass passende Infrastruktur für einen Dienst on-premise, also im eigenen Rechenzentrum,  nicht zur Verfügung steht. \textit{Entscheider} sehen in der Cloud eine Möglichkeit der Kosteneinsparung zusammen mit einer besseren Aufschlüsselung, welche Kosten für den Betrieb eines Dienstes verursacht werden. Kosten bspw. für den Aufbau und Betrieb können sich in der konventionellen Infrastruktur über verschiedene Teams erstrecken. Das wären bspw. bei der NetUSE AG: Server-Einbau und -Installation (Team \glqq{Infrastruktur}\grqq{}), Netzwerkanbindung (Team \glqq{Netzwerk}\grqq{}), Pflege von Firewall-Regeln (Team \glqq{Security}\grqq{}).\\
-In der Cloud werden diese Schritte zusammengefasst und per Knopfdruck können Maschinen und Infrastruktur deployet werden. Deployment beschreibt dabei das Ausbringen der Infrastruktur. Dies passiert in größeren Skalierungen automatisiert, z.B. Skript-gesteuert oder mit Hilfe von Automatisierungs-Frameworks wie Ansible oder Terraform, wobei Cloud-Plattformen die passenden Schnittstellen zur Steuerung anbieten\cite{edelman2018}\cite{Brikman2019}.\\
-Cloud-Dienste bringen damit einen Paradigmenwechsel in die IT-Landschaft: Server, auf denen gewünschte Dienste installiert sind, sind nicht mehr vor Ort beim Kunden oder bei einem Managed Service Provider (MSP), welcher Services Kunden zur Verfügung stellt und instand hält, angesiedelt. Typische Prozesse wie die Grundinstallation eines Betriebssystems erübrigen sich. Analog dazu sind viele Software-Lösungen bereits über einen Cloud-Marketplace erhältlich, so dass diese gleich mit der Initialisierung der Cloud-Instanz starten.\\
-Ebenso gibt es in der Cloud keine klassische Netzwerk-Infrastruktur: Broadcast-fähige Layer-2-Domänen, welche ursprünglich notwendig waren, um lokale Netzwerkteilnehmer (ARP [IPv4] bzw. Neighbor Discovery [IPv6]) zu finden, werden nicht mehr benötigt: Die Cloud \textit{kennt} naturgemäß alle Teilnehmer und es ist nach Belieben möglich, Konnektivität zwischen diesen zu erlauben bzw. zu verbieten.\\
+Viele Kunden der NetUSE AG nehmen \textit{Public Cloud}-basierte Dienste in Anspruch, um ehemals hausinterne IT-Infrastruktur dorthin zu verlagern bzw. zu erweitern. Auf der technischen Ebene spricht dafür oftmals, dass passende Infrastruktur und Ressourcen für einen Dienst on-premise\cite{Karlstetter2017} nicht zur Verfügung stehen. \textit{Entscheider} sehen in der Cloud eine Möglichkeit der Kosteneinsparung zusammen mit einer besseren Aufschlüsselung, welche Kosten für den Betrieb eines Dienstes verursacht werden. Kosten bspw. für den Aufbau und Betrieb können sich in einer klassischen Infrastruktur über verschiedene Teams erstrecken. Das wären bspw. bei der NetUSE AG: Server-Einbau und -Installation (Team \glqq{Infrastruktur}\grqq{}), Netzwerkanbindung (Team \glqq{Netzwerk}\grqq{}), Pflege von Firewall-Regeln (Team \glqq{Security}\grqq{}).\\
+In der Cloud werden diese Schritte zusammengefasst und per Knopfdruck (virtuelle) Maschinen und Infrastruktur deployet\cite{Karlsetter2017a}. Dies passiert in größeren Skalierungen automatisiert, z.B. Skript-gesteuert oder mit Hilfe von Automatisierungs-Frameworks wie Ansible oder Terraform, wobei Cloud-Plattformen die passenden Schnittstellen zur Verfügung stellen\cite{edelman2018}\cite{Brikman2019}.\\
+Public Cloud-Provider bringen damit einen Paradigmenwechsel in die IT-Landschaft: Server, auf denen gewünschte Dienste installiert sind, sind nicht mehr vor Ort beim Kunden oder bei einem Managed Service Provider (MSP)\cite{Laimingas2017} angesiedelt. Typische Prozesse wie die Grundinstallation eines Betriebssystems erübrigen sich. Außerdem existieren viele fertige bzw. vorbereitete Lösungen und sind über einen Cloud-Marketplace erhältlich.\\
+Ebenso gibt es in der Public Cloud keine klassische Netzwerk-Infrastruktur: Broadcast-fähige Layer-2-Domänen, welche ursprünglich notwendig waren, um lokale Netzwerkteilnehmer (ARP [IPv4] bzw. Neighbor Discovery [IPv6]) zu finden, werden nicht mehr benötigt: Die Cloud \textit{kennt} naturgemäß alle Teilnehmer und es ist nach Belieben möglich, Konnektivität zwischen diesen zu ermöglichen.\\
 Netzwerke in der Cloud sind Software-Defined (SDN)\cite{Seidel2015}. Das hat zur Folge, dass gewohnte Werkzeuge eines Netzwerk-Ingenieurs wegfallen, während gleichzeitig neue dazu gekommen sind, um Netzwerke (wieder-)herzustellen.\\
-Die NetUSE AG sieht zur Zeit zwei \textit{Public Cloud}-Anbieter für ihr Geschäft im Fokus: Amazon Web Services (AWS) und Microsoft Azure. Weiterhin unterstützt die Firma Kunden beim Aufbau einer \glqq{Private Cloud}\grqq{} mit Red Hat OpenShift. Unterhält ein Unternehmen sowohl eine Public als auch eine Private Cloud, wird dies als Hybrid Cloud bezeichnet.\\
-Eine Vernetzung zwischen den Plattformen ist nicht trivial, insofern man nicht mit öffentlicher IP-Adressierung jeder Maschine in der Cloud arbeiten möchte.
-Die Bachelor-Arbeit zielt darauf ab, wie ein möglichst abstrahiertes, generisches Netzwerk zwischen verschiedenen Cloud-Plattformen herzustellbar ist. Dies soll automatisiert passieren, sodass eine IP-Konnektivität neuer Maschinen und \glqq{Cloud-Domänen}\grqq{} über die Anbietergrenzen hinweg in kurzer Zeit gegeben ist. Die Konfigurationen sollen möglichst über die bereits verfügbaren Schnittstellen der Anbieter stattfinden. Sobald die Netzwerkumgebung zur Verfügung steht, soll anhand typischer Use-Cases in kleinen bis mittelgroßen Skalierungen gezeigt werden, wie typische (Server-)Dienste und diese redundant abgebildet (\textit{Fail-Over Szenarien}) in einem Cloud-Netzwerk abgebildet werden können.
+Die NetUSE AG sieht zur Zeit zwei Public Cloud-Anbieter für ihr Geschäft im Fokus: Amazon Web Services (AWS) und Microsoft Azure. Weiterhin unterstützt die Firma Kunden beim Aufbau einer \textit{Private Cloud} mit Red Hat OpenShift. Unterhält ein Unternehmen sowohl eine Public als auch eine Private Cloud und will eine Brücke zwischen diesen schlagen, wird dies als \textit{Hybrid Cloud} bezeichnet.\\
+Eine Vernetzung zwischen verschiedenen Clouds ist nicht trivial zu lösen, insofern diese Infrastruktur gegen das Internet isoliert werden soll.
+Die Bachelorarbeit zielt darauf ab, wie ein möglichst generisches Netzwerk zwischen verschiedenen Cloud-Plattformen herzustellen ist. Dies soll automatisiert passieren, sodass eine IP-Konnektivität neuer Infrastruktur über Anbietergrenzen hinweg nach kurzer Zeit und ohne manuelle Interaktion gegeben ist. Die Konfigurationen sollen möglichst über die bereits verfügbaren Schnittstellen der Anbieter stattfinden. Sobald die Netzwerkumgebung zur Verfügung steht, soll anhand typischer Use-Cases in kleinen bis mittelgroßen Skalierungen gezeigt werden, wie typische (Server-)Dienste und \textit{Fail-Over Szenarien}\cite{DBG2011} in einem Cloud-Netzwerk abgebildet werden können.
 
-\chapter{Inhalt und Ziel}
 \section{Ziel}
 
 Es existieren bereits proprietäre Lösungen am Markt, um eine Vernetzung über Cloud-Anbieter hinweg zu ermöglichen. Sie fallen in die Kategorie \textit{Software-Defined Wide Area Network (SD-WAN)} und sind nicht interoperabel zu SD-WAN-Lösungen anderer Hersteller.\\
-Ziel der Arbeit wird sein, ein möglichst agnostisches Netzwerk, welchen eine Ende-zu-Ende-Konnektivität ermöglicht, zwischen verschiedenen Cloud-Plattformen herzustellen. Es soll gezeigt werden, wie neue Cloud-Instanzen automatisiert in das Netzwerk des Inhabers eingebunden werden, so dass sie für alle berechtigten Teilnehmer über eine vom Internet isolierte Netzwerk-Infrastruktur erreichbar sind. Dies soll möglichst mit freier, offener Software und RFC-konformen Protokollen geschehen.\\
-Interessant ist diese Lösung bspw. für Unternehmen, welche die Lizenzkosten für proprietäre Lösungen sparen wollen oder bevorzugt auf offene Systeme bzw. Standards setzen, welche eine hohe Interoperabilität zu anderen Systemen versprechen. Auch können so auf eine schnelle Art und Weise neue Cloud-Netzwerke in die konventionelle Firmen-Infrastruktur eingebunden werden.
+Ziel der Arbeit wird sein, ein möglichst herstellerunabhängiges Netzwerk, welches eine Ende-zu-Ende-Konnektivität ermöglicht, zwischen verschiedenen Cloud-Plattformen herzustellen. Es soll gezeigt werden, wie neue Infrastruktur automatisiert und Cloud-übergreifend integriert werden kann, so dass sie anschließend für alle berechtigten Teilnehmer erreichbar ist. Dies soll möglichst mit freier, offener Software und RFC-konformen Protokollen geschehen.\\
+Interessant ist diese Lösung bspw. für Unternehmen, welche die Lizenzkosten für proprietäre Lösungen sparen wollen oder bevorzugt auf offene Systeme bzw. Standards setzen, welche eine hohe Interoperabilität zu anderen (offenen) Systemen versprechen.
 
 \section{Inhalt}
 %Es soll ein Katalog erstellt werden, welcher typische Anforderungen von kleinen und mittelständischen Kunden der NetUSE AG auflistet. Dieser umfasst vsl. Punkte der Skalierbarkeit, Orchestration, Performanz und Sicherheit hinsichtlich einer Cloud-Vernetzung.\\
 %Da die NetUSE AG jahrelanger Partner des Netzwerk-Ausrüsters Cisco ist, soll untersucht werden, welche Lösungen in diesem Feld bereits von Cisco angeboten werden. Dabei wird der entworfene Anforderungskatalog zu Hilfe genommen.\\
 %Aus diesem Erkenntnisgewinn soll ein Design für eine offene Lösung erarbeitet und in einem Proof-of-Concept manifestiert werden. Um eine Automatisierung zu erlangen, werden evtl. Programmierarbeiten erforderlich.\\
-Es sollen verschiedene Use-Cases erarbeitet werden, die im Kontext einer Cloud-Vernetzung geeignet erscheinen, um verschiedene Netzwerkdienste (redundant) anzubieten. Grundlegend wird davon ausgegangen, dass ein Kunde diese Dienste sowohl bei sich vor Ort als auch bei den Cloud-Providern Amazon Web Services und Microsoft Azure in Anspruch nehmen möchte, um eine Hochverfügbarkeit bzw. einen Lastenausgleich zu erreichen.\\
-Im ersten Schritt muss dafür ein geeignetes Design für die Vernetzung zwischen den verschiedenen Standorten gefunden werden. Dieses Design soll mit Hilfe geeigneter technischer Werkzeuge umgesetzt werden und dient im Anschluss als Grundlage für die Abbildung der vorher definierten Use-Cases.
-Diese technisch abgebildeten Use-Cases sind im Einzelnen als Proof-of-Concept anzusehen und sollen abschließend in Bezug auf im Voraus formulierte Anforderungen und Kriterien analysiert und bewertet werden.
-Es ist davon auszugehen, dass im Rahmen der Umsetzung der Autor mit diversen technischen Problemen konfrontiert sein wird. Die Analyse und Diskussion dieser Problemstellungen soll zu geeigneten Lösungsansätzen führen.
+Es sollen verschiedene Use-Cases erarbeitet werden, die im Kontext einer Cloud-Vernetzung geeignet erscheinen, um verschiedene Netzwerkdienste (redundant) anzubieten. Grundlegend wird davon ausgegangen, dass ein Kunde Netzwerkdienste bereits on-premise nutzt und diese zu AWS und Azure hin erweitern möchte, um eine Hochverfügbarkeit bzw. einen Lastenausgleich zu erreichen.\\
+Im ersten Schritt muss dafür ein geeignetes Design für die Vernetzung zwischen den verschiedenen Standorten gefunden werden. Dieses Design soll mit Hilfe geeigneter technischer Werkzeuge umgesetzt werden und dient im Anschluss als Grundlage für die Abbildung der zuvor definierten Use-Cases.\\
+Diese technisch abgebildeten Use-Cases sind im Einzelnen als Proof-of-Concept (PoC) anzusehen und sollen abschließend in Bezug auf im Voraus formulierte Anforderungen und Kriterien analysiert und bewertet werden. Es ist davon auszugehen, dass im Rahmen der Umsetzung der Autor mit diversen technischen Problemen konfrontiert sein wird. Die Analyse und Diskussion dieser Problemstellungen soll zu geeigneten Lösungsansätzen führen.
 
-\subsection{Aspekte, die die Bachelor-Arbeit herausstellen soll}
+\textbf{\underline{Herausgestellte Aspekte der Bachelorarbeit}}
 \begin{itemize}
-    \item Kein \textbf{feste} Bindung an einen Cloud-Anbieter (\glqq Vendor Lock-In\grqq{}, da das Netzwerk über mehrere Cloud-Anbieter gespannt wird.
+    \item Kein \textbf{feste} Bindung an einen Cloud-Provider (\glqq Vendor Lock-In\grqq{}), da das Netzwerk über mehrere Cloud-Plattformen gespannt wird.
     \item Möglichkeit der Hochverfügbarkeit und des Lastenausgleichs für Netzwerkdienste über mehrere Cloud-Plattformen hinweg
-    \item Projekte oder Dienste, die eine bestimmte Cloud-Plattform erfordern, können einfach für weitere (Cloud-)Standorte verfügbar gemacht werden
+    \item Projekte oder Dienste, die eine \textit{bestimmte} Cloud-Plattform erfordern, können für weitere (Cloud-)Plattformen verfügbar gemacht werden
     \item Latenz- oder Bandbreitenanforderungen können durch eine Hybrid-Cloud-Strategie u.U. besser eingehalten werden
-    \item Neue Cloud-Netzwerke können dynamisch und automatisiert aufgebaut werden und sind im Anschluss für alle berechtigten Teilnehmer verfügbar
+    \item Neue Cloud-Netzwerke können dynamisch und automatisiert aufgebaut werden und stehen im Anschluss für alle berechtigten Teilnehmer zur Verfügung
 \end{itemize}
 
-\subsection{Fragestellungen, auf die diese Arbeit eingehen wird}
+\textbf{\underline{Beleuchtete Fragestellungen}}
 \begin{itemize}
     \item Mit Hilfe welcher Technologien und Systemkomponenten lässt sich so eine Lösung aufbauen?
     \item Welche Schnittstellen werden bei den jeweiligen Cloud-Plattformen angeboten, um eine automatisierte Vernetzung zu bewerkstelligen?
     \item Welche Werkzeuge können mit diesen Schnittstellen genutzt werden?
-    \item Welche Netzwerk-Topologien bieten sich an, um mehrere Cloud-Plattformen miteinander zu verbinden?
-    \item Welche Netzwerk-Protokolle bieten sich an, um mehrere Cloud-Plattformen miteinander zu verbinden?
-    \item Wie kann eine hohe Sicherheit im Netzwerkverkehr zwischen den Plattformen gewährleistet werden, um fremde Zugriffe zu verhindern?
+    \item Welche Netzwerk-Topologie bieten sich an, um mehrere Cloud-Plattformen miteinander zu verbinden?
+    \item Auf welche Netzwerk-Protokolle kann zurückgegriffen werden?
+    \item Wie kann eine hohe Sicherheit im Netzwerk zwischen den Plattformen gewährleistet werden, um fremde Zugriffe zu verhindern?
     \item Sind Bandbreiten- und Latenzanforderungen in typischen Szenarien erfüllbar? Wie kann u.U. ein Lastenausgleich herbeigeführt werden?
 \end{itemize}
 
-\subsection{Abgrenzung der Arbeit}
+\textbf{\underline{Abgrenzungen}}
 
 \begin{itemize}
 %Nicht Overlay... Abstraktion, um per IPv4 eine Ende-zu-Ende-Konnektivität herzustellen
-\item Es wird herausgearbeitet, wie ein IPv4-Overlay geschaffen werden kann. Dies soll mit privaten RFC1918-Adressen geschehen und dies automatisiert evtl. unter Zuhilfenahme eines IP Adressmanagements (IPAM). Öffentliche IPv4-Netzwerke dienen dabei nicht der Erreichbarkeit von Services.
-\item IPv6-Adressierung wird in dieser Arbeit nicht berücksichtigt: IPv6-Unterstützung ist auf den Cloud-Plattformen teilweise eingeschränkt und Kunden nutzen meist noch IPv4 für interne Adressierungen \cite{azureipv6_2020}.
-\item Broadcast- und Multicast-Anwendungen werden in den Use-Cases nicht berücksichtigt. Auch hier gibt es nur eingeschränkte Unterstützung seitens der Cloud-Dienstleister.
+\item Es wird herausgearbeitet, wie eine Ende-zu-Ende-Konnektivität zwischen verschiedenen Cloud-Plattform ermöglicht werden kann. Dies soll mit privaten RFC 1918-Adressen geschehen und dies automatisiert evtl. unter Zuhilfenahme eines IP Adressmanagements (IPAM).
+\item IPv6-Adressierung wird in dieser Arbeit nicht berücksichtigt: IPv6-Unterstützung ist auf den Cloud-Plattformen teilweise eingeschränkt und Kunden nutzen meist noch IPv4 für interne Adressierungen\cite{azureipv6_2020}.
+\item Broadcast- und Multicast-Anwendungen werden in den Use-Cases nicht berücksichtigt. Auch hier gibt es nur eingeschränkte Unterstützung seitens der Cloud-Provider.
 %\item Hochverfügbarkeit von Internetdiensten (bspw. ein MySQL-Cluster) über mehrere Cloud-Plattformen hinweg ist nicht Teil der Bachelor-Arbeit.
-\item Weitere Cloud-Anbieter wie Google oder IBM werden nicht berücksichtigt. Das Hauptaugenmerk liegt auf Amazon Web Services, Microsoft Azure und der Integration von \textit{klassischer} Netzwerk-Infrastruktur, wie man sie bei typischen kleinen und mittelständischen Unternehmen der NetUSE AG vorfindet.
-\item Typische On-Premise Cloud-Lösungen wie OpenStack oder OpenShift werden auf Grund ihrer hohen Komplexität in der Bachelor-Arbeit nicht berücksichtigt. Solche Standorte sollen in der Bachelor-Arbeit durch eine Abstraktion dargestellt werden. Darauf wird in der Bachelor-Arbeit näher eingangen.
-\item Vernetzungskonzepte \textit{innerhalb} eines Cloud-Netzwerkes sind nicht Teil der Bachelor-Arbeit. Sie werden aber evtl. zur Bearbeitung bestimmter Use-Cases benötigt. Ggf. werden diese Konzepte dann genauer erläutert.
-\item Die zu bearbeitenden Use-Cases und Fail-Over-Szenarien werden im Verlauf der Bachelor-Arbeit aufgeschlüsselt und sind nicht Teil dieses Proposals.
-% auch SLA genannt
-\item Ausblick Härtung Encryption..
-\item Auf Bandbreitenmessungen wird in dieser Arbeit bewusst verzichtet, da Bandbreiten von zu vielen Faktoren abhängig ist, es werden allerdings im Ausblick ggf. Optimierungen dargelegt...
+\item Typische On-Premise (Private) Cloud-Lösungen wie OpenStack oder OpenShift werden auf Grund ihrer hohen Komplexität in der Bachelor-Arbeit nicht berücksichtigt. Solche Plattformen sollen in der Bachelor-Arbeit durch eine Abstraktion dargestellt werden.
+\item Weitere Cloud-Anbieter wie Google oder IBM werden nicht berücksichtigt. Das Hauptaugenmerk liegt auf AWS, Azure und der Integration einer Private Cloud.
+\item Verschlüsselungsparameter zur Absicherung von Verbindungen werden nicht tiefergehend beleuchtet, sondern ein \textit{vorgegebener} Verschlüsselungsgrad der Cloud-Provider als ausreichend angenommen.
+\item Es werden vereinzelte Bandbreitenmessungen zwischen den Standorten erwogen und auf Plausibilität geprüft. Sie sind jedoch nicht Fokus dieser Arbeit, da zu viele Faktoren einen negativen Einfluss darauf haben können. Es werden Überlegungen zur Optimierung im Ausblick (s. \ref{ausblick}) angestellt.
 \item Entgegen des initialen Proposals zielt die Arbeit nicht mehr auf kleine und mittelständische Unternehmen, sondern auf kleine bis mittelgroße \textbf{Skalierungen} ab. Es hat sich während der praktischen Bearbeitung der Use-Cases herausgestellt, dass die genutzten Technologien so robust sind, dass ein Einsatz auch im \glqq größeren \textbf{technischen} Rahmen\grqq{} machbar ist. Aus technischer Sicht stellt sich nicht die Frage, wie \glqq groß\grqq{} ein Kunde ist, sondern welche Anforderungen (Latenz, Bandbreite, Uptime, etc.) in der Praxis tatsächlich vorherrschen. Es wird daher zum Ende der Arbeit noch ein Ausblick gegeben, wie beliebig große Skalierungen mit schärferen Performance-Kriterien, neben den erarbeiteten Lösungsvorschlägen, auch bedient werden können.
-\item Auf Grund der zuvor genannten Punkte ist "letzer Punkt Fragestellung" nicht im vollen Maße mit dieser Arbeit zu erfüllen und könnte eigene Arbeit werden (s. Ausblick)
-\item Ende-zu-Ende-Konnektivität gegeben (wegen Amazon NAT z.B.)
 %Kein Best Practice Security, DH etc...
 
 %BFD, SLA, QoS, VNET / VPC Peering / Microsoft SDWAN / TG?
