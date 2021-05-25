@@ -8,10 +8,11 @@
 %Terraform DNS Update
 %Bind Split-DNS
 
-In AWS und Azure wurden via Terraform die virtuellen Maschinen VyOS aus den jeweiligen Marketplaces installiert.
-Es wurden für die Cloud-Standorte AWS und Azure analog zu Use-Case 1 Templates erstellt, um den Client-VPN-Konzentrator zu installieren. In der Terraform Ressource azurerm\_linux\_virtual\_machine wird das richtige VyOS-Image aus dem Cloud-Marketplace referenziert über source\_image\_reference und lässt dieses installieren. Einige dieser Markeplace-Images bieten verschiedene Support- und Lizenz-Verträge an. Über den \textit{plan \{\}}-Kontext wird der passende Contract ausgewählt (hier: \glqq Standard support\grqq{}). Ähnlich ist für die AWS-Instanz vorzugehen.
-
-\begin{lstlisting}[label=tf-azure-vyos-machine-image,caption=Mit der Terraform-Ressource wird das passende VyOS-Image gesucht und installiert.]
+In AWS und Azure wurden via Terraform die virtuellen Maschinen VyOS aus den jeweiligen Marketplaces installiert.\\
+Es wurden für die Cloud-Standorte AWS und Azure analog zu Use-Case 1 Templates erstellt, um den Client-VPN-Konzentrator zu konfigurieren. In der Terraform Resource \textit{azurerm\_linux\_virtual\_machine} wird das richtige VyOS-Image aus dem Cloud-Marketplace referenziert über \textit{source\_image\_reference} und lässt dieses installieren. Einige dieser Marketplace-Images bieten verschiedene Support- und Lizenz-Verträge an. Über den \textit{plan \{\}}-Kontext wird der passende \textit{Contract} ausgewählt (hier: \glqq Standard support\grqq{}). Ähnlich wurde für die AWS-Instanz vorgegangen. 
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{tf}
 resource "azurerm_linux_virtual_machine"  "azurerm_linux_virtual_machine" {
   name = "vyos-test"
   location = var.rg_location
@@ -39,19 +40,22 @@ resource "azurerm_linux_virtual_machine"  "azurerm_linux_virtual_machine" {
     publisher = "sentriumsl"
   }
 }
-\end{lstlisting}
-
-Konfiguriert wurden die virtuellen Maschinen wieder über ein Terraform-Template. Das Public/Private-Schlüsselpaar wurde vorab erstellt, von der pfSense-PKI signiert und mit dem Zertifikat auf dem Terraform-Server gespeichert. Während des Terraform-Deployments wird Private Key und Zertifikat per Terraform Provisioner auf das Zielsystem kopiert. Sie werden in der Config dann via set interfaces openvpn vtun0 tls cert-file / key-file referenziert. In der Praxis sollte darauf verzichtet werden, das Schlüsselmaterial \glqq auf einem anderen System vorzulagern \grqq{}: ein privater Schlüssel nur auf dem Server erzeugt und gespeichert werden, auf dem dieser final genutzt wird. Optimalerweise wäre dies zur Laufzeit der Terraform-Deployments. Zur Vereinfachung des Use-Cases wurde auf diesen Schritt verzichtet. Eine Möglichkeit zur automatisierten Erzeugung von vertrauenswürdigen Zertifikaten ist das Simple Certificate Enrollment Protocol (SCEP)\cite[S.554]{Schmeh2013}.
-
-Für den sich verbindenden VPN-Client sind diverse Konfigurationen hinterlegt: Domain-Name, (interner) Name-Server und Routen, die über den VPN-Konzentrator erreicht werden können.
-Weiterhin wird ein MSS-Clamping vorgenommen, um IP-Fragmentierung von TCP-Applikationen möglichst zu verhindern.\\
-Das Subnetz, in dem die OpenVPN-Clients terminiert werden, wird wieder dynamisch aus dem IPAM alloziert (s. set interfaces openvpn vtun0 server subnet).
-
-\begin{lstlisting}[label=vpn-c2s-server-config,caption=Terraform Template für VyOS OpenVPN-Server in AWS]
+\end{minted}
+\caption{Innerhalb der Terraform Resource \textit{azurerm\_linux\_virtual\_machine} wird das passende VyOS-Image gesucht und installiert.}
+\label{tf-azure-vyos-machine-image}
+\end{listing}\FloatBarrier
+%TC:endignore
+Public/Private-Schlüsselpaar wurde vorab erstellt, von der pfSense-PKI signiert und mit dem Zertifikat auf dem Terraform-Server gespeichert. Während des Terraform-Deployments wird Private Key und Zertifikat per Terraform Provisioner auf das Zielsystem kopiert. Sie werden in der Config dann via \textit{set interfaces openvpn vtun0 tls cert-file / key-file} referenziert.\\
+In der Praxis sollte darauf verzichtet werden, das Schlüsselmaterial \glqq auf einem anderen System vorzulagern\grqq{}: Ein privater Schlüssel sollte nur auf dem Server erzeugt und gespeichert werden, auf dem dieser final genutzt wird. Optimalerweise wäre dies zur Laufzeit der Terraform-Deployments. Zur Vereinfachung des Use-Cases wurde auf diesen Schritt verzichtet. Eine Möglichkeit zur automatisierten Signatur von vertrauenswürdigen Zertifikaten ist das Simple Certificate Enrollment Protocol (SCEP)\cite[S.554]{Schmeh2013}.\\
+Für den sich verbindenden Roadwarrior-Client sind diverse Konfigurationen hinterlegt: Domain-Name, (interner) Name-Server und Routen, die über den VPN-Konzentrator erreicht werden können.
+Weiterhin wird ein MSS-Clamping (siehe \ref{mtumss}) vorgenommen, um IP-Fragmentierung von TCP-Applikationen möglichst zu verhindern.\\
+Das Subnetz, in dem die OpenVPN-Clients terminiert werden, wird wieder dynamisch aus dem IPAM alloziert.
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{text}
 set interfaces openvpn vtun0 openvpn-option "--mssfix 1350"
 set interfaces openvpn vtun0 server domain-name 'intern.ba.mungard.de'
 set interfaces openvpn vtun0 server name-server '192.168.201.1'
-#"dynamic" routes?
 set interfaces openvpn vtun0 server push-route '10.32.0.0/16'
 set interfaces openvpn vtun0 server push-route '10.33.0.0/16'
 set interfaces openvpn vtun0 server push-route '192.168.201.0/24'
@@ -60,18 +64,28 @@ set interfaces openvpn vtun0 tls ca-cert-file '/config/auth/BA_CA_2021.crt'
 set interfaces openvpn vtun0 tls cert-file '/config/auth/vpn-server-aws.ba.mungard.de.crt'
 set interfaces openvpn vtun0 tls dh-file '/config/auth/dh2048.pem'
 set interfaces openvpn vtun0 tls key-file '/config/auth/vpn-server-aws.ba.mungard.de.key'
-\end{lstlisting}
+\end{minted}
+\caption{Terraform Template für VyOS OpenVPN-Server in AWS}
+\label{vpn-c2s-server-config}
+\end{listing}
+%TC:endignore
 
-Die drei Cloud-Standorte wurden in diesem Proof-of-Concept verteilt über verschiedenen Regionen: Dublin (Azure), Frankfurt (AWS), Kiel (Private Cloud). Es werden drei Roadwarrior-Clients simuliert, die ebenso am jeweiligen Standort stehen. Dazu wurden weitere VMs an den Cloud-Standorten hochgefahren: Sie wurden völlig isoliert von dem restlichen Deployment installiert und sich nicht Teil der internen Infrastruktur. Zugang zu internen Ressourcen wird nur über eine erfolgreiche Authentifizierung am VPN-Konzentrator gewährleistet.
-
-\begin{lstlisting}[label=ext-ip-addr-roadwarrior,caption=Der simulierte Roadwarrior-Client ist nicht Teil der Netzwerke 10.32.0.0/16 bzw. 10.33.0.0/16]
+Die drei Cloud-Standorte wurden in diesem Proof-of-Concept verteilt über verschiedenen Regionen: Dublin (Azure), Frankfurt (AWS), Kiel (Private Cloud). Es werden drei Roadwarrior-Clients simuliert, die ebenso am jeweiligen Standort stehen. Dazu wurden weitere VMs an den Cloud-Standorten hochgefahren: Sie wurden völlig isoliert von dem restlichen Deployment installiert und sind nicht Teil der internen Infrastruktur. Zugang zu internen Ressourcen wird nur über eine erfolgreiche Authentifizierung am VPN-Konzentrator gewährleistet.
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 ubuntu@vpn-client-azure:~$ ip -brief -4 address show | grep -v lo
 eth0             UP             10.42.0.4/24
-\end{lstlisting}
 
+\end{minted}
+\caption{Der simulierte Roadwarrior-Client ist nicht Teil der internen Netzwerke 10.32.0.0/16 bzw. 10.33.0.0/16.}
+\label{ext-ip-addr-roadwarrior}
+\end{listing}\FloatBarrier
+%TC:endignore
 Internet-Traffic ist möglich, Zugriff auf interne Ressourcen ist nicht möglich: 192.168.201.1 ist eine IP-Adresse der Private Cloud.
-
-\begin{lstlisting}[label=internet-access-roadwarrior,caption=Der Roadwarrior-Client kann auf das Internet zugreifen - kein Zugriff auf interne Ressourcen.]
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{text}
 #Internet-Traffic
 ubuntu@vpn-client-azure:~$ ping -c 1 8.8.8.8
 PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
@@ -87,29 +101,44 @@ PING 192.168.201.1 (192.168.201.1) 56(84) bytes of data.
 
 --- 192.168.201.1 ping statistics ---
 1 packets transmitted, 0 received, 100% packet loss, time 0ms
-\end{lstlisting}
 
-Die MaxMind GeoIP-Datenbank wurde auf dem DNS-Server installiert und in der Bind-Konfiguration referenziert:
+\end{minted}
+\caption{Der Roadwarrior-Client kann auf das Internet zugreifen - kein Zugriff auf interne Ressourcen.}
+\label{internet-access-roadwarrior}
+\end{listing}\FloatBarrier
+%TC:endignore
+Die MaxMind GeoIP-Datenbank wurde auf dem DNS-Server installiert und in der Bind-Konfiguration referenziert.
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 
-\begin{lstlisting}[label=bind-geoip-directory,caption=.]
 $ grep -E 'options|geoip-directory|^};' < named.conf.options
 options {
         geoip-directory "/usr/share/GeoIP";
 };
-\end{lstlisting}
 
-Dadurch wurde ermöglicht, GeoIP-Daten in einer Access Control List (ACL) zu nutzen und verschiedene Fälle zu definieren. Die ACL heißt in diesem Falle \glqq dublin\grqq{} und erlaubt Zugriffe aus der Stadt Dublin bzw. Zugriff für den TSIG-Key db-vpn.ba.mungard.de. Dieser Key wird benötigt, um Zonen-Updates machen zu können und ist im entsprechenden Terraform-Modul hinterlegt.
-
-\begin{lstlisting}[label=acl-geoip-bind,caption=.]
+\end{minted}
+\caption{Die GeoIP-Datenbank wird in die Bind-Konfiguration eingebunden.}
+\label{bind-geoip-directory}
+\end{listing}\FloatBarrier
+%TC:endignore
+Dadurch wurde ermöglicht, GeoIP-Daten in einer Access Control List (ACL) zu nutzen und verschiedene Fälle zu definieren. Die ACL heißt in diesem Falle \glqq dublin\grqq{} und erlaubt Zugriffe aus der Stadt Dublin bzw. Zugriff für den TSIG-Key \glqq db-vpn.ba.mungard.de\grqq{}. Dieser Key wird benötigt, um Zonen-Updates machen zu können und ist im entsprechenden Terraform-Modul hinterlegt.
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{text}
 acl "dublin" {
         geoip city Dublin;
         key "db-vpn.ba.mungard.de.";
 };
-\end{lstlisting}
-
+\end{minted}
+\caption{ACL \glqq dublin\grqq{} regelt die Zugriffe via GeoIP und TSIG-Key}
+\label{tsig-key-acl}
+\end{listing}\FloatBarrier
+%TC:endignore
 Weiterhin existiert ein \textit{View} \glqq Dublin\grqq{}, in dem die ACL und Zonen-Daten zusammengeführt werden. Mit \textit{allow-update} werden Zonen-Updates explizit und ausschließlich für genannten TSIG-Key erlaubt.
-
-\begin{lstlisting}[label=view-geoip-bind,caption=.]
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{text}
 view "dublin" {
         match-clients { dublin; };
         zone "ba.mungard.de" {
@@ -118,76 +147,100 @@ view "dublin" {
                 allow-update { key "db-vpn.ba.mungard.de."; };
         };
 };
-\end{lstlisting}
-
-In der Zonen-Datei für Dublin befindet sich vor Terraform-Deployment nur ein A-Record \textit{default-vpn}. Dies ist der A-Record, der als Fallback dient. Gemäß Evaluationskriterien muss ein Roadwarrior-Client auf die Private Cloud zurückfallen, wenn bisher kein Deployment stattgefunden hat. Die öffentlich auflösbare Zone lautet \textit{ba.mungard.de}.
-
-\begin{lstlisting}[label=zone-dublin-before-deployment,caption=Die Zone ba.mungard.de vor dem Terraform-Deployment.]
+\end{minted}
+\caption{Der View \glqq dublin\grqq{} führt ACL und Zonendatei zusammen.}
+\label{view-dublin-bind}
+\end{listing}\FloatBarrier
+%TC:endignore
+In der Zonen-Datei für Dublin befindet sich vor dem Terraform-Deployment nur ein A-Record \textit{default-vpn}. Dies ist der A-Record, der als Fallback dient. Gemäß Evaluationskriterien muss ein Roadwarrior-Client auf die Private Cloud zurückfallen, wenn bisher kein Deployment stattgefunden hat. Die öffentlich auflösbare Zone lautet \textit{ba.mungard.de}.
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 $ grep -A1 "ORIGIN ba.mungard.de" < /etc/bind/ba_zones/db.geo.ba.mungard.de-dublin
 $ORIGIN ba.mungard.de.
 default-vpn             A       195.244.254.197
-\end{lstlisting}
-
+\end{minted}
+\caption{Die Zone ba.mungard.de vor dem Terraform-Deployment.}
+\label{zone-dublin-before-deployment}
+\end{listing}\FloatBarrier
+%TC:endignore
 Die Konfigurationen für Frankfurter und Kieler Clients wurden analog vollzogen. Dies gilt ebenso für das interne DNS. Allerdings wird hier kein GeoIP genutzt, sondern anhand der Absender-IP-Adresse wird eine ACL (hier \glqq dublin-internal\grqq{}) \textit{getroffen}. Auch die internen Zonen sind durch Terraform via DNS UPDATE editierbar (key \glqq db-vpn-internal.ba.mungard.de.\grqq{}).
-
-\begin{lstlisting}[label=view-internal-bind,caption=Absender-IPs aus dem Netzwerk 10.32.0.0/16 treffen die ACL dublin-internal.]
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{text}
 acl "dublin-internal" {
         10.32.0.0/16;
         key "db-vpn-internal.ba.mungard.de.";
 };
-\end{lstlisting}
-
+\end{minted}
+\caption{Absender-IPs aus dem Netzwerk 10.32.0.0/16 treffen die ACL \glqq dublin-internal\grqq{}.}
+\label{view-internal-bind}
+\end{listing}\FloatBarrier
+%TC:endignore
 Weiterhin gibt es eine ACL \glqq match-all\grqq{}, welche für anfragende Clients vorgesehen ist, die nicht per GeoIP identifiziert werden. Durch das Netzwerk 0.0.0.0/0 treffen die ACL alle restlichen Teilnehmer des Internets.
-
-\begin{lstlisting}[label=view-matchall-bind,caption=.]
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{text}
 acl "match-all" {
         0.0.0.0/0;
         key "all-vpn.ba.mungard.de.";
 };
-\end{lstlisting}
+\end{minted}
+\caption{ACL \glqq match-all\grqq{}, die alle restlichen Absender-IPs bedient.}
+\label{view-matchall-bin}
+\end{listing}\FloatBarrier
+%TC:endignore
 
-
-Aus Sicht des Terraform-Moduls muss erstens ein Provider \textit{pro} TSIG-Key konfiguriert werden, weiterhin. Der server-Parameter konfiguriert den Nameserver, der per DNS UPDATE editiert werden soll. Außerdem ist das Pre-Shared-Secret (TSIG-Key) hinterlegt. Es wird für die Domain vpn.ba.mungard.de die IP-Adresse des VPN-Konzentrators in Dublin (Azure) eingetragen, welche dynamisch zur Laufzeit entsteht (\textit{var.dublin\_ip}).
-
-\begin{lstlisting}[label=tf-provider-dns,caption=.]
+Im Terraform-Modul muss ein Provider \textit{pro} TSIG-Key konfiguriert werden. Der server-Parameter konfiguriert den Nameserver, der per DNS UPDATE editiert werden soll. Außerdem ist das Pre-Shared-Secret (TSIG-Key) hinterlegt. Es wird für die Domain vpn.ba.mungard.de die IP-Adresse des VPN-Konzentrators in Dublin (Azure) eingetragen, welche dynamisch zur Laufzeit entsteht (\textit{var.dublin\_ip}).
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{tf}
 provider "dns" {
-        alias = "dns-dublin"
-        update {
-                server        = "192.168.200.29"
-                key_name      = "db-vpn.ba.mungard.de."
-                key_algorithm = "hmac-sha256"
-                //Key fuer die Dokumentation aus Sicherheitsgruenden geaendert
-                key_secret    = "9jzMaHwILwTzx9b/Ws8RAfBwC+eJpjOI2hEmAgCjV/4="
-        }
+  alias = "dns-dublin"
+  update {
+    server        = "192.168.200.29"
+    key_name      = "db-vpn.ba.mungard.de."
+    key_algorithm = "hmac-sha256"
+    key_secret    = "9jzMaHwILwTzx9b/Ws8RAfBwC+eJpjOI2hEmAgCjV/4="
+  }
 }
 resource "dns_a_record_set" "vpn-dublin" {
-        provider = dns.dns-dublin
-        zone = "ba.mungard.de."
-        name = "vpn"
-        addresses = [ var.dublin_ip ]
-        ttl = 15
+  provider = dns.dns-dublin
+  zone = "ba.mungard.de."
+  name = "vpn"
+  addresses = [ var.dublin_ip ]
+  ttl = 15
 }
-\end{lstlisting}
-
-Nach dem Terraform-Deployment kann man sich per \textit{rndc dumpdb -zones} alle Views ausgeben lassen (hier eingefiltert auf die relevantesten Einträge der Views \glqq dublin\grqq{} und \glqq match-all\grqq{}). Man sieht, dass in beiden Views für die Domain default-vpn.ba.mungard.de die gleiche IP (\glqq Fallback\grqq{}) zurückgegegeben. Für Domain vpn.ba.mungard.de wird ist im View \glqq dublin\grqq{} nur eine Azure-IP sichtbar, während im View \glqq match-all\grqq{} IPs aller VPN-Konzentratoren des Deployments auftreten.
-
-\begin{lstlisting}[label=tf-provider-dns,caption=.]
+\end{minted}
+\caption{Die Terraform Resource verändert DNS-Einträge zur Laufzeit des Nameservers.}
+\label{tf-provider-dns}
+\end{listing}\FloatBarrier
+%TC:endignore
+Nach dem Terraform-Deployment kann man sich per \texttt{rndc dumpdb -zones} alle Views ausgeben lassen (hier gefiltert auf die relevantesten Einträge der Views \glqq dublin\grqq{} und \glqq match-all\grqq{}). Man erkennt in Beispiel \ref{bind-entries-after-tf}, dass in beiden Views für die Domain default-vpn.ba.mungard.de die gleiche IP (\glqq Fallback\grqq{}) zurückgegegeben.\\
+Für Domain vpn.ba.mungard.de ist im View \glqq dublin\grqq{} nur eine Azure-IP sichtbar, während im View \glqq match-all\grqq{} IPs aller VPN-Konzentratoren des Deployments auftreten.
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 $ grep -E -A12 'Start view (dublin|match-all)$' < /var/cache/bind/named_dump.db | grep -Ev '(client|SOA|NS|nu|^;$)'
 ; Start view dublin
 ; Zone dump of 'ba.mungard.de/IN/dublin'
-default-vpn.ba.mungard.de.                    15 IN A           195.244.254.197
-vpn.ba.mungard.de.                            15 IN A           137.116.237.246
+default-vpn.ba.mungard.de.          15 IN A           195.244.254.197
+vpn.ba.mungard.de.                  15 IN A           137.116.237.246
 ; Start view nu
 --
 ; Start view match-all
 ; Zone dump of 'ba.mungard.de/IN/match-all'
-default-vpn.ba.mungard.de.                    15 IN A           195.244.254.197
-vpn.ba.mungard.de.                            15 IN A           18.197.9.208
-vpn.ba.mungard.de.                            15 IN A           137.116.237.246
-vpn.ba.mungard.de.                            15 IN A           195.244.254.197
-\end{lstlisting}
+default-vpn.ba.mungard.de.          15 IN A           195.244.254.197
+vpn.ba.mungard.de.                  15 IN A           18.197.9.208
+vpn.ba.mungard.de.                  15 IN A           137.116.237.246
+vpn.ba.mungard.de.                  15 IN A           195.244.254.197
 
-Zusammenfassend die GeoIP-Konfiguration als Entscheidungsbaum.
+\end{minted}
+\caption{View \glqq dublin\grqq{} liefert einen A-Record. View \glqq match-all\grqq{} liefert A-Records aller VPN-Konzentratoren.}
+\label{bind-entries-after-tf}
+\end{listing}\FloatBarrier
+%TC:endignore
+Zusammenfassend die GeoIP-Konfiguration als Entscheidungsbaum (Abbildung \ref{grafik:Use-Case_2_Entscheidungsbaum_GeoIP}).
 \begin{figure}[h]
   \centering
   \includegraphics{Figures/entscheidungsbaum_bind_geoip.pdf}
@@ -195,42 +248,51 @@ Zusammenfassend die GeoIP-Konfiguration als Entscheidungsbaum.
   \label{grafik:Use-Case_2_Entscheidungsbaum_GeoIP}
 \end{figure}\FloatBarrier
 
-Weiterhin ein exemplarischer Zone-Dump für einen internen Client, welcher über Dublin verbunden ist. Die interne Zone ist intern.ba.mungard.de. Alle Cloud-Standorte nutzen den gleichen Name-Server (ns1.intern.ba.mungard.de), welcher in der Private Cloud vorhanden ist.\\
-
-\begin{lstlisting}[label=tf-provider-dns,caption=.]
+Beispiel \ref{zone-dump-dublin-internal} zeigt einen exemplarischen Zone-Dump für einen internen Client, welcher über Dublin verbunden ist. Die interne Zone ist intern.ba.mungard.de. Alle Cloud-Standorte nutzen den gleichen Name-Server (ns1.intern.ba.mungard.de), welcher in der Private Cloud vorhanden ist.\\
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 $ grep -E -A10 'Start view dublin-internal' < /var/cache/bind/named_dump.db | grep -Ev '(client|SOA|NS|^;$)'
 ; Start view dublin-internal
 ; Zone dump of 'intern.ba.mungard.de/IN/dublin-internal'
-ns1.intern.ba.mungard.de.                     15 IN A           192.168.201.1
-www.intern.ba.mungard.de.                     15 IN A           10.32.0.4
-\end{lstlisting}
-
+ns1.intern.ba.mungard.de.             15 IN A           192.168.201.1
+www.intern.ba.mungard.de.             15 IN A           10.32.0.4
+\end{minted}
+\caption{Zone-Dump der internen Zone intern.ba.mungard.de (Standort: Dublin).}
+\label{zone-dump-dublin-internal}
+\end{listing}\FloatBarrier
+%TC:endignore
 %Deployment Webserver
-Es wurde eine Ubuntu-VM pro Standort (hier Azure in Dublin) via Terraform deployed. Per remote-exec provisioner wird das Apache2-Paket installiert und die Default-HTML-Seite (\glqq It works!\grqq{}) per \textit{sed} manipuliert. Damit soll der Standort verdeutlicht werden, von dem die HTML-Seite ausgeliefert wurde. Analoge Konfiguration hat für den Standort AWS in Frankfurt stattgefunden.
-
-\begin{lstlisting}[label=tf-provider-dns,caption=.]
+Es wurde eine Ubuntu-VM pro Standort (hier Azure in Dublin) via Terraform deployed. Per remote-exec provisioner wird das Apache2-Paket installiert und die Default-HTML-Seite (\glqq It works!\grqq{}) per \texttt{sed} manipuliert. Damit im Web-Browser der Standort sofort ersichtlich sein, von dem die HTML-Seite ausgeliefert wurde. Analoge Konfiguration hat für den Standort AWS in Frankfurt stattgefunden.
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{tf}
 resource "null_resource" "www_config" {
-        depends_on = [ azurerm_virtual_machine.azurerm_virtual_machine ]
-        connection {
-                type = "ssh"
-                host = azurerm_network_interface.azurerm_network_interface.private_ip_address
-                user = "ubuntu"
-                private_key = file(var.private_key_file)
-        }
+  depends_on = [ azurerm_virtual_machine.azurerm_virtual_machine ]
+  connection {
+    type = "ssh"
+    host = azurerm_network_interface.azurerm_network_interface.private_ip
+    user = "ubuntu"
+    private_key = file(var.private_key_file)
+  }
 
-        provisioner "remote-exec" {
-                inline = [ "sudo http_proxy=\"http://192.168.201.1:8080\" apt update",
-                           "sudo http_proxy=\"http://192.168.201.1:8080\" apt install -y apache2",
-                           "sudo sed -i 's/It works!/It works! @Azure Cloud (Location: \"North Europe - Dublin\")/' /var/www/html/index.html" ]
-        }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update",
+      "sudo apt install -y apache2",
+      "sudo sed -i 's/It works!/It works! @Azure Cloud (Location: \"North Europe - Dublin\")/' /var/www/html/index.html" ]
+  }
 }
-\end{lstlisting}
-
+\end{minted}
+\caption{Configuration Management nach Deployment der virtuellen Maschine per remote-exec Provisioner.}
+\label{sed-replace-apache-location}
+\end{listing}\FloatBarrier
+%TC:endignore
 % Binärer Entscheidungsbaum OpenVPN
 
 Die OpenVPN Client-Konfigurationen wurden vor Terraform-Deployment bereits \textit{inline} in einer Textdatei vorbereitet. Auch hier gilt analog zur Server-Konfiguration, dass Schlüsselmaterial optimalerweise erst zur Laufzeit erstellt wird. Zertifikate und privater Schlüssel wurden im folgenden Beispiel gefiltert. Von zentraler Bedeutung sind Zeilen 2 und 3: Durch mehrfache Angabe einer remote-Direktive kann ein Fallback auf default-vpn.ba.mungard.de stattfinden, sollte vpn.ba.mungard.de nicht auflösbar sein.\\
-Dies gilt für den Fall, falls das Deployment noch nicht stattgefunden hat und der Client nicht in der Nähe von Kiel ist, um per GeoIP-ACL Zugriff auf die Auflösung von vpn.ba.mungard.de erhält. Per pullfilter ignore redirect-gateway wird verhindert, dass ein Default Gateway über den Tunnel signalisiert wird: Alle weiteren, bekannten Routen kommen über die OpenVPN-Server-Konfiguration (s. oben).
-
+Dies gilt für den Fall, falls das Deployment noch nicht stattgefunden hat und der Client nicht in der Nähe von Kiel ist, um per GeoIP-ACL Zugriff auf die Auflösung von vpn.ba.mungard.de erhält. Per \textit{pullfilter ignore redirect-gateway} wird verhindert, dass ein Default Gateway über den Tunnel signalisiert wird: Alle weiteren, bekannten Routen kommen über die OpenVPN-Server-Konfiguration (siehe \ref{vpn-c2s-server-config}).
+%TC:ignore
 \begin{lstlisting}[label=ovpn-client-conf,caption=.]
 $ grep -B100 '<ca>' ~/terraform/.cred_mgmt/_push/openvpn/azure_client/config.ovpn | grep -v '<ca>'
 remote vpn.ba.mungard.de 61231
@@ -245,7 +307,7 @@ remote-cert-tls server
 verb 3
 persist-tun
 \end{lstlisting}
-
+%TC:endignore
 Dieser simple Entscheidungsbaum soll den wichtigen Aspekt des \glqq DNS-Fallbacks\grqq{} nochmals verdeutlichen.
 
 \begin{figure}[h]
@@ -270,7 +332,7 @@ $t_{gesamt} = t_{Infrastruktur_{U1}} + t_{Infrastruktur_{U2}}$
 
 Somit kam die Frage auf, ob man das Deployment beschleunigen könnte. Da in Use-Case 2 viele Tests und Änderungen gemacht wurden, musste oftmals komplett re-deployet werden, Deployment-Zeiten von bis zu anderthalb Stunden (s. Probleme Redeployment) mit sich bringen kann.\\
 Dieses Problem konnte mit terraform\_remote\_state zumindest abgemildert werden \cite{remotestateimport2021}. So wurde Use-Case 1 als vorhanden angenommen und die Infrastruktur aus Use-Case 2 lediglich hinzugefügt. Der \textit{state import} findet in der Datei main.tf von Use-Case 2 statt und referenziert die Datei terraform.tfstate aus Use-Case 1.
-
+%TC:ignore
 \begin{lstlisting}[label=tf-remote-state-import,caption=.]
 $ grep -A6 \"terraform_remote_state\" < main.tf
 data "terraform_remote_state" "base_deployment" {
@@ -280,7 +342,7 @@ data "terraform_remote_state" "base_deployment" {
   }
 }
 \end{lstlisting}
-
+%TC:endignore
 Der Remote-State-Import dauert einen kurzen Moment, wird aber in der folgenden Betrachtung vernachlässigt.
 Unter der Annahme, dass Use-Case 1 bereits deployet wurde, ist die Laufzeit des Deployments effektiv:\\
 $t_{gesamt} = t_{Infrastruktur_{U2}}$
@@ -318,14 +380,14 @@ Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway d
 
 \textbf{\underline{Untersuchung von GeoIP-Daten}}\\
 Die GeoIP-Datenbank ist ein Binärformat (\glqq data\grqq{}) \cite{filemanpage2021}.
-
+%TC:ignore
 \begin{lstlisting}[label=tf-remote-state-import,caption=.]
 $ file /usr/share/GeoIP/GeoLite2-City.mmdb
 /usr/share/GeoIP/GeoLite2-City.mmdb: data
 \end{lstlisting}
-
+%TC:endignore
 Die Datensätze mussten \glqq sichtbar\grqq{} gemacht werden, um eine Idee zu bekommen, welche Spezifizierer genutzt werden können, um die DNS-Auflösung in regionaler Abhängigkeit umzusetzen. Weiterhin war nicht sichergestellt, welche Qualität die Datensätze aufweisen. Um dies zu testen, wurde ein kurzes Python-Skript \textit{mmdb.py} geschrieben und das Modul \textit{maxminddb} des GeoIP-Anbieters MaxMind eingebunden \cite{maxminddb2021}. Per \textit{pretty print} konnten die entsprechenden Datensätze für eine IP-Adresse ausgegeben werden.
-
+%TC:ignore
 \begin{lstlisting}[label=mmdb-code-example,caption=.]
 #!/usr/bin/python3
 import maxminddb
@@ -337,9 +399,9 @@ with maxminddb.open_database('/usr/share/GeoIP/GeoLite2-City.mmdb') as reader:
     pprint.pprint(reader.get(sys.argv[1]))
 print("++++++++++++++++++++ CITY INFO +++++++++++++++++++\n")
 \end{lstlisting}
-
+%TC:endignore
 Anbei eine Beispielausgabe für eine IP-Adresse der Fachhochschule Kiel.
-
+%TC:ignore
 \begin{lstlisting}[label=mmdb-show-ip,caption=.]
 $ dig +short fh-kiel.de A
 149.222.20.63
@@ -369,7 +431,7 @@ $ mmdb.py 149.222.20.63
 [...]
 ++++++++++++++++++++ CITY INFO +++++++++++++++++++
 \end{lstlisting}
-
+%TC:endignore
 Insgesamt erwiesen sich die Datensätze als sehr brauchbar und akkurat. Per cron-Job wird die Datenbank wöchentlich aktualisiert.
 
 \subsection{Evaluation}
@@ -379,20 +441,21 @@ Insgesamt erwiesen sich die Datensätze als sehr brauchbar und akkurat. Per cron
 Wie bereits beschrieben, wurde pro Cloud-Standort eine virtuelle Maschine hochgefahren, die einen Roadwarrior-Client simulieren soll. Diese Clients haben \textbf{keinen} Zugriff auf interne Komponenten, sondern sind lediglich mit dem Internet verbunden, über welches VPN-Verbindungen zum jeweiligen VPN-Konzentrator aufgebaut werden können.
 
 Nach dem Deployment von Use-Case 2 wird geprüft, ob sich die Domain vpn.ba.mungard.de auflösen lässt. Dies passiert in der Azure-Cloud.
-
+%TC:ignore
 \begin{lstlisting}[label=dns-resolution-client-vpn,caption=.]
 ubuntu@vpn-client-azure:~$ dig +short vpn.ba.mungard.de A
 94.245.93.144
 \end{lstlisting}
-
+%TC:endignore
 Die IP-Adresse 94.2.45.93.144 gehört Microsoft.
-
+%TC:ignore
 \begin{lstlisting}[label=whois-microsoft-ip,caption=.]
 $ whois 94.245.93.144 | grep mnt | uniq
 mnt-by:         MICROSOFT-MAINT
 \end{lstlisting}
-
+%TC:endignore
 Das Ziel ist ca. 1 Millisekunde entfernt. Für diesen Test wurde ICMP eingehend manuell erlaubt in der Network Security Group, im Default Deployment erfolgt für ICMP Echo Request ein \textit{Dropping}:
+%TC:ignore
 \begin{lstlisting}[label=ping-microsoft-ip,caption=.]
 ubuntu@vpn-client-azure:~$ ping 94.245.93.144
 PING 94.245.93.144 (94.245.93.144) 56(84) bytes of data.
@@ -405,9 +468,9 @@ PING 94.245.93.144 (94.245.93.144) 56(84) bytes of data.
 4 packets transmitted, 4 received, 0% packet loss, time 3003ms
 rtt min/avg/max/mdev = 0.936/1.073/1.216/0.106 ms
 \end{lstlisting}
-
+%TC:endignore
 Die Annahme von nun an ist, dass die lokale DNS-Auflösung auch für AWS funktioniert. Daher folgt an dieser Stelle nur ein Ping mit vorheriger Auflösung des Hostnamens vpn.ba.mungard.de. Die RTT ist vergleichbar mit Azure (s.o.):
-
+%TC:ignore
 \begin{lstlisting}[label=ping-aws-ip,caption=.]
 ubuntu@vpn-client-aws:~$ ping vpn.ba.mungard.de
 PING vpn.ba.mungard.de (3.67.38.135) 56(84) bytes of data.
@@ -420,19 +483,20 @@ PING vpn.ba.mungard.de (3.67.38.135) 56(84) bytes of data.
 4 packets transmitted, 4 received, 0% packet loss, time 3004ms
 rtt min/avg/max/mdev = 0.930/1.001/1.157/0.091 ms
 \end{lstlisting}
-
+%TC:endignore
 Weiterhin wurde eine virtuelle Maschine in der Public Cloud der Firma Hetzner am Standort Nürnberg deployed, welche einen Roadwarrior-Client simuliert, welcher an keinem der Standorte verfügbar ist und somit die \glqq match-all\grqq-ACl trifft. Das dig-Kommando liefert drei A-Records für die Domain vpn.ba.mungard.de aus.
-
+%TC:ignore
 \begin{lstlisting}[label=dig-matchall-ip,caption=.]
 root@openvpn-client:~# dig +short vpn.ba.mungard.de A
 3.67.38.135
 195.244.254.197
 94.245.93.144
 \end{lstlisting}
-
+%TC:endignore
 %normal
 Weiter wurde getestet, ob sich ein VPN-Client mit dem lokalen VPN-Konzentrator verbindet, hier wieder Azure:
 Der Filterausdruck ist für IPv4-Adressen und macht das Verbindungs-Log übersichtlicher.
+%TC:ignore
 %begin{lstlisting}[label=connection-to-vpn-normal,caption=.]
 \begin{minted}[breaklines,frame=single]{text}
 ubuntu@vpn-client-azure:~$ sudo openvpn --config config.ovpn 2>&1 | grep -E '(([0-9]{,3})\.){3}[0-9]{,3}'
@@ -449,10 +513,9 @@ Wed May 12 11:27:27 2021 /sbin/ip route add 10.32.0.0/16 via 10.32.1.1
 Wed May 12 11:27:27 2021 /sbin/ip route add 10.33.0.0/16 via 10.32.1.1
 Wed May 12 11:27:27 2021 /sbin/ip route add 192.168.201.0/24 via 10.32.1.1
 \end{minted}
-%end{lstlisting}
-
+%TC:endignore
 Um den Fallback zu testen, wurde eine spezielle iptables-Regel eingerichtet, die ausgehende Pakete, in denen der String \glqq vpn\grqq{} (für vpn.ba.mungard.de - DNS ist Klartext!) enthalten ist, verwirft. vpn-default ist hingegen erlaubt: die Regel wird über der erstgenannten Regel ausgewertet.
-
+%TC:ignore
 %begin{lstlisting}[label=iptables-drop-dns,caption=.]
 \begin{minted}[breaklines,frame=single]{bash}
 $ sudo iptables-save | grep vpn
@@ -460,9 +523,9 @@ $ sudo iptables-save | grep vpn
 -A OUTPUT -p udp -m string --string "vpn" --algo bm --to 65535 -m udp --dport 53 -j DROP
 \end{minted}
 %end{lstlisting}
-
+%TC:endignore
 Die Domain vpn.ba.mungard.de ist daraufhin nicht mehr auflösbar, default-vpn.ba.mungard.de hingegen schon.
-
+%TC:ignore
 \begin{lstlisting}[label=connection-fail-to-vpn-fallback-to-default-vpn,caption=.]
 ubuntu@vpn-client-azure:~$ dig +short vpn.ba.mungard.de A
 ;; connection timed out; no servers could be reached
@@ -470,8 +533,9 @@ ubuntu@vpn-client-azure:~$ dig +short vpn.ba.mungard.de A
 ubuntu@vpn-client-azure:~$ dig +short default-vpn.ba.mungard.de A
 195.244.254.197
 \end{lstlisting}
-
+%TC:endignore
 Dies macht sich auch beim Verbindungsversuch mit OpenVPN bemerkbar. Ein Fallback auf die IP 195.244.254.197 erfolgt, welche der Domain default-vpn.ba.mungard.de entspricht (s.o.).
+%TC:ignore
 \begin{lstlisting}[label=connection-fail-vpn-fallback-to-default-vpn,caption=.]
 ubuntu@vpn-client-azure:~$ sudo openvpn --config config.ovpn 2>&1
 Wed May 12 12:19:14 2021 RESOLVE: Cannot resolve host address: vpn.ba.mungard.de:61231 (Name or service not known)
@@ -483,10 +547,11 @@ Wed May 12 12:19:19 2021 UDP link remote: [AF_INET]195.244.254.197:61231
 [...]
 Wed May 12 12:19:20 2021 Initialization Sequence Completed
 \end{lstlisting}
-
+%TC:endignore
 Dies wurde analog für alle Roadwarrier-Clients erfolgreich getestet.
 
 Der Aufruf der Webseite http://www.intern.ba.mungard.de mit dem Textbrowser Lynx funktioniert (hier Azure). Somit wird immer der Server angesprochen, der am jeweiligen Cloud-Standort deployed ist:
+%TC:ignore
 \begin{lstlisting}[label=lynx-default-page,caption=.]
 ubuntu@vpn-client-azure:~$ lynx -dump www.intern.ba.mungard.de | head -10
    Ubuntu Logo Apache2 Ubuntu Default Page
@@ -501,7 +566,7 @@ ubuntu@vpn-client-azure:~$ lynx -dump www.intern.ba.mungard.de | head -10
    operate your HTTP server.
 
 \end{lstlisting}
-
+%TC:endignore
 Damit wurden alle Kriterien für eine erfolgreiche Evaluation von Use-Case 2 erfüllt.
 
 

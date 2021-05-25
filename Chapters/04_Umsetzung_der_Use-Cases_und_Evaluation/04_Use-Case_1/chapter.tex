@@ -10,7 +10,7 @@ Im phpIPAM müssen mehrere Netzbereiche reserviert werden. Es werden Netzbereich
 Für VNET wurde der Netzblock \glqq 10.32.0.0/16\grqq{} und für VPC der Netzblock \glqq 10.33.0.0/16\grqq{} vorreserviert, aus dem kleinere Subnets für die jeweilige Cloud entnommen werden können. Weiterhin ist die Annahme, dass die Private Cloud bereits einen Netzbereich besitzt, in dem Maschinen angesiedelt sind: \glqq 192.168.201.0/24.\grqq{}\\
 Es werden {Transfernetzwerke} benötigt, über die die IPv4-Pakete geschickt werden und die BGP-Präfixe ausgetauscht werden können. AWS sieht hierfür /30-Präfixe aus dem Bereich \glqq 169.254.0.0/16\grqq{} vor \cite{awsvpn2021}, Azure hat eine Range reserviert: \glqq 169.254.21.0\grqq{} -\\ \glqq 169.254.22.255\grqq{} \cite{azurebgp2020}. Als Kompromiss können daher nur Netze aus den Azure-Bereichen genutzt werden, da die Bereiche, die AWS zur Verfügung stellt, größtenteils außerhalb dieser Range liegen. Auch diese Netzbereiche müssen im IPAM vorreserviert werden und für die Transfernetzwerke automatisiert konfiguriert werden.\\
 In Beispiel \ref{apipa-reservation-ipam} wird in phpIPAM nach dem Bereich \glqq TF\_CLOUD\_BGP\_TRANSFER\grqq{}, aus dem alle Transfernetzwerke entommen werden, gesucht. Innerhalb des Bereichs wird aus dem vorreservierten Block \glqq Cloud\_Transfer\_BGP\_1\grqq{} ein /30-Netzwerk entnommen. Die Reservierung der Netzblöcke für VPC und VNET erfolgen analog.
-%data vs. resource in Einleitung erläutern?
+%TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
 //Azure - AWS Transfer
@@ -30,9 +30,9 @@ resource "phpipam_first_free_subnet" "free_subnet_apipa" {
 \caption{Die data-Anweisungen dienen ausschließlich der Suche nach dem passenden Transfernetzwerk-Block. Per resource-Anweisung wird ein /30-Netzwerk reserviert.}
 \label{apipa-reservation-ipam}
 \end{listing}\FloatBarrier
-
+%TC:endignore
 Weiterhin werden Pre-Shared-Keys für die Aushandlung der IPsec-Verbindungen benötigt. AWS erzeugt automatisch solche Schlüssel, welche durch die Terraform-Resource \glqq aws\_vpn\_connection\grqq{} zurückgegeben werden. Diese automatisch erzeugten Schlüssel werden daher für die Backbone-Verbindungen AWS $\leftrightarrow$ Azure und AWS $\leftrightarrow$ Private Cloud genutzt. Da Azure diese Schlüssel nicht erzeugt, wurde ein Terraform-Modul geschrieben, welches 24 Zeichen lange Schlüssel erzeugt. Diese können anschließend genutzt werden für die Backbone-Verbindung Azure $\leftrightarrow$ Private Cloud.
-
+%TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
 resource "random_password" "random_password" {
@@ -50,14 +50,14 @@ output "azure_vyos_tunnel1_psk" {
 \caption{Auf Sonderzeichen (special) wurde verzichtet. Das Modul stellt per output-Anweisung den Schlüssel für andere Terraform-Module zur Verfügung.}
 \label{tf-generate-psk}
 \end{listing}\FloatBarrier
-
+%TC:endignore
 %alles Devices nennen?
 Da, wie bereits erwähnt, für die VyOS-Router keine \textit{native} Terraform-Integration verfügbar ist, wurde zur Konfiguration des Devices eine Vorlage erstellt, welchi per CLI Konfigurationen ausrollt.
 
 %https://www.terraform.io/docs/language/functions/templatefile.html
 Die Erzeugung der Vorlage erfolgt über die Funktion templatefile() \cite{templatefiletf2021}.
 
-%\begin{lstlisting}[label=tf-call-tpl-generation,caption=Die Funktion templatefile() erzeugt aus einer Template-Datei (vyos\_config.tpl) die Datei /tmp/example.sh. Die Template-Datei wird mit den Variablen var.aws\_vgw\_ip und aws\_tunnel1\_psk befüllt.]
+%TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
 resource "local_file" "vyos_config" {
@@ -73,7 +73,8 @@ resource "local_file" "vyos_config" {
 \caption{Die Funktion templatefile() erzeugt aus einer Template-Datei \underline{vyos\_config.tpl} die Datei \underline{/tmp/example.sh}. Die Template-Datei wird mit den Variablen \textit{var.aws\_vgw\_ip} und \textit{aws\_tunnel1\_psk} befüllt.}
 \label{tf-call-tpl-generation}
 \end{listing}\FloatBarrier
-
+%TC:endignore
+%TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
 $ head -n 11 < vyos/include/vyos_config.tpl
@@ -93,8 +94,8 @@ set vpn ipsec site-to-site peer ${aws_vgw_ip} description 'VPC tunnel 1'
 \caption{Verschiede set-Kommandos werden in ein VyOS-Skript eingebettet (Interpreter: \texttt{/bin/vbash}). Die Variablen in Zeilen 9-12 resultieren aus dem Funktionsaufruf (s. Beispiel \ref{tf-call-tpl-generation}).}
 \label{tf-generate-tpl}
 \end{listing}\FloatBarrier
-
-%\begin{lstlisting}[label=tf-generate-psk,caption=Das so generierte Shell-Skript wird per SSH auf das Zielsystem (VyOS-Router) hochgeladen und per provisioner remote-exec ausgeführt.]
+%TC:endignore
+%TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
 resource "null_resource" "vyos_config" {
@@ -116,7 +117,7 @@ resource "null_resource" "vyos_config" {
 \caption{Das in \ref{tf-generate-tpl} generierte Shell-Skript wird per \texttt{ssh} auf das Zielsystem (VyOS-Router) kopiert und per Provisioner \textit{remote-exec} ausgeführt.}
 \label{tf-copy-tpl}
 \end{listing}\FloatBarrier
-
+%TC:endignore
 Folgend werden Probleme erläutert, die bei dieser technischen Umsetzung auftraten und wie eine Lösung erarbeitet wurde.
 \newpage
 \subsection{Probleme und Lösungsfindung}
@@ -125,7 +126,7 @@ Folgend werden Probleme erläutert, die bei dieser technischen Umsetzung auftrat
 \textbf{\underline{Vertauschung von IPsec-Tunnelparametern}}\label{xml-tunnel-parameters}
 
 AWS VPN-Konzentratoren bieten aus Redundanzgründen standardmäßig zwei IPs pro Gegenstelle an. 
-
+%TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{xml}
 <?xml version="1.0" encoding="UTF-8"?>
@@ -164,13 +165,12 @@ AWS VPN-Konzentratoren bieten aus Redundanzgründen standardmäßig zwei IPs pro
 \caption{Die ursprüngliche (gekürzte) XML-Antwort der AWS API.}
 \label{tf-xml-response-aws}
 \end{listing}
-
+%TC:endignore
 Wie man sieht, taucht das XML-Element ipsec\_tunnel zwei Mal auf, ist dabei jedoch \textbf{unnummeriert}.
 Der Terraform-Provider aws\_vpn\_connection nutzt diese XML-Antwort, um daraus die Rückgabewerte tunnel1\_* und tunnel2\_* zu erzeugen\cite{awsattributestf2021}, die in der weiteren Ausführung von anderen Modulen wiederverwendet werden. Bei einigen Ausführungen wurden diese Elemente Terraform-intern vertauscht: Da nun weder IPsec-Schlüssel noch interne BGP-Peering-Gegenstellen stimmen, kommen weder IPsec-Tunnel noch die BGP-Peering-Sessions hoch. Dieser Bug ist in Github für den AWS Provider seit 2017 dokumentiert\cite{githubbugtf2021}.
 
 Mit einem Bash-Skript konnte zumindest ein Workaround gefunden werden, um ein erfolgreiches Deployment sicherzustellen. Die Grundannahme ist, dass pro Präfix zwei Pfade auf dem Private Cloud-Router existieren. Wenn nur ein Pfad pro Präfix zur Verfügung steht, kam es mit einer hohen Wahrscheinlichkeit zu einer Vertauschung und es wird redeployed (\texttt{terraform destroy \&\& terraform apply}). Es wird dreimal versucht, eine funktionierende Infrastruktur zu deployen, um die APIs der Cloud-Anbieter zu \textit{schonen} und kein Rate-Limiting zu triggern \cite{awsthrottling2021}.
-
-%\begin{lstlisting}[label=tf-base-deployment-bgp-ok,caption=BGP Status]
+%TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
 vyos@vyos-cloud:~$ sh ip bgp | grep -A1 -E '10.3[2|3]'
@@ -183,6 +183,7 @@ vyos@vyos-cloud:~$ sh ip bgp | grep -A1 -E '10.3[2|3]'
 \caption{BGP-Präfixe und dazugehörige AS-Pfade (rechts) auf dem VyOS-Router. Beide Präfixe sind redundant über zwei Pfade zu sehen (Deployment erfolgreich).}
 \label{bgp-paths-vyos}
 \end{listing}
+%TC:endignore
 \newpage
 Beispiel \ref{grafik:programmablaufplan_bash_deploy_tf} zeigt den Programmlaufplan des Bash-Skripts \texttt{deploy.sh}. Wenn weniger als zwei Pfade pro Präfix gesehen, findet ein \textit{Re-Deployment} statt.
 
@@ -203,6 +204,7 @@ Terraform speichert, wie bereits erläutert, alle Referenzen auf Infrastrukturko
 Diese Konfigurationsänderungen sind dadurch völlig zustandlos, da sie nicht invertierbar sind: Terraform kennt nicht die Umkehrung der \texttt{set}-Kommandos, welche benötigt würden, um bei einen \texttt{terraform destroy} die Konfigurationen am VyOS-Router rückgängig zu machen.
 
 Ein Ansatz wäre gewesen, ein weiteres Template zur Verfügung zu stellen, in dem alle \texttt{set}- durch \texttt{delete}-Kommandos negiert werden.\\
+%TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
 vyos@vyos-cloud# set system time-zone Europe/Berlin
@@ -213,10 +215,11 @@ vyos@vyos-cloud# delete system time-zone Europe/Berlin
 \caption{VyOS: \texttt{delete} negiert das vorherige \texttt{set}-Kommando.}
 \label{set-delete-vyos}
 \end{listing}
-
+%TC:endignore
 Per \textit{Destroy-Time Provisioner} würde dieses Template nur bei einem \textit{terraform destroy} genutzt\cite{destroytimeprovtf2021}. Das Problem ist, dass schon bei minimalen Änderungen des Deploy-Templates auch das Destroy-Template angepasst werden muss.
 Außerdem sind die IPsec-Konfigurationen relativ umfangreich. Es war zu anzunehmen, dass Relikte aus der Konfiguration übrig bleiben, wenn die Negation aus unbekannten Gründen fehlschlug.
 Eine weitere Idee war, mit dem VyOS-Feature \textit{rollback} zu arbeiten. Über eine commit-History werden alle Änderungen an dem System dokumentiert.
+%TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
 vyos@vyos-cloud:~$ show system commit | head -3
@@ -228,9 +231,9 @@ vyos@vyos-cloud:~$ show system commit | head -3
 \caption{VyOS: Die commit history speichert alle gemachten Änderungen und macht sie revisionssicher.}
 \label{commit-history-vyos}
 \end{listing}\FloatBarrier
-
+%TC:endignore
 So würde man die letzte Revision \textit{vor} der Konfiguration der Backbone-Verbindungen festhalten, um bei einem \texttt{terraform destroy} darauf zurückgehen zu können.
-
+%TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
 vyos@vyos-cloud# rollback
@@ -243,12 +246,12 @@ Possible completions:
     2   2021-05-04 21:17:57 vyos by cli
     
 \end{minted}
-\caption{VyOS: Rollback auf Revision N nach Reboot}
+\caption{VyOS: Rollback auf Revision $N$ nach Reboot}
 \label{rollback-cmd-vyos}
 \end{listing}\FloatBarrier
-
+%TC:endignore
 Es wurden zwei Bash-Skripte geschrieben: \texttt{save\_last\_manual\_commit.sh} speichert die letzte Revision lokal auf dem VyOS-Router, \texttt{apply\_last\_manual\_commit.sh} macht ein Rollback.
-
+%TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
 resource "null_resource" "vyos_config" {
@@ -268,9 +271,9 @@ resource "null_resource" "vyos_config" {
 \caption{Terraform kopiert per \texttt{ssh} ein Skript auf den VyOS-Router, welches den Zustand vor Deployment \glqq einfriert\grqq{}.}
 \label{save-last-commit-vyos}
 \end{listing}\FloatBarrier
-
+%TC:endignore
 Nach \textit{terraform apply} liegt auf dem VyOS-Router eine Datei, die den letzten Timestamp der speichert.
-
+%TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
 vyos@vyos-cloud# cat ~tf/last_manual_commit.txt
@@ -279,9 +282,9 @@ vyos@vyos-cloud# cat ~tf/last_manual_commit.txt
 \caption{Timestamp des letzten (manuellen) commits vor Deployment per Terraform.}
 \label{save-last-commit-file}
 \end{listing}\FloatBarrier
-
+%TC:endignore
 Bei \texttt{terraform destroy} wird das Skript \texttt{apply\_last\_manual\_commit.sh} via Terraform \texttt{Destroy-Time Provisioner} ausgeführt, welches den Rollback hin zu dem gespeicherten Zeitpunkt auf dem VyOS Router veranlasst.
-
+%TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
 resource "null_resource" "vyos_config_destroy" {
@@ -295,30 +298,13 @@ resource "null_resource" "vyos_config_destroy" {
 \caption{Bei \texttt{terraform destroy} wird ein Skript auf den VyOS-Router kopiert, welches die Änderungen mit Hilfe des Timestamps aus \ref{save-last-commit-file} rückgängig macht.}
 \label{apply-last-commit-vyos}
 \end{listing}\FloatBarrier
-
+%TC:endignore
 \textbf{\underline{Lange Laufzeiten für Erstellung von Azure VPN Gateway}}\label{azure-deployment-time}\\
 Die Erstellung des Azure VPN Gateways kann bis zu 45 Minuten in Anspruch nehmen \cite{azurevpndeployment2021}. In der Praxis waren es meist etwa 25 Minuten für den Standort \glqq North Europe\grqq{}. Auch das Löschen eines VPN Gateways via \texttt{terraform destroy} dauert bis zu 15 Minuten. Nur wenn dieses Gateway gelöscht wurde, kann ein \textit{Re-Deployment} erfolgen, welches vor allem dann notwendig ist, wenn die Vertauschung von IPsec-Parametern (siehe \ref{xml-tunnel-parameters}) eintrifft.\\
 Bei diesem Phänomen handelt es sich nicht um einen Bug im eigentlichen Sinne, macht aber das Deployment z.B. für Live-Demonstrationen nicht praktikabel. Da alle weiteren Use-Cases auf diesem Use-Case 1 aufbauen und ebenso in Terraform abgebildet werden sollten, musste eine Lösung gefunden werden, um die Deployment-Zeiten zu verkürzen, da jede Änderung des Codes ein (teilweises) Re-Deployment notwendig macht (vgl. später).
 
 %Dies wird zum Beispiel gebraucht, wenn an der Konfiguration der Infrastruktur Änderungen vorgenommen werden, da Terraform durch diese State-Datei weiß, dass 
-
-\iffalse
-%Deadlock? Race Condition?
-\textbf{\underline{Deadlock Site-2-Site-Verbindung AWS <-> Azure}}
-%Fakeconnection erzeugen
-
-Beim Testen der ersten geschriebenen Terraform-Module kam es zu einer Deadlock-Situation, bei der das \glqq terraform apply\grqq{}-Kommando in einen Timeout lief.
-\begin{lstlisting}[label=timeout_aws_azure_ip_deadlock,caption=Deadlock AWS <-> Azure.]
-BLA
-\end{lstlisting}
-
-%Abgrenzung: alle Public-IP und Private-IP beziehen sich auf IPv3!!!
-Bei genauerer Untersuchung stellte sich heraus, dass kein Bug in Terraform vorlag, vielmehr hatte sich ein Logikbug eingeschlichen. Azure erzeugt standardmäßig die Public-IP-Adresse für das Azure-eigene VPN Gateway erst, sobald die \textit{erste VPN-Gegenstelle} konfiguriert wurde. Für die Konfiguration muss allerdings die Public-IP der jeweiligen Gegenstelle angegeben werden. Das Virtual private gateway von AWS legt eine Public-IPv4-Adresse pro Gegenstelle an: 
-
-Dieses Problem ist nicht Terraform geschuldet, sondern eher der Logik, wie die VPN-Verbindungen in Azure bzw. AWS konfiguriert werden 
-Dieses Problem tritt in dieser Form nicht mit Verbindungen mit dem Private Cloud-Router auf, da die Public IP-Adresse bereits vor der Ausführung von Terraform bekannt ist.
-Fake Gegenstelle...
-\fi
+%TC:ignore
 \subsection{Evaluation}
 Nach dem erfolgreichen Deployment wird folgender Status von Terraform zurückgemeldet:
 \begin{listing}[h]
@@ -333,37 +319,59 @@ aws_subnet_id = "subnet-0192ae38a3a16f584"
 \caption{Terraform Status nach Deployment Use-Case 1}
 \label{tf-base-deployment-ok}
 \end{listing}
-
+%TC:endignore
 Die im IPAM reservierten Netze sind in AWS als Subnets wiederzufinden. Die Prüfung analog für Azure ist ebenso erfolgreich.
 
-%AWS Screenshot
-%IPAM Screenshot
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.8]{Figures/subnet_aws_ipam_server.png}
+  \caption{Es wurde ein Subnet für AWS (Server) reserviert.}
+  \label{grafik:subnet_aws_vpc_reserved}
+\end{figure}
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.4]{Figures/subnet_aws_reserved_server.png}
+  \caption{Das Subnet findet sich in AWS wieder.}
+  \label{grafik:subnet_aws_vpc_reserved}
+\end{figure}\FloatBarrier
 
-\begin{lstlisting}[label=tf-base-deployment-ipsec-ok,caption=IPsec Status]
+Die IPsec Tunnel sind auf dem VyOS-Router konfiguriert und \textit{up}.
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 vyos@vyos-cloud:~$ show vpn ipsec sa
 Connection                     State    Uptime
 -----------------------------  -------  --------
 [...]
 peer-20.67.209.254-tunnel-vti  up       4h43m19s [...]
 peer-3.65.181.187-tunnel-vti   up       4h47m26s [...]
-\end{lstlisting}
 
+\end{minted}
+\caption{VyOS: IPsec Status}
+\label{tf-base-deployment-ipsec-ok}
+\end{listing}\FloatBarrier
+%TC:endignore
 Die Adressen gehören dabei zu Amazon bzw. Microsoft.
-
-\begin{lstlisting}[label=whois-amazon-public-ip,caption=Diese Adresse gehört Amazon. Analog wurde geprüft für 20.67.209.254 (Microsoft).]
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 $ whois 3.65.181.187 | grep -A2 NetRange
 NetRange:       3.64.0.0 - 3.79.255.255
 CIDR:           3.64.0.0/12
 NetName:        AMAZON-FRA
-\end{lstlisting}
 
-Außerdem wurden auf dem Cloud-Router die AWS- und Azure-Präfixe via BGP installiert. Pro Präfix sind zwei Pfade vorhanden (s.o.).
-...s. Listing xy in Lösungsfindung...
+\end{minted}
+\caption{Diese Adresse gehört Amazon. Analog wurde geprüft für 20.67.209.254 (Microsoft).}
+\label{whois-amazon-public-ip}
+\end{listing}
+%TC:endignore
+Außerdem wurden auf dem Cloud-Router die AWS- und Azure-Präfixe via BGP installiert. Pro Präfix sind zwei Pfade vorhanden (s. Beispiel \ref{bgp-paths-vyos}).
 
-Es wurde pro Cloud eine virtuelle Maschine (Ubuntu) installiert, um die Ende-zu-Ende-Konnektivität zu prüfen. Dieser Ping von AWS VPC -> Azure VNET war erfolgreich. Analog waren alle weiteren Ping-Tests zwischen den Cloud-Plattformen erfolgreich:
-
-\begin{lstlisting}[label=tf-base-deployment-ping-ok,caption=Ping Tests zwischen verschiedenen Cloud-Plattformen]
+Es wurde pro Cloud eine virtuelle Maschine (Ubuntu) installiert, um die Ende-zu-Ende-Konnektivität zu prüfen. Dieser Ping von VM in AWS VPC $\rightarrow$ VM Azure VNET war erfolgreich. Analog waren alle weiteren Ping-Tests zwischen den Cloud-Plattformen erfolgreich:
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 ubuntu@ip-10-33-0-121:~$ ping -c1 10.32.0.4
 PING 10.32.0.4 (10.32.0.4) 56(84) bytes of data.
 64 bytes from 10.32.0.4: icmp_seq=1 ttl=63 time=25.7 ms
@@ -371,11 +379,16 @@ PING 10.32.0.4 (10.32.0.4) 56(84) bytes of data.
 --- 10.32.0.4 ping statistics ---
 1 packets transmitted, 1 received, 0% packet loss, time 0ms
 rtt min/avg/max/mdev = 25.729/25.729/25.729/0.000 ms
-\end{lstlisting}
-
+\end{minted}
+\caption{Ping Tests zwischen verschiedenen Cloud-Plattformen sind erfolgreich.}
+\label{tf-base-deployment-ping-ok}
+\end{listing}
+%TC:endignore
 Es wurden vereinzelte Messungen in verschiedene Richtungen mit dem Tool \textsf{iperf3} gemacht, die grundsätzlich \glqq ordentliche\grqq{} Bandbreiten versprechen, so bspw.:
 
 %Messung Sender vyos-aws -> vyos-azure
+%TC:ignore
+\begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
 root@vyos-aws-ovpn-gw:~# iperf3 -c 10.32.0.5
 Connecting to host 10.32.0.5, port 5201
@@ -396,10 +409,13 @@ Connecting to host 10.32.0.5, port 5201
 [  4]   0.00-10.00  sec   395 MBytes   332 Mbits/sec   62             sender
 [  4]   0.00-10.00  sec   394 MBytes   330 Mbits/sec                  receiver
 \end{minted}
-
-Man sieht allerdings an der vorletzten Zeile (\glqq Retr 62\grqq{}), dass TCP Retransmissions stattgefunden haben. Es ist wahrscheinlich, dass ein \textit{Bottleneck} existiert, Paketverluste konnten mit diversen Ping-Messungen (s.o.) nicht festgestellt werden. Wie in der Abgrenzung geschrieben, werden Bandbreiten, insofern sich nicht ein deutlicher negativer \textit{Impact} bemerkbar macht, in dieser Arbeit nicht tiefergehend untersucht, s. Ausblick...
-
-Floodping:
+\caption{Bandbreitenmessung AWS VPC $\rightarrow$ Azure VNET}
+\label{iperf3-vpc-vnet}
+\end{listing}
+%TC:endignore
+Man sieht allerdings an der vorletzten Zeile (\glqq Retr 62\grqq{}), dass TCP Retransmissions stattgefunden haben. Es ist wahrscheinlich, dass ein \textit{Flaschenhals} existiert, Paketverluste konnten mit diversen Ping-Messungen (s.o.) nicht festgestellt werden. Wie in der Abgrenzung geschrieben, werden Bandbreiten, insofern sich nicht ein deutlicher negativer \textit{Impact} bemerkbar macht, in dieser Arbeit nicht tiefergehend untersucht (s. Ausblick \ref{ausblick}). Es wurde an dieser Stelle mit einem Floodping lediglich untersucht, ob sich ein deutlicher Paketverlust bemerkbar macht.
+%TC:ignore
+\begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
 root@vyos-azure-ovpn-gw:~# /bin/ping -s 1200 -c 1000 -f 10.33.2.93
 PING 10.33.2.93 (10.33.2.93) 1200(1228) bytes of data.
@@ -408,34 +424,45 @@ PING 10.33.2.93 (10.33.2.93) 1200(1228) bytes of data.
 1000 packets transmitted, 1000 received, 0% packet loss, time 13370ms
 rtt min/avg/max/mdev = 25.968/28.533/173.755/10.763 ms, pipe 11, ipg/ewma 13.384/27.159 ms
 \end{minted}
-
+\caption{Floodping (\texttt{-f}) mit 1200 Byte großen Paketen und 1000 Wiederholungen}
+\label{dig-example-fh-kiel}
+\end{listing}\FloatBarrier
+%TC:endignore
 %Härtung IPsec Parameter? GCM usw...
 %BFD für schneller Konvergenzzeiten? -> Ausblick...
 %RTT und Ping in Einleitung / ICMP
 
-Es wurden außerdem in von allen Teilnehmern zu allen Teilnehmern Ping-Tests gemacht und währenddessen eine Verbindung getrennt. Da ein Präfix über zwei Pfade zu sehen ist, ist die Erwartung, dass ein Backup-Pfad genutzt wird. Man kann an folgendem Beispiel sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \textit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde ICMP-Echo-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung im unteren Beispiel etwa 44 Sekunden unterbrochen war.\\
-Weiterhin hat sich die Round-Trip-Time von ~20 ms auf ~62 ms erhöhtt. Dies ist eine logische Konsequenz, da Pakete nun längere Wege zurücklegen müssen. Alle Ping-Tests waren trotz Kappen einer Verbindung erfolgreich. Man muss dabei allerdings Paketverluste während der Konvergenzzeit hinnehmen.
-%Typische BGP Konvergenzzeiten?
+Es wurden außerdem von allen Teilnehmern zu allen Teilnehmern Ping-Tests gemacht und währenddessen eine Verbindung getrennt. Da ein Präfix über zwei Pfade zu sehen ist, ist die Erwartung, dass ein Backup-Pfad genutzt wird.\\
 
 \begin{figure}[h]
   \centering
   \includegraphics{Figures/Use-Case-1_Basis_Deployment_missing_link.pdf}
-  \caption{TF Deployment with missing link}
+  \caption{Backbone mit einer fehlenden Verbindung zwischen Private Cloud und AWS.}
   \label{grafik:Use-Case-1_Basis_Deployment_missing_link}
-\end{figure}
+\end{figure}\FloatBarrier
 
-\begin{lstlisting}[label=tf-base-deployment-ping-ok,caption=Ping Tests zwischen verschiedenen Cloud-Plattformen mit Kappen einer Backbone-Verbindung.]
+Man kann an Beispiel \ref{tf-base-deployment-ping-ok-missing-link} sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \textit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde ICMP-Echo-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung in Beispiel \ref{tf-base-deployment-ping-ok-missing-link} etwa 44 Sekunden unterbrochen war.\\
+Weiterhin hat sich die Round-Trip-Time von ~20 ms auf ~62 ms erhöht. Dies ist eine logische Konsequenz, da Pakete nun längere Wege (\textit{mehr Hops}) zurücklegen müssen. Alle Ping-Tests waren trotz Kappen einer Verbindung erfolgreich. Man muss dabei allerdings Paketverluste während der Konvergenzzeit hinnehmen.
+%TC:ignore
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 root@www:~# ping 10.33.0.121
 PING 10.33.0.121 (10.33.0.121) 56(84) bytes of data.
 [...]
 64 bytes from 10.33.0.121: icmp_seq=15 ttl=61 time=19.9 ms
 64 bytes from 10.33.0.121: icmp_seq=16 ttl=61 time=24.3 ms
 64 bytes from 10.33.0.121: icmp_seq=17 ttl=61 time=19.6 ms
-64 bytes from 10.33.0.121: icmp_seq=18 ttl=61 time=19.7 ms <-- Kappen einer Verbindung
-64 bytes from 10.33.0.121: icmp_seq=62 ttl=61 time=67.4 ms <-- Revovery ueber Backup-Pfad
+64 bytes from 10.33.0.121: icmp_seq=18 ttl=61 time=19.7 ms 
+--- Kappen einer Verbindung nach ICMP Sequenznummer 18 ---
+--- Recovery zu ICMP Sequenznummer 62 via Backup-Pfad ----
+64 bytes from 10.33.0.121: icmp_seq=62 ttl=61 time=67.4 ms
 64 bytes from 10.33.0.121: icmp_seq=63 ttl=61 time=62.2 ms
 64 bytes from 10.33.0.121: icmp_seq=64 ttl=61 time=62.5 ms
 64 bytes from 10.33.0.121: icmp_seq=65 ttl=61 time=62.4 ms
 [...]
-\end{lstlisting}
-
+\end{minted}
+\caption{Ping-Tests zwischen verschiedenen Cloud-Plattformen mit Kappen einer Backbone-Verbindung.}
+\label{tf-base-deployment-ping-ok-missing-link}
+\end{listing}\FloatBarrier
+%TC:endignore
+Alle Evaluationskriterien (siehe \ref{eval-kriterien-uc1}) wurden somit erfüllt und der Use-Case konnte erfolgreich umgesetzt werden.
