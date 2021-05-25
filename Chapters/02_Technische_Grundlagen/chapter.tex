@@ -190,7 +190,7 @@ Das DNS ermöglicht, Server im Internet anhand eines Namens, dem Fully Qualified
   \centering
   \includegraphics{Figures/dns_autoritative.pdf}
   \caption{DNS-Hierarchie}
-  \label{grafik: napt}
+  \label{grafik: dns-hierarchy}
 \end{figure}\FloatBarrier
 
 Soll z.B. der FQDN www.intern.ba.mungard.de. aufgelöst werden, muss der \textit{Baum} von der Wurzel \glqq .\grqq{} über die Knoten \glqq de\grqq{}, \glqq mungard\grqq{}, ... bis zum Blatt \glqq www\grqq{} durchlaufen werden. Man spricht von einer iterativen Auflösung. Pro Hierarchie-Ebene sind \textit{autoritative Nameserver} verantwortlich für die richtige Delegation des auflösenden Clients.\\
@@ -277,7 +277,7 @@ Die Public Cloud-Provider, welche in dieser Arbeit genutzt werden, sind Amazon W
 Eine Multi Cloud vernetzt \textbf{gleiche} Cloud Deployments miteinander, z.B. Public Cloud 	$\leftrightarrow$ Public Cloud oder Private Cloud $\leftrightarrow$ Private Cloud.\\
 Bei einer Hybrid Cloud werden unterschiedliche Bausteine zusammengefasst. In dieser Arbeit soll eine Hybrid Cloud aus AWS, Azure (Public) und Private Cloud deployet werden.
 
-\section{Public Cloud-Netzwerke}\label{cloud}
+\section{Public Cloud-Netzwerke}\label{public-cloud-networking}
 In diesem Kapitel wird näher auf die verschiedenen Netzwerk-\textit{Building Blocks} der Public Cloud-Plattformen AWS und Azure eingegangen. Beide bringen oftmals ähnliche Bausteine mit. Es wird daher stets versucht, im jeweiligen Kontext auf beide Plattformen zugleich einzugehen, um die Grundfunktionalität zu erläutern.
 Dieses Kapitel vermittelt lediglich Grundlagen, die für das Verständnis der Use-Cases notwendig sind. Besonderheiten und Constraints, die sich im Verlauf der Bearbeitung ergeben haben, werden im jeweiligen Use-Case unter \glqq Probleme und Lösungsfindung\grqq{} zusammengefasst.
 
