@@ -540,7 +540,7 @@ root@openvpn-client:~# dig +short vpn.ba.mungard.de A
 %normal
 \newpage
 Weiterhin wurde getestet, ob sich ein VPN-Client mit dem lokalen VPN-Konzentrator verbindet, in Beispiel \ref{openvpn-connect-log} aus Azure heraus:
-Der Filterausdruck mit \filettt{grep} ist für IPv4-Adressen und macht das Verbindungs-Log übersichtlicher.
+Der Filterausdruck mit \texttt{grep} ist für IPv4-Adressen und macht das Verbindungs-Log übersichtlicher.
 %TC:ignore
 %begin{lstlisting}[label=connection-to-vpn-normal,caption=.]
 \begin{listing}[h]
@@ -565,7 +565,7 @@ Wed May 12 11:27:27 2021 /sbin/ip route add 192.168.201.0/24 via 10.32.1.1
 \end{listing}\FloatBarrier
 %TC:endignore
 \newpage
-Um den Fallback zu testen, wurde eine spezielle \filettt{iptables}-Regel eingerichtet, die ausgehende Pakete, in denen der String \glqq vpn\grqq{} (für vpn.ba.mungard.de - DNS ist Klartext!) enthalten ist, verwirft. \textit{vpn-default} bleibt hingegen erlaubt: Die Regel wird über der erstgenannten Regel ausgewertet.
+Um den Fallback zu testen, wurde eine spezielle \texttt{iptables}-Regel eingerichtet, die ausgehende Pakete, in denen der String \glqq vpn\grqq{} enthalten ist, verwirft. \textit{vpn-default} bleibt hingegen erlaubt: Die Regel wird über der erstgenannten Regel ausgewertet.
 %TC:ignore
 %begin{lstlisting}[label=iptables-drop-dns,caption=.]
 \begin{listing}[h]

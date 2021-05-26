@@ -25,7 +25,7 @@ Die Infrastruktur-Komponenten aus Use-Case 1 werden als vorhanden und funktionie
   \label{grafik:Use-Case-2_Vereinfacht}
 \end{figure}\FloatBarrier
 
-\subsection{Vorauswahl geeigneter technischer Komponenten}
+\subsection{Vorauswahl geeigneter technischer Komponenten}\label{uc1-vorauswahl}
 Zur Terminierung der Roadwarrior-Clients muss pro Cloud-Standort ein VPN-Konzentrator zur Verfügung stehen. Mit \textit{Client VPN Endpoint} (AWS) bzw. \textit{Point-to-site} Azure bieten bereits Lösungen, um Roadwarrior-Clients zu terminieren. Nach längerer Evaluation dieser Building Blocks erwiesen sich diese Lösungen für das Ziel der Arbeit als nicht tauglich:
 \begin{itemize}
 \item Bei AWS werden Client-VPN-Verbindungen eingehend geNATted (\textit{NAT Masquerading}). Damit sind alle Clients intern mit der gleichen Absender-IP zu sehen. Dies verletzt den Anspruch der Arbeit, eine Ende-zu-Ende-Konnektivität zu ermöglichen.
@@ -71,7 +71,7 @@ Der technische Fokus wird in diesem Use-Case auf DNS liegen. Es soll in dem Szen
 \item Sobald der Roadwarrior mit einem VPN-Konzentrator verbunden ist, soll immer der (beispielhafte) Server, der am jeweiligen Standort deployet wurde, kontaktiert werden.
 \end{itemize}
 
-Mit Hilfe des Bind Nameservers ab Version 9.10 ist es möglich, die GeoIP-Datenbank des Anbieters MaxMind auszuwerten, um DNS-Anfragen in Abhängigkeit der Absender-IP zu beantworten\cite{bindgeoip2020}. Bei dieser IP handelt es sich typischerweise um die Resolver-IP des \textit{lokalen} Internet-Dienstleisters. Die Annahme für diesen Use-Case ist daher, dass der DNS-Resolver in der gleichen Region wie der Roadwarrior angesiedelt ist.\\
+Mit Hilfe des Bind Nameservers ab Version 9.10 ist es möglich, die GeoIP-Datenbank des Anbieters MaxMind auszuwerten, um DNS-Anfragen in Abhängigkeit der Absender-IP zu beantworten\cite{bindgeoip2020}. Bei dieser IP handelt es sich typischerweise um die Resolver-IP des \textit{lokalen} Internet-Dienstleisters. Die Annahme für diesen Use-Case ist daher, dass der DNS-Resolver in der gleichen Region wie der Roadwarrior angesiedelt ist\label{dns-resolver-region}.\\
 Um mit GeoIP-Daten der Firma MaxMind arbeiten zu können, muss Bind mit einem speziellen Flag (\texttt{-{}-with-maxminddb}) kompiliert werden. Im Ubuntu 20.04 Standardpaket von Bind 9 ist dieses Feature bereits vorhanden.
 
 %TC:ignore
