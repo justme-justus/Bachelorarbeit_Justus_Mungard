@@ -290,11 +290,11 @@ resource "null_resource" "www_config" {
 %TC:endignore
 % Binärer Entscheidungsbaum OpenVPN
 
-Die OpenVPN Client-Konfigurationen wurden vor Terraform-Deployment bereits \textit{inline} in einer Textdatei vorbereitet. Auch hier gilt analog zur Server-Konfiguration, dass Schlüsselmaterial optimalerweise erst zur Laufzeit erstellt wird. Zertifikate und privater Schlüssel wurden im folgenden Beispiel gefiltert. Von zentraler Bedeutung sind Zeilen 2 und 3: Durch mehrfache Angabe einer remote-Direktive kann ein Fallback auf default-vpn.ba.mungard.de stattfinden, sollte vpn.ba.mungard.de nicht auflösbar sein.\\
-Dies gilt für den Fall, falls das Deployment noch nicht stattgefunden hat und der Client nicht in der Nähe von Kiel ist, um per GeoIP-ACL Zugriff auf die Auflösung von vpn.ba.mungard.de erhält. Per \textit{pullfilter ignore redirect-gateway} wird verhindert, dass ein Default Gateway über den Tunnel signalisiert wird: Alle weiteren, bekannten Routen kommen über die OpenVPN-Server-Konfiguration (siehe \ref{vpn-c2s-server-config}).
+Die OpenVPN Client-Konfigurationen wurden vor Terraform-Deployment bereits \textit{inline} in einer Textdatei vorbereitet. Auch hier gilt analog zur Server-Konfiguration, dass Schlüsselmaterial optimalerweise erst zur Laufzeit erstellt wird. Zertifikate und privater Schlüssel wurden im folgenden Beispiel gefiltert. Von zentraler Bedeutung sind Zeilen 2 und 3: Durch mehrfache Angabe einer remote-Direktive kann ein Fallback auf \textit{default-vpn.ba.mungard.de} stattfinden, sollte \textit{vpn.ba.mungard.de} nicht auflösbar sein. Die erste remote-Direktive wird dabei \textbf{immer} zuerst kontaktiert, dann folgt der Fallback auf die zweite.\\
+Dies gilt für den Fall, falls das Deployment noch nicht stattgefunden hat und der Client nicht in der Nähe von Kiel ist, um per GeoIP-ACL Zugriff auf die Auflösung von \textit{vpn.ba.mungard.de} erhält. Per \textit{pullfilter ignore redirect-gateway} wird verhindert, dass ein Default Gateway über den Tunnel signalisiert wird: Alle weiteren, bekannten Routen kommen über die OpenVPN-Server-Konfiguration (siehe \ref{vpn-c2s-server-config}).
 %TC:ignore
-\begin{lstlisting}[label=ovpn-client-conf,caption=.]
-$ grep -B100 '<ca>' ~/terraform/.cred_mgmt/_push/openvpn/azure_client/config.ovpn | grep -v '<ca>'
+\begin{listing}[h]
+\begin{minted}[linenos,breaklines,frame=single]{text}
 remote vpn.ba.mungard.de 61231
 remote default-vpn.ba.mungard.de 61231
 port 0
@@ -306,7 +306,11 @@ resolv-retry infinite
 remote-cert-tls server
 verb 3
 persist-tun
-\end{lstlisting}
+
+\end{minted}
+\caption{Die OpenVPN-Client Konfigurationsdatei (gekürzt) mit zwei remote-Direktiven. Es findet kein \textit{Full-Tunneling} statt.}
+\label{ovpn-client-conf}
+\end{listing}\FloatBarrier
 %TC:endignore
 Dieser simple Entscheidungsbaum soll den wichtigen Aspekt des \glqq DNS-Fallbacks\grqq{} nochmals verdeutlichen.
 
@@ -316,7 +320,7 @@ Dieser simple Entscheidungsbaum soll den wichtigen Aspekt des \glqq DNS-Fallback
   \caption{Entscheidungsbaum: OpenVPN-Verbindungsversuch}
   \label{grafik:Use-Case_2_Entscheidungsbaum_OpenVPN}
 \end{figure}\FloatBarrier
-
+\newpage
 \subsection{Probleme und Lösungsfindung}
 %VyOS Images finden? az CLI, AWS Suche funktioniert nicht
 %Die richtigen Images für die VyOS-Maschinen der jeweiligen Cloud-Marketplaces auf Terraform zu übertragen, erwies sich als nicht trivial...
@@ -325,88 +329,99 @@ Dieser simple Entscheidungsbaum soll den wichtigen Aspekt des \glqq DNS-Fallback
 %Statische Routen innerhalb VPC nicht more specific -> Transit Gateway
 %Import von Remote State, um Azure VPN Gateway zu verkürzen... Eigentlich ziemlich coole Idee von mir... :)
 %mmdb.py damit man nicht "blind" ist...
-
 \textbf{\underline{Beschleunigung des Deployments}}\\
-Wie bereits in Use-Case 1 (Lösungsfindung...) geschildert, benötigt das Azure VPN Gateway viel Zeit für die Erstellung. Da Use-Case 2 direkt auf diesem Use-Case aufsetzt, hätte das ebenso eine lange Deployment-Zeit nach sich gezogen. So war ursprünglich war die Idee, den Programmcode aus Use-Case 1 zu klonen und um die Infrastruktur-Komponenten aus Use-Case 2 zu ergänzen. Somit hätte sich die Deployment Zeit $t_{gesamt}$ aus den jeweiligen Deployment-Zeiten der Infrastrukturen aus Use-Case 1 und Use-Case 2 zusammengesetzt:\\
+Das Azure VPN Gateway benötigt viel Zeit für die Erstellung (siehe \ref{azure-deployment-time}). Da Use-Case 2 direkt auf diesem Use-Case aufsetzt, hätte das ebenso eine lange Deployment-Zeit nach sich gezogen. So war ursprünglich war die Idee, den Programmcode aus Use-Case 1 zu kopieren und um die Infrastruktur-Komponenten aus Use-Case 2 zu ergänzen. Somit hätte sich die Deployment Zeit $t_{gesamt}$ aus den jeweiligen Deployment-Zeiten der Infrastrukturen aus Use-Case 1 und Use-Case 2 zusammengesetzt:\\
 $t_{gesamt} = t_{Infrastruktur_{U1}} + t_{Infrastruktur_{U2}}$
 
-Somit kam die Frage auf, ob man das Deployment beschleunigen könnte. Da in Use-Case 2 viele Tests und Änderungen gemacht wurden, musste oftmals komplett re-deployet werden, Deployment-Zeiten von bis zu anderthalb Stunden (s. Probleme Redeployment) mit sich bringen kann.\\
-Dieses Problem konnte mit terraform\_remote\_state zumindest abgemildert werden \cite{remotestateimport2021}. So wurde Use-Case 1 als vorhanden angenommen und die Infrastruktur aus Use-Case 2 lediglich hinzugefügt. Der \textit{state import} findet in der Datei main.tf von Use-Case 2 statt und referenziert die Datei terraform.tfstate aus Use-Case 1.
+Somit kam die Frage auf, ob man das Deployment beschleunigen könnte. Da in Use-Case 2 viele Tests und Änderungen gemacht wurden, musste oftmals komplett re-deployet werden, Deployment-Zeiten von bis zu anderthalb Stunden (siehe \ref{xml-tunnel-parameters}) mit sich bringen kann.\\
+Dieses Problem konnte mit der Data Source \textit{terraform\_remote\_state} zumindest abgemildert werden\cite{remotestateimport2021}. So wurde Use-Case 1 als vorhanden angenommen und die Infrastruktur aus Use-Case 2 lediglich hinzugefügt. Der \textit{state import} findet in der Datei \underline{main.tf} von Use-Case 2 statt und referenziert die Datei \underline{terraform.tfstate} aus Use-Case 1.
 %TC:ignore
-\begin{lstlisting}[label=tf-remote-state-import,caption=.]
-$ grep -A6 \"terraform_remote_state\" < main.tf
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{tf}
 data "terraform_remote_state" "base_deployment" {
   backend = "local"
   config = {
     path = "../use_case_1/terraform.tfstate"
   }
 }
-\end{lstlisting}
+
+\end{minted}
+\caption{Der Remote State aus Use-Case 1 wird in Use-Case 2 referenziert, was das Deployment beschleunigt.}
+\label{tf-remote-state-import}
+\end{listing}\FloatBarrier
 %TC:endignore
 Der Remote-State-Import dauert einen kurzen Moment, wird aber in der folgenden Betrachtung vernachlässigt.
 Unter der Annahme, dass Use-Case 1 bereits deployet wurde, ist die Laufzeit des Deployments effektiv:\\
 $t_{gesamt} = t_{Infrastruktur_{U2}}$
 
-Im Allgemeinen hat sich dieser \glqq Teile-und-herrsche\grqq{}-Ansatz im Zusammenspiel mit Terraform als sehr hilfreich erwiesen, um Konsistenz-Probleme der asynchronen Cloud-APIs während der Deployment-Phase zu verringern \cite[S.183-184]{Brikman2019}. Probleme während des Deployments entstanden v.a. dann, wenn \glqq zu viele\grqq{} Abhängigkeiten der Infrastruktur-Komponenten im Spiel waren. Für die Verschaltung von \textit{gesplitteten} Terraform-Deployments eignet sich das Werkzeug Terragrunt \cite[S.98]{Brikman2019}.
+Im Allgemeinen hat sich dieser \glqq Teile-und-herrsche\grqq{}-Ansatz im Zusammenspiel mit Terraform als sehr hilfreich erwiesen, um Konsistenz-Probleme der asynchronen Cloud-APIs während der Deployment-Phase zu verringern\cite[S.183-184]{Brikman2019}. Probleme während des Deployments entstanden v.a. dann, wenn \glqq zu viele\grqq{} Abhängigkeiten der Infrastruktur-Komponenten im Spiel waren. Für die Verschaltung von \textit{gesplitteten} Terraform-Deployments eignet sich das Werkzeug Terragrunt\cite[S.98]{Brikman2019}.
 
 %https://web.archive.org/web/20210123233358/https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ug.pdf Seite 230
 %Warum brauchen wir more specifics?
 %CIDR / Subnet / Route Tables in Azure und AWS in technische Grundlagen
+\newpage
 \textbf{\underline{More-Specific Route nicht möglich in VPC Routing-Tabelle}}\\
-Die Roadwarrior Clients müssen in einem Subnetz \glqq hinter\grqq{} dem VPN-Konzentrator terminiert werden. Dafür werden Routing-Einträge notwendig, damit AWS VPC bzw. Azure VNET die Information besitzen, über welchen \textit{Next-Hop} das Client-VPN-Subnetz erreicht werden kann. Durch \textit{Route Tables} stellt dies auch keine Hürde dar in Azure. AWS hingegen bietet keine Möglichkeit, Subnetze mit einer längeren Netzmaske in der Route Table zu hinterlegen, falls sie ein Subnetz des VPC CIDR darstellen würden. Man spricht auch von \glqq more specifics\grqq{}.\\
+Die Roadwarrior Clients müssen in einem eigenen Subnetz \glqq hinter\grqq{} dem VPN-Konzentrator terminiert werden. Dafür werden Routing-Einträge notwendig, damit AWS VPC bzw. Azure VNET die Information besitzen, über welchen \textit{Next-Hop} das Roadwarrior-VPN-Subnetz erreicht werden kann. Durch \textit{Route Tables} stellt dies auch keine Hürde dar in Azure. AWS hingegen bietet keine Möglichkeit, Subnetze mit einer längeren Netzmaske in der Route Table zu hinterlegen, falls sie ein Subnetz des VPC CIDR darstellen würden. Man spricht auch von \glqq more specifics\grqq{}.\\
 Im folgenden Beispiel sei das VPC CIDR 192.168.0.0/16 (Target: local). Es soll eine Route auf ein Netzwerk 192.168.100.0/24 über die AWS Instance \glqq i-06230ccaa[...]\grqq{} (Next-Hop) gesetzt werden, was eine more specific Route zum VPC CIDR darstellt.
 Folgende Fehlermeldung meldet das Amazon Dashboard beim Versuch, diese Route anzulegen:
 
 \begin{figure}[h]
   \centering
-  \includegraphics[scale=0.4]{Figures/more_specific_not_allowed_aws.PNG}
-  \caption{BLUB}
+  \includegraphics[scale=0.35]{Figures/more_specific_not_allowed_aws.PNG}
+  \caption{More specific Routen sind in AWS Route Tables nicht möglich.}
   \label{grafik:more_specific_not_allowed_aws}
 \end{figure}\FloatBarrier
 
-More specific Routing wird laut Amazon User Guide für das \textbf{Main Route Table} nicht unterstützt\cite[S.230]{awsug2020}. Dieser Constraint bezieht sich allerdings auf \textbf{alle} Route Tables, wie weitere Tests bestätigten.
-Präfixe zu nutzen, welche nicht more specific sind, ginge insofern, dass das Routing \textit{innerhalb} des VPCs möglich wird, allerdings werden diese Präfixe nicht durch BGP den anderen Stellen bekannt gemacht. Somit erreichen Pakete aus Netzwerken, welche nicht im AWS VPC \glqq leben{grqq}, das VPN-Client-Netzwerk nicht.\\
-Hide-NAT ist, wie bereits beschrieben (s.o.), keine Lösung, da dies die Anforderung nach Ende-zu-Ende-Konnektivität verletzen würden.\\
-Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway dieses Problem erfolgreich gelöst werden. Es bietet die Möglichkeit \textit{Peerings} zwischen verschiedenen VPCs herzustellen. Die Idee war, zwei VPCs zu nutzen: ein VPC für Client-VPN und ein VPC für den (Web-)Server. Alle VPN-Verbindungen hängen fortan auf dem Transit Gateway, welches sowohl alle AWS-Routen kennt (statische Routing-Einträge) als auch alle weiteren Routen über BGP lernt. Die VPCs routen alle Ziele zu RFC1918-Netzwerken statisch auf das Transit Gateway, welches Pakete entweder weiter an das benachbarte VPC oder über das Backbone-Netzwerk zum Ziel weiterschickt. Das folgende Netzwerkdiagramm mit anhängigen Routing-Tabellen soll diesen Sachverhalt verdeutlichen. VPC CIDR und VPC Subnet werden in diesem Beispiel synonym verwendet, was formell nicht korrekt ist: Route Tables werden in Subnets genutzt, nicht im CIDR. Dies dient jedoch zur Vereinfach des Schaubildes (s. CIDR / Subnet / Route Table technische Grundlagen). Das Transit Gateway lernt die VPC CIDR automatisch, insofern Route Propagation eingeschaltet ist:
-
+More specific Routing wird laut Amazon User Guide für das \textbf{Main Route Table} nicht unterstützt\cite[S.230]{awsug2020}. Dieser Constraint bezieht sich allerdings auf \textbf{alle} Route Tables, wie weitere Tests zeigten.\\
+Präfixe zu nutzen, welche nicht more specific sind, ginge insofern als das Routing \textit{innerhalb} des VPCs möglich wird, allerdings werden diese Präfixe nicht durch BGP den anderen Stellen bekannt gemacht. Somit erreichen Pakete aus Netzwerken, welche nicht im AWS VPC \glqq leben\grqq{}, das VPN-Client-Netzwerk nicht.\\
+Hide-NAT ist keine Lösung, da dies die Anforderung nach Ende-zu-Ende-Konnektivität verletzen würden (siehe \ref{nat-bad}).\\
+Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway dieses Problem erfolgreich gelöst werden. Es bietet die Möglichkeit \textit{Peerings} zwischen verschiedenen VPCs herzustellen. Die Idee war, zwei VPCs zu nutzen: ein VPC für Roadwarrior-VPN und ein VPC für den (Web-)Server. Alle VPN-Verbindungen hängen fortan auf dem Transit Gateway, welches sowohl alle AWS-Routen kennt (statische Routing-Einträge) als auch alle weiteren Routen über BGP lernt. Die VPCs routen alle Ziele zu RFC 1918-Netzwerken statisch auf das Transit Gateway, welches Pakete entweder weiter an das benachbarte VPC oder über das Backbone-Netzwerk zum Ziel weiterschickt. Das folgende Netzwerkdiagramm \ref{grafik:aws_tgw_route_tables} mit anhängigen Routing-Tabellen soll diesen Sachverhalt verdeutlichen.
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.75]{Figures/Use-Case-2_AWS_TGW_Route-Tables.pdf}
-  \caption{BLUB}
+  \caption{AWS Transit Gateway terminiert VPN-Verbindungen und ermöglicht Peerings zwischen VPCs.}
   \label{grafik:aws_tgw_route_tables}
 \end{figure}\FloatBarrier
-
-%NAT... aber keine Ende-zu-Ende...
-
+VPC CIDR und VPC Subnet werden in diesem Beispiel synonym verwendet, was formell nicht korrekt ist: Route Tables werden in Subnets genutzt, nicht im CIDR. Dies dient jedoch zur Vereinfachung des Schaubildes. Das Transit Gateway lernt die VPC CIDR automatisch, insofern \textit{Route Propagation} eingeschaltet ist.
+\newpage
 \textbf{\underline{Untersuchung von GeoIP-Daten}}\\
 Die GeoIP-Datenbank ist ein Binärformat (\glqq data\grqq{}) \cite{filemanpage2021}.
 %TC:ignore
-\begin{lstlisting}[label=file-geoip-db,caption=.]
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 $ file /usr/share/GeoIP/GeoLite2-City.mmdb
 /usr/share/GeoIP/GeoLite2-City.mmdb: data
-\end{lstlisting}
+
+\end{minted}
+\caption{\texttt{file} erlaubt es, Rückschlüsse auf das Dateiformat zu ziehen.}
+\label{file-geoip-db}
+\end{listing}\FloatBarrier
 %TC:endignore
-Die Datensätze mussten \glqq sichtbar\grqq{} gemacht werden, um eine Idee zu bekommen, welche Spezifizierer genutzt werden können, um die DNS-Auflösung in regionaler Abhängigkeit umzusetzen. Weiterhin war nicht sichergestellt, welche Qualität die Datensätze aufweisen. Um dies zu testen, wurde ein kurzes Python-Skript \textit{mmdb.py} geschrieben und das Modul \textit{maxminddb} des GeoIP-Anbieters MaxMind eingebunden \cite{maxminddb2021}. Per \textit{pretty print} konnten die entsprechenden Datensätze für eine IP-Adresse ausgegeben werden.
+Die Datensätze mussten \glqq sichtbar\grqq{} gemacht werden, um eine Idee zu bekommen, welche Spezifizierer genutzt werden können, um die DNS-Auflösung in regionaler Abhängigkeit umzusetzen. Weiterhin war nicht sichergestellt, welche Qualität die Datensätze aufweisen. Um dies zu testen, wurde ein kurzes Python-Skript \textit{mmdb.py} geschrieben und das Modul \textit{maxminddb} des GeoIP-Anbieters MaxMind eingebunden \cite{maxminddbreader2021}. Per \textit{pretty print} konnten die entsprechenden Datensätze für eine IP-Adresse ausgegeben werden.
 %TC:ignore
-\begin{lstlisting}[label=mmdb-code-example,caption=.]
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{python3}
 #!/usr/bin/python3
 import maxminddb
 import sys
 import pprint
-#aehnliche Code-Teile uebersprungen
 print("++++++++++++++++++++ CITY INFO +++++++++++++++++++\n")
 with maxminddb.open_database('/usr/share/GeoIP/GeoLite2-City.mmdb') as reader:
     pprint.pprint(reader.get(sys.argv[1]))
 print("++++++++++++++++++++ CITY INFO +++++++++++++++++++\n")
-\end{lstlisting}
+#aehnliche Code-Teile ausgelassen
+\end{minted}
+\caption{Das Python-Modul maxminddb ermöglicht es, die GeoIP-Datenbank zu überprüfen.}
+\label{python-mmdb-reader}
+\end{listing}\FloatBarrier
 %TC:endignore
-Anbei eine Beispielausgabe für eine IP-Adresse der Fachhochschule Kiel.
+\newpage
+Beispielausgabe \ref{mmdb-example} für eine IP-Adresse der Fachhochschule Kiel.
 %TC:ignore
-\begin{lstlisting}[label=mmdb-show-ip,caption=.]
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 $ dig +short fh-kiel.de A
 149.222.20.63
-
-\
 
 $ mmdb.py 149.222.20.63
 ++++++++++++++++++++ ASN INFO ++++++++++++++++++++
@@ -430,7 +445,10 @@ $ mmdb.py 149.222.20.63
  'postal': {'code': '24149'},
 [...]
 ++++++++++++++++++++ CITY INFO +++++++++++++++++++
-\end{lstlisting}
+\end{minted}
+\caption{Beispielausgabe \texttt{`mmdb.py 149.222.20.63`}}
+\label{mmdb-example}
+\end{listing}\FloatBarrier
 %TC:endignore
 Insgesamt erwiesen sich die Datensätze als sehr brauchbar und akkurat. Per cron-Job wird die Datenbank wöchentlich aktualisiert.
 
@@ -438,25 +456,36 @@ Insgesamt erwiesen sich die Datensätze als sehr brauchbar und akkurat. Per cron
 
 %Nachdem das Backbone-Netz aus Use-Case 1 um diverse Clients und Server erweitert wurde
 
-Wie bereits beschrieben, wurde pro Cloud-Standort eine virtuelle Maschine hochgefahren, die einen Roadwarrior-Client simulieren soll. Diese Clients haben \textbf{keinen} Zugriff auf interne Komponenten, sondern sind lediglich mit dem Internet verbunden, über welches VPN-Verbindungen zum jeweiligen VPN-Konzentrator aufgebaut werden können.
+Es wurde pro Cloud-Standort eine virtuelle Maschine hochgefahren, die einen Roadwarrior-Client simulieren soll. Diese Clients haben \textbf{keinen} Zugriff auf interne Komponenten, sondern sind lediglich mit dem Internet verbunden, über welches VPN-Verbindungen zum jeweiligen VPN-Konzentrator aufgebaut werden können.
 
-Nach dem Deployment von Use-Case 2 wird geprüft, ob sich die Domain vpn.ba.mungard.de auflösen lässt. Dies passiert in der Azure-Cloud.
+Nach dem Deployment von Use-Case 2 wird geprüft, ob sich die Domain vpn.ba.mungard.de auflösen lässt. Dies passiert in Beispiel \ref{dns-resolution-client-vpn} in Azure Dublin.
 %TC:ignore
-\begin{lstlisting}[label=dns-resolution-client-vpn,caption=.]
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 ubuntu@vpn-client-azure:~$ dig +short vpn.ba.mungard.de A
 94.245.93.144
-\end{lstlisting}
+
+\end{minted}
+\caption{DNS-Auflösung für vpn.ba.mungard.de von Standort Azure (Dublin).}
+\label{dns-resolution-client-vpn}
+\end{listing}\FloatBarrier
 %TC:endignore
-Die IP-Adresse 94.2.45.93.144 gehört Microsoft.
+Die IP-Adresse 94.245.93.144 gehört zu Microsoft.
 %TC:ignore
-\begin{lstlisting}[label=whois-microsoft-ip,caption=.]
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 $ whois 94.245.93.144 | grep mnt | uniq
 mnt-by:         MICROSOFT-MAINT
-\end{lstlisting}
+
+\end{minted}
+\caption{\texttt{whois} für die IP 94.245.93.144.}
+\label{whois-microsoft-ip}
+\end{listing}\FloatBarrier
 %TC:endignore
-Das Ziel ist ca. 1 Millisekunde entfernt. Für diesen Test wurde ICMP eingehend manuell erlaubt in der Network Security Group, im Default Deployment erfolgt für ICMP Echo Request ein \textit{Dropping}:
+Das Ziel ist ca. 1 Millisekunde entfernt. Für diesen Ping-Test wurde ICMP eingehend manuell erlaubt in der NSG. Im Standardfall würde für ICMP Echo Request ein \textit{Dropping} erfolgen.
 %TC:ignore
-\begin{lstlisting}[label=ping-microsoft-ip,caption=.]
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 ubuntu@vpn-client-azure:~$ ping 94.245.93.144
 PING 94.245.93.144 (94.245.93.144) 56(84) bytes of data.
 64 bytes from 94.245.93.144: icmp_seq=1 ttl=57 time=1.21 ms
@@ -466,12 +495,18 @@ PING 94.245.93.144 (94.245.93.144) 56(84) bytes of data.
 ^C
 --- 94.245.93.144 ping statistics ---
 4 packets transmitted, 4 received, 0% packet loss, time 3003ms
+
 rtt min/avg/max/mdev = 0.936/1.073/1.216/0.106 ms
-\end{lstlisting}
+
+\end{minted}
+\caption{Ping von Roadwarrior-Client Azure $\rightarrow$ vpn.ba.mungard.de.}
+\label{ping-microsoft-ip}
+\end{listing}\FloatBarrier
 %TC:endignore
-Die Annahme von nun an ist, dass die lokale DNS-Auflösung auch für AWS funktioniert. Daher folgt an dieser Stelle nur ein Ping mit vorheriger Auflösung des Hostnamens vpn.ba.mungard.de. Die RTT ist vergleichbar mit Azure (s.o.):
+Die Annahme von nun an ist, dass die lokale DNS-Auflösung auch für AWS funktioniert. Daher folgt an dieser Stelle nur ein Ping mit vorheriger Auflösung des Hostnamens vpn.ba.mungard.de. Die Round-Trip-Time (TTL) ist vergleichbar mit Azure (siehe \ref{ping-microsoft-ip}).
 %TC:ignore
-\begin{lstlisting}[label=ping-aws-ip,caption=.]
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 ubuntu@vpn-client-aws:~$ ping vpn.ba.mungard.de
 PING vpn.ba.mungard.de (3.67.38.135) 56(84) bytes of data.
 64 bytes from ec2-3-67-38-135.eu-central-1.compute.amazonaws.com (3.67.38.135): icmp_seq=1 ttl=63 time=0.930 ms
@@ -482,22 +517,33 @@ PING vpn.ba.mungard.de (3.67.38.135) 56(84) bytes of data.
 --- vpn.ba.mungard.de ping statistics ---
 4 packets transmitted, 4 received, 0% packet loss, time 3004ms
 rtt min/avg/max/mdev = 0.930/1.001/1.157/0.091 ms
-\end{lstlisting}
+
+\end{minted}
+\caption{Ping von Roadwarrior-Client AWS $\rightarrow$ vpn.ba.mungard.de.}
+\label{ping-aws-ip}
+\end{listing}\FloatBarrier
 %TC:endignore
-Weiterhin wurde eine virtuelle Maschine in der Public Cloud der Firma Hetzner am Standort Nürnberg deployed, welche einen Roadwarrior-Client simuliert, welcher an keinem der Standorte verfügbar ist und somit die \glqq match-all\grqq-ACl trifft. Das dig-Kommando liefert drei A-Records für die Domain vpn.ba.mungard.de aus.
+Es wurde eine virtuelle Maschine in der Public Cloud der Firma Hetzner am Standort Nürnberg deployet, welche einen Roadwarrior-Client simuliert, welcher an keinem der Standorte (Dublin, Frankfurtl, Kiel) verfügbar ist und somit die \glqq match-all\grqq-ACl treffen müsste. Das \texttt{dig}-Kommando liefert drei A-Records für die Domain vpn.ba.mungard.de aus.
 %TC:ignore
-\begin{lstlisting}[label=dig-matchall-ip,caption=.]
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 root@openvpn-client:~# dig +short vpn.ba.mungard.de A
 3.67.38.135
 195.244.254.197
 94.245.93.144
-\end{lstlisting}
+
+\end{minted}
+\caption{Es werden drei A-Records zurückgeliefert, der DNS-Client trifft die match-all ACL.}
+\label{dig-match-all}
+\end{listing}\FloatBarrier
 %TC:endignore
 %normal
-Weiter wurde getestet, ob sich ein VPN-Client mit dem lokalen VPN-Konzentrator verbindet, hier wieder Azure:
-Der Filterausdruck ist für IPv4-Adressen und macht das Verbindungs-Log übersichtlicher.
+\newpage
+Weiterhin wurde getestet, ob sich ein VPN-Client mit dem lokalen VPN-Konzentrator verbindet, in Beispiel \ref{openvpn-connect-log} aus Azure heraus:
+Der Filterausdruck mit \filettt{grep} ist für IPv4-Adressen und macht das Verbindungs-Log übersichtlicher.
 %TC:ignore
 %begin{lstlisting}[label=connection-to-vpn-normal,caption=.]
+\begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
 ubuntu@vpn-client-azure:~$ sudo openvpn --config config.ovpn 2>&1 | grep -E '(([0-9]{,3})\.){3}[0-9]{,3}'
 Wed May 12 11:27:26 2021 TCP/UDP: Preserving recently used remote address: [AF_INET]94.245.93.144:61231
@@ -512,31 +558,47 @@ May 12 11:27:27 update-systemd-resolved: Adding IPv4 DNS Server 192.168.201.1
 Wed May 12 11:27:27 2021 /sbin/ip route add 10.32.0.0/16 via 10.32.1.1
 Wed May 12 11:27:27 2021 /sbin/ip route add 10.33.0.0/16 via 10.32.1.1
 Wed May 12 11:27:27 2021 /sbin/ip route add 192.168.201.0/24 via 10.32.1.1
+
 \end{minted}
+\caption{Der VPN-Client in Azure Dublin verbindet sich mit dem lokal vorhandenen VPN-Konzentrator.}
+\label{openvpn-connect-log}
+\end{listing}\FloatBarrier
 %TC:endignore
-Um den Fallback zu testen, wurde eine spezielle iptables-Regel eingerichtet, die ausgehende Pakete, in denen der String \glqq vpn\grqq{} (für vpn.ba.mungard.de - DNS ist Klartext!) enthalten ist, verwirft. vpn-default ist hingegen erlaubt: die Regel wird über der erstgenannten Regel ausgewertet.
+\newpage
+Um den Fallback zu testen, wurde eine spezielle \filettt{iptables}-Regel eingerichtet, die ausgehende Pakete, in denen der String \glqq vpn\grqq{} (für vpn.ba.mungard.de - DNS ist Klartext!) enthalten ist, verwirft. \textit{vpn-default} bleibt hingegen erlaubt: Die Regel wird über der erstgenannten Regel ausgewertet.
 %TC:ignore
 %begin{lstlisting}[label=iptables-drop-dns,caption=.]
+\begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
 $ sudo iptables-save | grep vpn
 -A OUTPUT -p udp -m string --string "default-vpn" --algo bm --to 65535 -m udp --dport 53 -j ACCEPT
 -A OUTPUT -p udp -m string --string "vpn" --algo bm --to 65535 -m udp --dport 53 -j DROP
+
 \end{minted}
+\caption{\texttt{iptables} filter den String \textit{vpn} in DNS-Anfragen, lässt aber \textit{vpn-default} zu.}
+\label{iptables-deny-string-dns}
+\end{listing}\FloatBarrier
 %end{lstlisting}
 %TC:endignore
 Die Domain vpn.ba.mungard.de ist daraufhin nicht mehr auflösbar, default-vpn.ba.mungard.de hingegen schon.
 %TC:ignore
-\begin{lstlisting}[label=connection-fail-to-vpn-fallback-to-default-vpn,caption=.]
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 ubuntu@vpn-client-azure:~$ dig +short vpn.ba.mungard.de A
 ;; connection timed out; no servers could be reached
 
 ubuntu@vpn-client-azure:~$ dig +short default-vpn.ba.mungard.de A
 195.244.254.197
-\end{lstlisting}
+
+\end{minted}
+\caption{Der \texttt{iptables}-Filter funktioniert.}
+\label{dig-fail-vpn-fallback-to-default-vpn}
+\end{listing}\FloatBarrier
 %TC:endignore
-Dies macht sich auch beim Verbindungsversuch mit OpenVPN bemerkbar. Ein Fallback auf die IP 195.244.254.197 erfolgt, welche der Domain default-vpn.ba.mungard.de entspricht (s.o.).
+Dies macht sich auch beim Verbindungsversuch mit OpenVPN bemerkbar. Ein Fallback auf die IP 195.244.254.197 erfolgt, welche dem FQDN default-vpn.ba.mungard.de entspricht (siehe \ref{dig-fail-vpn-fallback-to-default-vpn}).
 %TC:ignore
-\begin{lstlisting}[label=connection-fail-vpn-fallback-to-default-vpn,caption=.]
+\begin{listing}[h]
+\begin{minted}[breaklines,frame=single]{bash}
 ubuntu@vpn-client-azure:~$ sudo openvpn --config config.ovpn 2>&1
 Wed May 12 12:19:14 2021 RESOLVE: Cannot resolve host address: vpn.ba.mungard.de:61231 (Name or service not known)
 Wed May 12 12:19:14 2021 RESOLVE: Cannot resolve host address: vpn.ba.mungard.de:61231 (Name or service not known)
@@ -546,28 +608,27 @@ Wed May 12 12:19:14 2021 Restart pause, 5 second(s)
 Wed May 12 12:19:19 2021 UDP link remote: [AF_INET]195.244.254.197:61231
 [...]
 Wed May 12 12:19:20 2021 Initialization Sequence Completed
-\end{lstlisting}
-%TC:endignore
-Dies wurde analog für alle Roadwarrier-Clients erfolgreich getestet.
 
-Der Aufruf der Webseite http://www.intern.ba.mungard.de mit dem Textbrowser Lynx funktioniert (hier Azure). Somit wird immer der Server angesprochen, der am jeweiligen Cloud-Standort deployed ist:
+\end{minted}
+\caption{Der Filter funktioniert auch für die OpenVPN-Verbindung, der Client fällt auf \textit{default-vpn} zurück.}
+\label{connection-fail-vpn-fallback-default-vpn}
+\end{listing}\FloatBarrier
+%TC:endignore
+
+Der Aufruf der Webseite \glqq http://www.intern.ba.mungard.de\grqq{} mit dem Textbrowser Lynx funktioniert. Somit wird immer der Server angesprochen, der am jeweiligen Cloud-Standort deployed ist:
 %TC:ignore
-\begin{lstlisting}[label=lynx-default-page,caption=.]
-ubuntu@vpn-client-azure:~$ lynx -dump www.intern.ba.mungard.de | head -10
+\begin{listing}[h]
+\begin{minted}[linenos,breaklines,frame=single]{bash}
+ubuntu@vpn-client-azure:~$ lynx -dump http://www.intern.ba.mungard.de | head -2
    Ubuntu Logo Apache2 Ubuntu Default Page
    It works! @Azure Cloud (Location: "North Europe - Dublin")
 
-   This is the default welcome page used to test the correct operation of
-   the Apache2 server after installation on Ubuntu systems. It is based on
-   the equivalent page on Debian, from which the Ubuntu Apache packaging
-   is derived. If you can read this page, it means that the Apache HTTP
-   server installed at this site is working properly. You should replace
-   this file (located at /var/www/html/index.html) before continuing to
-   operate your HTTP server.
-
-\end{lstlisting}
+\end{minted}
+\caption{Die Apache-Standardseite wird angezeigt. Zeile 3 resultiert aus dem \texttt{sed}-Befehl (siehe \ref{sed-replace-apache-location}).}
+\label{lynx-default-page}
+\end{listing}\FloatBarrier
 %TC:endignore
-Damit wurden alle Kriterien für eine erfolgreiche Evaluation von Use-Case 2 erfüllt.
+Alle hier genannten Tests waren analog für alle weiteren Roadwarrier-Clients erfolgreich. Damit wurden alle Kriterien (siehe \ref{eval-roadwarrior}) für eine erfolgreiche Evaluation von Use-Case 2 erfüllt.
 
 
 

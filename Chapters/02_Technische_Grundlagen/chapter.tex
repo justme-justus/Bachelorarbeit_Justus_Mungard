@@ -172,7 +172,7 @@ Rückpakete vom Webserver zu einem Client werden folgerichtig an den Router adre
   \label{grafik: napt}
 \end{figure}\FloatBarrier
 
-NAT verletzt das Prinzip der Ende-zu-Ende-Konnektivität: Findet sich für ein \textbf{vom Webserver kommendes} Paket in der NAT-Tabelle kein Eintrag, wird das Paket verworfen. Dies ist bei einer Client-zu-Server-Kommunikation oftmals kein Problem, da Verbindungen ohnehin vom Client initiiert werden und sich daraufhin ein State in der NAT-Tabelle des Routers befindet.\\
+NAT\label{nat-bad} verletzt das Prinzip der Ende-zu-Ende-Konnektivität: Findet sich für ein \textbf{vom Webserver kommendes} Paket in der NAT-Tabelle kein Eintrag, wird das Paket verworfen. Dies ist bei einer Client-zu-Server-Kommunikation oftmals kein Problem, da Verbindungen ohnehin vom Client initiiert werden und sich daraufhin ein State in der NAT-Tabelle des Routers befindet.\\
 Wenn allerdings eine Client-zu-Client-Kommunikation stattfinden soll, ist man auf aufwändige Mechanismen wie z.B. Hole Punching angewiesen \cite[S.317]{Fall2011}.\\
 Auf NAT soll daher in dieser Arbeit verzichtet werden, wenn dies möglich ist und es soll eine vollwertige Ende-zu-Ende-Konnektivität gewährleistet werden.
 
