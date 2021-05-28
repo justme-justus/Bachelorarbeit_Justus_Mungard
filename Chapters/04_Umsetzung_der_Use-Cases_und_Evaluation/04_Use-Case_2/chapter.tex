@@ -9,7 +9,7 @@
 %Bind Split-DNS
 
 In AWS und Azure wurden via Terraform die virtuellen Maschinen VyOS aus den jeweiligen Marketplaces installiert.\\
-Es wurden für die Cloud-Standorte AWS und Azure analog zu Use-Case 1 Templates erstellt, um den Client-VPN-Konzentrator zu konfigurieren. In der Terraform Resource \textit{azurerm\_linux\_virtual\_machine} wird das richtige VyOS-Image aus dem Cloud-Marketplace referenziert über \textit{source\_image\_reference} und lässt dieses installieren. Einige dieser Marketplace-Images bieten verschiedene Support- und Lizenz-Verträge an. Über den \textit{plan \{\}}-Kontext wird der passende \textit{Contract} ausgewählt (hier: \glqq Standard support\grqq{}). Ähnlich wurde für die AWS-Instanz vorgegangen. 
+Es wurden für die Cloud-Standorte AWS und Azure analog zu Use-Case 1 Templates erstellt, um den Client-VPN-Konzentrator zu konfigurieren. In der Terraform Resource \textit{azurerm\_linux\_virtual\_machine} wird das richtige VyOS-Image aus dem Cloud-Marketplace referenziert über \textit{source\_image\_reference} und lässt dieses installieren. Einige dieser Market\-place-Images bieten verschiedene Support- und Lizenz-Verträge an. Über den \textit{plan \{\}}-Kontext wird der passende \textit{Contract} ausgewählt (hier: \glqq Standard support\grqq{}). Ähnlich wurde für die AWS-Instanz vorgegangen. 
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
