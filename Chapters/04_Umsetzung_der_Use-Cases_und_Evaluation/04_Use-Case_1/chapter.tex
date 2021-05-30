@@ -9,7 +9,7 @@
 Im phpIPAM müssen mehrere Netzbereiche reserviert werden. Es werden Netzbereiche benötigt, in denen Maschinen per IPv4 kommunizieren können. Diese Netze werden mit VPC bzw. VNET assoziiert.\\
 Für VNET wurde der Netzblock \glqq 10.32.0.0/16\grqq{} und für VPC der Netzblock \glqq 10.33.0.0/16\grqq{} vorreserviert, aus dem kleinere Subnets für die jeweilige Cloud entnommen werden können. Weiterhin ist die Annahme, dass die Private Cloud bereits einen Netzbereich besitzt, in dem Maschinen angesiedelt sind: \glqq 192.168.201.0/24.\grqq{}\\
 Es werden \textit{Transfernetzwerke}\label{transfer-azure-aws} benötigt, über die die IPv4-Pakete geschickt werden und die BGP-Präfixe ausgetauscht werden können. AWS sieht hierfür /30-Präfixe aus dem Bereich \glqq 169.254.0.0/16\grqq{} vor \cite{awsvpn2021}, Azure hat eine Range reserviert: \glqq 169.254.21.0\grqq{} -\\ \glqq 169.254.22.255\grqq{} \cite{azurebgp2020}. Als Kompromiss können daher nur Netze aus den Azure-Bereichen genutzt werden, da die Bereiche, die AWS zur Verfügung stellt, größtenteils außerhalb dieser Range liegen. Auch diese Netzbereiche müssen im IPAM vorreserviert werden und für die Transfernetzwerke automatisiert konfiguriert werden.\\
-In Beispiel \ref{apipa-reservation-ipam} wird in phpIPAM nach dem Bereich \glqq TF\_CLOUD\_BGP\_TRANSFER\grqq{}, aus dem alle Transfernetzwerke entommen werden, gesucht. Innerhalb des Bereichs wird aus dem vorreservierten Block \glqq Cloud\_Transfer\_BGP\_1\grqq{} ein /30-Netzwerk entnommen. Die Reservierung der Netzblöcke für VPC und VNET erfolgen analog.
+In Listing \ref{apipa-reservation-ipam} wird in phpIPAM nach dem Bereich \glqq TF\_CLOUD\_BGP\_TRANSFER\grqq{}, aus dem alle Transfernetzwerke entommen werden, gesucht. Innerhalb des Bereichs wird aus dem vorreservierten Block \glqq Cloud\_Transfer\_BGP\_1\grqq{} ein /30-Netzwerk entnommen. Die Reservierung der Netzblöcke für VPC und VNET erfolgen analog.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -91,7 +91,7 @@ set vpn ipsec site-to-site peer ${aws_vgw_ip} authentication pre-shared-secret $
 set vpn ipsec site-to-site peer ${aws_vgw_ip} description 'VPC tunnel 1'
 
 \end{minted}
-\caption{Verschiede set-Kommandos werden in ein VyOS-Skript eingebettet (Interpreter: \texttt{/bin/vbash}). Die Variablen in Zeilen 9-12 resultieren aus dem Funktionsaufruf (s. Beispiel \ref{tf-call-tpl-generation}).}
+\caption{Verschiede set-Kommandos werden in ein VyOS-Skript eingebettet (Interpreter: \texttt{/bin/vbash}). Die Variablen in Zeilen 9-12 resultieren aus dem Funktionsaufruf (s. Listing \ref{tf-call-tpl-generation}).}
 \label{tf-generate-tpl}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -185,7 +185,7 @@ vyos@vyos-cloud:~$ sh ip bgp | grep -A1 -E '10.3[2|3]'
 \end{listing}
 %TC:endignore
 \newpage
-Beispiel \ref{grafik:programmablaufplan_bash_deploy_tf} zeigt den Programmlaufplan des Bash-Skripts \texttt{deploy.sh}. Wenn weniger als zwei Pfade pro Präfix gesehen, findet ein \textit{Re-Deployment} statt.
+Listing \ref{grafik:programmablaufplan_bash_deploy_tf} zeigt den Programmlaufplan des Bash-Skripts \texttt{deploy.sh}. Wenn weniger als zwei Pfade pro Präfix gesehen, findet ein \textit{Re-Deployment} statt.
 
 \begin{figure}[h]
   \centering
@@ -366,7 +366,7 @@ NetName:        AMAZON-FRA
 \label{whois-amazon-public-ip}
 \end{listing}
 %TC:endignore
-Außerdem wurden auf dem Cloud-Router die AWS- und Azure-Präfixe via BGP installiert. Pro Präfix sind zwei Pfade vorhanden (s. Beispiel \ref{bgp-paths-vyos}).
+Außerdem wurden auf dem Cloud-Router die AWS- und Azure-Präfixe via BGP installiert. Pro Präfix sind zwei Pfade vorhanden (s. Listing \ref{bgp-paths-vyos}).
 
 Es wurde pro Cloud eine virtuelle Maschine (Ubuntu) installiert, um die Ende-zu-Ende-Konnektivität zu prüfen. Dieser Ping von VM in AWS VPC $\rightarrow$ VM Azure VNET war erfolgreich. Analog waren alle weiteren Ping-Tests zwischen den Cloud-Plattformen erfolgreich:
 %TC:ignore
@@ -441,7 +441,7 @@ Es wurden außerdem von allen Teilnehmern zu allen Teilnehmern Ping-Tests gemach
   \label{grafik:Use-Case-1_Basis_Deployment_missing_link}
 \end{figure}\FloatBarrier
 
-Man kann an Beispiel \ref{tf-base-deployment-ping-ok-missing-link} sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \textit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde ICMP-Echo-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung in Beispiel \ref{tf-base-deployment-ping-ok-missing-link} etwa 44 Sekunden unterbrochen war.\\
+Man kann an Listing \ref{tf-base-deployment-ping-ok-missing-link} sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \textit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde ICMP-Echo-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung in Listing \ref{tf-base-deployment-ping-ok-missing-link} etwa 44 Sekunden unterbrochen war.\\
 Weiterhin hat sich die Round-Trip-Time von ~20 ms auf ~62 ms erhöht. Dies ist eine logische Konsequenz, da Pakete nun längere Wege (\textit{mehr Hops}) zurücklegen müssen. Alle Ping-Tests waren trotz Kappen einer Verbindung erfolgreich. Man muss dabei allerdings Paketverluste während der Konvergenzzeit hinnehmen.
 %TC:ignore
 \begin{listing}[h]

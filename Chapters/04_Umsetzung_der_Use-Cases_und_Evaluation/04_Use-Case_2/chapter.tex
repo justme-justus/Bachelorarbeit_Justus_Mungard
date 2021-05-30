@@ -216,7 +216,7 @@ resource "dns_a_record_set" "vpn-dublin" {
 \label{tf-provider-dns}
 \end{listing}\FloatBarrier
 %TC:endignore
-Nach dem Terraform-Deployment kann man sich per \texttt{rndc dumpdb -zones} alle Views ausgeben lassen (hier gefiltert auf die relevantesten Einträge der Views \glqq dublin\grqq{} und \glqq match-all\grqq{}). Man erkennt in Beispiel \ref{bind-entries-after-tf}, dass in beiden Views für die Domain default-vpn.ba.mungard.de die gleiche IP (\glqq Fallback\grqq{}) zurückgegegeben.\\
+Nach dem Terraform-Deployment kann man sich per \texttt{rndc dumpdb -zones} alle Views ausgeben lassen (hier gefiltert auf die relevantesten Einträge der Views \glqq dublin\grqq{} und \glqq match-all\grqq{}). Man erkennt in Listing \ref{bind-entries-after-tf}, dass in beiden Views für die Domain default-vpn.ba.mungard.de die gleiche IP (\glqq Fallback\grqq{}) zurückgegegeben.\\
 Für Domain vpn.ba.mungard.de ist im View \glqq dublin\grqq{} nur eine Azure-IP sichtbar, während im View \glqq match-all\grqq{} IPs aller VPN-Konzentratoren des Deployments auftreten.
 %TC:ignore
 \begin{listing}[h]
@@ -248,7 +248,7 @@ Zusammenfassend die GeoIP-Konfiguration als Entscheidungsbaum (Abbildung \ref{gr
   \label{grafik:Use-Case_2_Entscheidungsbaum_GeoIP}
 \end{figure}\FloatBarrier
 
-Beispiel \ref{zone-dump-dublin-internal} zeigt einen exemplarischen Zone-Dump für einen internen Client, welcher über Dublin verbunden ist. Die interne Zone ist intern.ba.mungard.de. Alle Cloud-Standorte nutzen den gleichen Name-Server (ns1.intern.ba.mungard.de), welcher in der Private Cloud vorhanden ist.\\
+Listing \ref{zone-dump-dublin-internal} zeigt einen exemplarischen Zone-Dump für einen internen Client, welcher über Dublin verbunden ist. Die interne Zone ist intern.ba.mungard.de. Alle Cloud-Standorte nutzen den gleichen Name-Server (ns1.intern.ba.mungard.de), welcher in der Private Cloud vorhanden ist.\\
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -458,7 +458,7 @@ Insgesamt erwiesen sich die Datensätze als sehr brauchbar und akkurat. Per cron
 
 Es wurde pro Cloud-Standort eine virtuelle Maschine hochgefahren, die einen Roadwarrior-Client simulieren soll. Diese Clients haben \textbf{keinen} Zugriff auf interne Komponenten, sondern sind lediglich mit dem Internet verbunden, über welches VPN-Verbindungen zum jeweiligen VPN-Konzentrator aufgebaut werden können.
 
-Nach dem Deployment von Use-Case 2 wird geprüft, ob sich die Domain vpn.ba.mungard.de auflösen lässt. Dies passiert in Beispiel \ref{dns-resolution-client-vpn} in Azure Dublin.
+Nach dem Deployment von Use-Case 2 wird geprüft, ob sich die Domain vpn.ba.mungard.de auflösen lässt. Dies passiert in Listing \ref{dns-resolution-client-vpn} in Azure Dublin.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -539,7 +539,7 @@ root@openvpn-client:~# dig +short vpn.ba.mungard.de A
 %TC:endignore
 %normal
 \newpage
-Weiterhin wurde getestet, ob sich ein VPN-Client mit dem lokalen VPN-Konzentrator verbindet, in Beispiel \ref{openvpn-connect-log} aus Azure heraus:
+Weiterhin wurde getestet, ob sich ein VPN-Client mit dem lokalen VPN-Konzentrator verbindet, in Listing \ref{openvpn-connect-log} aus Azure heraus:
 Der Filterausdruck mit \texttt{grep} ist für IPv4-Adressen und macht das Verbindungs-Log übersichtlicher.
 %TC:ignore
 %begin{lstlisting}[label=connection-to-vpn-normal,caption=.]
