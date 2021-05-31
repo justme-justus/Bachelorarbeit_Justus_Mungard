@@ -185,7 +185,7 @@ vyos@vyos-cloud:~$ sh ip bgp | grep -A1 -E '10.3[2|3]'
 \end{listing}
 %TC:endignore
 \newpage
-Listing \ref{grafik:programmablaufplan_bash_deploy_tf} zeigt den Programmlaufplan des Bash-Skripts \texttt{deploy.sh}. Wenn weniger als zwei Pfade pro Präfix gesehen, findet ein \textit{Re-Deployment} statt.
+Listing \ref{grafik:programmablaufplan_bash_deploy_tf} zeigt den Programmlaufplan des Bash-Skripts \texttt{deploy.sh}. Wenn weniger als zwei Pfade pro Präfix gesehen, findet ein \textit{Re-\gls{Deployment}} statt.
 
 \begin{figure}[h]
   \centering
@@ -300,8 +300,8 @@ resource "null_resource" "vyos_config_destroy" {
 \end{listing}\FloatBarrier
 %TC:endignore
 \textbf{\underline{Lange Laufzeiten für Erstellung von Azure VPN Gateway}}\label{azure-deployment-time}\\
-Die Erstellung des Azure VPN Gateways kann bis zu 45 Minuten in Anspruch nehmen \cite{azurevpndeployment2021}. In der Praxis waren es meist etwa 25 Minuten für den Standort \glqq North Europe\grqq{}. Auch das Löschen eines VPN Gateways via \texttt{terraform destroy} dauert bis zu 15 Minuten. Nur wenn dieses Gateway gelöscht wurde, kann ein \textit{Re-Deployment} erfolgen, welches vor allem dann notwendig ist, wenn die Vertauschung von IPsec-Parametern (siehe \ref{xml-tunnel-parameters}) eintrifft.\\
-Bei diesem Phänomen handelt es sich nicht um einen Bug im eigentlichen Sinne, macht aber das \gls{Deployment} z.B. für Live-Demonstrationen nicht praktikabel. Da alle weiteren Use-Cases auf diesem Use-Case 1 aufbauen und ebenso in Terraform abgebildet werden sollten, musste eine Lösung gefunden werden, um die \gls{Deployment}-Zeiten zu verkürzen, da jede Änderung des Codes ein (teilweises) Re-Deployment notwendig macht (vgl. später).
+Die Erstellung des Azure VPN Gateways kann bis zu 45 Minuten in Anspruch nehmen \cite{azurevpndeployment2021}. In der Praxis waren es meist etwa 25 Minuten für den Standort \glqq North Europe\grqq{}. Auch das Löschen eines VPN Gateways via \texttt{terraform destroy} dauert bis zu 15 Minuten. Nur wenn dieses Gateway gelöscht wurde, kann ein \textit{Re-\gls{Deployment}} erfolgen, welches vor allem dann notwendig ist, wenn die Vertauschung von IPsec-Parametern (siehe \ref{xml-tunnel-parameters}) eintrifft.\\
+Bei diesem Phänomen handelt es sich nicht um einen Bug im eigentlichen Sinne, macht aber das \gls{Deployment} z.B. für Live-Demonstrationen nicht praktikabel. Da alle weiteren Use-Cases auf diesem Use-Case 1 aufbauen und ebenso in Terraform abgebildet werden sollten, musste eine Lösung gefunden werden, um die \gls{Deployment}-Zeiten zu verkürzen, da jede Änderung des Codes ein (teilweises) Re-\gls{Deployment} notwendig macht (vgl. später).
 
 %Dies wird zum Beispiel gebraucht, wenn an der Konfiguration der Infrastruktur Änderungen vorgenommen werden, da Terraform durch diese State-Datei weiß, dass 
 %TC:ignore

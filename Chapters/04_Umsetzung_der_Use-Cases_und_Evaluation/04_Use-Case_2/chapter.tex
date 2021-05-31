@@ -45,8 +45,8 @@ resource "azurerm_linux_virtual_machine"  "azurerm_linux_virtual_machine" {
 \label{tf-azure-vyos-machine-image}
 \end{listing}\FloatBarrier
 %TC:endignore
-Public/Private-Schlüsselpaar wurde vorab erstellt, von der pfSense-PKI signiert und mit dem Zertifikat auf dem Terraform-Server gespeichert. Während des Terraform-Deployments wird Private Key und Zertifikat per Terraform Provisioner auf das Zielsystem kopiert. Sie werden in der Config dann via \textit{set interfaces openvpn vtun0 tls cert-file / key-file} referenziert.\\
-In der Praxis sollte darauf verzichtet werden, das Schlüsselmaterial \glqq auf einem anderen System vorzulagern\grqq{}: Ein privater Schlüssel sollte nur auf dem Server erzeugt und gespeichert werden, auf dem dieser final genutzt wird. Optimalerweise wäre dies zur Laufzeit der Terraform-Deployments. Zur Vereinfachung des Use-Cases wurde auf diesen Schritt verzichtet. Eine Möglichkeit zur automatisierten Signatur von vertrauenswürdigen Zertifikaten ist das Simple Certificate Enrollment Protocol (SCEP)\cite[S.554]{Schmeh2013}.\\
+Public/Private-Schlüsselpaar wurde vorab erstellt, von der pfSense-PKI signiert und mit dem Zertifikat auf dem Terraform-Server gespeichert. Während des Terraform-\gls{Deployment}s wird Private Key und Zertifikat per Terraform Provisioner auf das Zielsystem kopiert. Sie werden in der Config dann via \textit{set interfaces openvpn vtun0 tls cert-file / key-file} referenziert.\\
+In der Praxis sollte darauf verzichtet werden, das Schlüsselmaterial \glqq auf einem anderen System vorzulagern\grqq{}: Ein privater Schlüssel sollte nur auf dem Server erzeugt und gespeichert werden, auf dem dieser final genutzt wird. Optimalerweise wäre dies zur Laufzeit der Terraform-\gls{Deployment}s. Zur Vereinfachung des Use-Cases wurde auf diesen Schritt verzichtet. Eine Möglichkeit zur automatisierten Signatur von vertrauenswürdigen Zertifikaten ist das Simple Certificate Enrollment Protocol (SCEP)\cite[S.554]{Schmeh2013}.\\
 Für den sich verbindenden Roadwarrior-Client sind diverse Konfigurationen hinterlegt: Domain-Name, (interner) Name-Server und Routen, die über den VPN-Konzentrator erreicht werden können.
 Weiterhin wird ein MSS-Clamping (siehe \ref{mtumss}) vorgenommen, um IP-Fragmentierung von TCP-Applikationen möglichst zu verhindern.\\
 Das Subnetz, in dem die OpenVPN-Clients terminiert werden, wird wieder dynamisch aus dem IPAM alloziert.
@@ -152,7 +152,7 @@ view "dublin" {
 \label{view-dublin-bind}
 \end{listing}\FloatBarrier
 %TC:endignore
-In der Zonen-Datei für Dublin befindet sich vor dem Terraform-Deployment nur ein A-Record \textit{default-vpn}. Dies ist der A-Record, der als Fallback dient. Gemäß Evaluationskriterien muss ein Roadwarrior-Client auf die Private Cloud zurückfallen, wenn bisher kein \gls{Deployment} stattgefunden hat. Die öffentlich auflösbare Zone lautet \textit{ba.mungard.de}.
+In der Zonen-Datei für Dublin befindet sich vor dem Terraform-\gls{Deployment} nur ein A-Record \textit{default-vpn}. Dies ist der A-Record, der als Fallback dient. Gemäß Evaluationskriterien muss ein Roadwarrior-Client auf die Private Cloud zurückfallen, wenn bisher kein \gls{Deployment} stattgefunden hat. Die öffentlich auflösbare Zone lautet \textit{ba.mungard.de}.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -160,7 +160,7 @@ $ grep -A1 "ORIGIN ba.mungard.de" < /etc/bind/ba_zones/db.geo.ba.mungard.de-dubl
 $ORIGIN ba.mungard.de.
 default-vpn             A       195.244.254.197
 \end{minted}
-\caption{Die Zone ba.mungard.de vor dem Terraform-Deployment.}
+\caption{Die Zone ba.mungard.de vor dem Terraform-\gls{Deployment}.}
 \label{zone-dublin-before-deployment}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -216,8 +216,8 @@ resource "dns_a_record_set" "vpn-dublin" {
 \label{tf-provider-dns}
 \end{listing}\FloatBarrier
 %TC:endignore
-Nach dem Terraform-Deployment kann man sich per \texttt{rndc dumpdb -zones} alle Views ausgeben lassen (hier gefiltert auf die relevantesten Einträge der Views \glqq dublin\grqq{} und \glqq match-all\grqq{}). Man erkennt in Listing \ref{bind-entries-after-tf}, dass in beiden Views für die Domain default-vpn.ba.mungard.de die gleiche IP (\glqq Fallback\grqq{}) zurückgegegeben.\\
-Für Domain vpn.ba.mungard.de ist im View \glqq dublin\grqq{} nur eine Azure-IP sichtbar, während im View \glqq match-all\grqq{} IPs aller VPN-Konzentratoren des \gls{Deployments} auftreten.
+Nach dem Terraform-\gls{Deployment} kann man sich per \texttt{rndc dumpdb -zones} alle Views ausgeben lassen (hier gefiltert auf die relevantesten Einträge der Views \glqq dublin\grqq{} und \glqq match-all\grqq{}). Man erkennt in Listing \ref{bind-entries-after-tf}, dass in beiden Views für die Domain default-vpn.ba.mungard.de die gleiche IP (\glqq Fallback\grqq{}) zurückgegegeben.\\
+Für Domain vpn.ba.mungard.de ist im View \glqq dublin\grqq{} nur eine Azure-IP sichtbar, während im View \glqq match-all\grqq{} IPs aller VPN-Konzentratoren des \gls{Deployment}s auftreten.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -290,7 +290,7 @@ resource "null_resource" "www_config" {
 %TC:endignore
 % Binärer Entscheidungsbaum OpenVPN
 
-Die OpenVPN Client-Konfigurationen wurden vor Terraform-Deployment bereits \textit{inline} in einer Textdatei vorbereitet. Auch hier gilt analog zur Server-Konfiguration, dass Schlüsselmaterial optimalerweise erst zur Laufzeit erstellt wird. Zertifikate und privater Schlüssel wurden im folgenden Beispiel gefiltert. Von zentraler Bedeutung sind Zeilen 2 und 3: Durch mehrfache Angabe einer remote-Direktive kann ein Fallback auf \textit{default-vpn.ba.mungard.de} stattfinden, sollte \textit{vpn.ba.mungard.de} nicht auflösbar sein. Die erste remote-Direktive wird dabei \textbf{immer} zuerst kontaktiert, dann folgt der Fallback auf die zweite.\\
+Die OpenVPN Client-Konfigurationen wurden vor Terraform-\gls{Deployment} bereits \textit{inline} in einer Textdatei vorbereitet. Auch hier gilt analog zur Server-Konfiguration, dass Schlüsselmaterial optimalerweise erst zur Laufzeit erstellt wird. Zertifikate und privater Schlüssel wurden im folgenden Beispiel gefiltert. Von zentraler Bedeutung sind Zeilen 2 und 3: Durch mehrfache Angabe einer remote-Direktive kann ein Fallback auf \textit{default-vpn.ba.mungard.de} stattfinden, sollte \textit{vpn.ba.mungard.de} nicht auflösbar sein. Die erste remote-Direktive wird dabei \textbf{immer} zuerst kontaktiert, dann folgt der Fallback auf die zweite.\\
 Dies gilt für den Fall, falls das \gls{Deployment} noch nicht stattgefunden hat und der Client nicht in der Nähe von Kiel ist, um per GeoIP-ACL Zugriff auf die Auflösung von \textit{vpn.ba.mungard.de} erhält. Per \textit{pullfilter ignore redirect-gateway} wird verhindert, dass ein Default Gateway über den Tunnel signalisiert wird: Alle weiteren, bekannten Routen kommen über die OpenVPN-Server-Konfiguration (siehe \ref{vpn-c2s-server-config}).
 %TC:ignore
 \begin{listing}[h]
@@ -329,7 +329,7 @@ Dieser simple Entscheidungsbaum soll den wichtigen Aspekt des \glqq DNS-Fallback
 %Statische Routen innerhalb VPC nicht more specific -> Transit Gateway
 %Import von Remote State, um Azure VPN Gateway zu verkürzen... Eigentlich ziemlich coole Idee von mir... :)
 %mmdb.py damit man nicht "blind" ist...
-\textbf{\underline{Beschleunigung des \gls{Deployments}}}\\
+\textbf{\underline{Beschleunigung des \gls{Deployment}s}}\\
 Das Azure VPN Gateway benötigt viel Zeit für die Erstellung (siehe \ref{azure-deployment-time}). Da Use-Case 2 direkt auf diesem Use-Case aufsetzt, hätte das ebenso eine lange \gls{Deployment}-Zeit nach sich gezogen. So war ursprünglich war die Idee, den Programmcode aus Use-Case 1 zu kopieren und um die Infrastruktur-Komponenten aus Use-Case 2 zu ergänzen. Somit hätte sich die \gls{Deployment} Zeit $t_{gesamt}$ aus den jeweiligen \gls{Deployment}-Zeiten der Infrastrukturen aus Use-Case 1 und Use-Case 2 zusammengesetzt:\\
 $t_{gesamt} = t_{Infrastruktur_{U1}} + t_{Infrastruktur_{U2}}$
 
@@ -351,10 +351,10 @@ data "terraform_remote_state" "base_deployment" {
 \end{listing}\FloatBarrier
 %TC:endignore
 Der Remote-State-Import dauert einen kurzen Moment, wird aber in der folgenden Betrachtung vernachlässigt.
-Unter der Annahme, dass Use-Case 1 bereits bereitgestellt wurde, ist die Laufzeit des \gls{Deployments} effektiv:\\
+Unter der Annahme, dass Use-Case 1 bereits bereitgestellt wurde, ist die Laufzeit des \gls{Deployment}s effektiv:\\
 $t_{gesamt} = t_{Infrastruktur_{U2}}$
 
-Im Allgemeinen hat sich dieser \glqq Teile-und-herrsche\grqq{}-Ansatz im Zusammenspiel mit Terraform als sehr hilfreich erwiesen, um Konsistenz-Probleme der asynchronen Cloud-APIs während der \gls{Deployment}-Phase zu verringern\cite[S.183-184]{Brikman2019}. Probleme während des \gls{Deployments} entstanden v.a. dann, wenn \glqq zu viele\grqq{} Abhängigkeiten der Infrastruktur-Komponenten im Spiel waren. Für die Verschaltung von \textit{gesplitteten} Terraform-Deployments eignet sich das Werkzeug Terragrunt\cite[S.98]{Brikman2019}.
+Im Allgemeinen hat sich dieser \glqq Teile-und-herrsche\grqq{}-Ansatz im Zusammenspiel mit Terraform als sehr hilfreich erwiesen, um Konsistenz-Probleme der asynchronen Cloud-APIs während der \gls{Deployment}-Phase zu verringern\cite[S.183-184]{Brikman2019}. Probleme während des \gls{Deployment}s entstanden v.a. dann, wenn \glqq zu viele\grqq{} Abhängigkeiten der Infrastruktur-Komponenten im Spiel waren. Für die Verschaltung von \textit{gesplitteten} Terraform-\gls{Deployment}s eignet sich das Werkzeug Terragrunt\cite[S.98]{Brikman2019}.
 
 %https://web.archive.org/web/20210123233358/https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ug.pdf Seite 230
 %Warum brauchen wir more specifics?
