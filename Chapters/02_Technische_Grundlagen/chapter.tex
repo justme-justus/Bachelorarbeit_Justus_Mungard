@@ -275,7 +275,7 @@ Die Public Cloud-Provider, welche in dieser Arbeit genutzt werden, sind Amazon W
 
 \subsection{Multi und Hybrid Cloud}
 Eine Multi Cloud vernetzt \textbf{gleiche} Cloud Deployments miteinander, z.B. Public Cloud 	$\leftrightarrow$ Public Cloud oder Private Cloud $\leftrightarrow$ Private Cloud.\\
-Bei einer Hybrid Cloud werden unterschiedliche Bausteine zusammengefasst. In dieser Arbeit soll eine Hybrid Cloud aus AWS, Azure (Public) und Private Cloud deployet werden.
+Bei einer Hybrid Cloud werden unterschiedliche Bausteine zusammengefasst. In dieser Arbeit soll eine Hybrid Cloud aus AWS, Azure (Public) und Private Cloud bereitgestellt werden.
 
 \section{Public Cloud-Netzwerke}\label{public-cloud-networking}
 In diesem Kapitel wird näher auf die verschiedenen Netzwerk-\textit{Building Blocks} der Public Cloud-Plattformen AWS und Azure eingegangen. Beide bringen oftmals ähnliche Bausteine mit. Es wird daher stets versucht, im jeweiligen Kontext auf beide Plattformen zugleich einzugehen, um die Grundfunktionalität zu erläutern.
@@ -312,12 +312,12 @@ Es gibt keine klare Linie zwischen den beiden Typen von Werkzeugen. So können v
 Passende Schnittstellen, z.B. in Form einer REST-API, sind Voraussetzung, um Automatisierungswerkzeuge mit entsprechenden Komponenten nutzen zu können.
 
 \subsection{Terraform}
-Das Werkzeug, das hauptsächlich für Automatisierungs-Schritte in dieser Arbeit verwendet wird, ist \textit{Terraform} der Firma Hashicorp. Es ist ein Provisioner mit begrenzten Möglichkeiten für Configuration Management. Es besitzt eine Vielzahl an \textit{Resources}, welche es ermöglichen, Infrastruktur-Komponenten  reproduzierbar  zu  deployen. Es wird eine deklarativer Sprachstil genutzt, um gewünschte Zustände der Infrastruktur zu beschreiben. Man spricht auch von \textit{Infrastructure as Code} (IaC).
+Das Werkzeug, das hauptsächlich für Automatisierungs-Schritte in dieser Arbeit verwendet wird, ist \textit{Terraform} der Firma Hashicorp. Es ist ein Provisioner mit begrenzten Möglichkeiten für Configuration Management. Es besitzt eine Vielzahl an \textit{Resources}, welche es ermöglichen, Infrastruktur-Komponenten reproduzierbar bereitzustellen. Es wird eine deklarativer Sprachstil genutzt, um gewünschte Zustände der Infrastruktur zu beschreiben. Man spricht auch von \textit{Infrastructure as Code} (IaC).
 
 \textbf{\underline{Provider}}\\
 Provider sind die Grundvoraussetzung, um die Automatisierung einer Plattform mit Terraform bewerkstelligen zu können. Sie ermöglichen es, mit entsprechenden Schnittstellen der Anbieter, z.B. REST, zu interagieren. Provider liefern meist diverse \textit{Resources} mit, welche Veränderungen tätigen können und \textit{Data Sources}, welche \glqq lesend\grqq{} auf die Infrastruktur zugreifen, um Informationen zurückzuliefern. Diese Informationen können dann anderen \textit{Modulen} zur Verfügung gestellt werden.\cite{Brikman2019}\\
 %Serifen-Schrift für Dateinamen...
-Terraform arbeitet stateful: Nach jedem \texttt{terraform apply}, welches zur Erstellung der gewünschten Infrastruktur führt, werden Referenzen aller Infrastrukturkomponenten in der Datei \underline{terraform.tfstate} gespeichert: Ein erneuter Aufruf von \texttt{terraform apply} würde, insofern keine Konfigurationsänderungen gemacht wurden, die Infrastruktur so belassen und sie nicht nochmal deployen bzw. erweitern. Per \texttt{terraform destroy} kann die Infrastruktur wieder zurückgebaut werden.\\
+Terraform arbeitet stateful: Nach jedem \texttt{terraform apply}, welches zur Erstellung der gewünschten Infrastruktur führt, werden Referenzen aller Infrastrukturkomponenten in der Datei \underline{terraform.tfstate} gespeichert: Ein erneuter Aufruf von \texttt{terraform apply} würde, insofern keine Konfigurationsänderungen gemacht wurden, die Infrastruktur so belassen und sie nicht nochmals bereitstellen bzw. erweitern. Per \texttt{terraform destroy} kann die Infrastruktur wieder zurückgebaut werden.\\
 In Listing \ref{tf-aws-provider-example} wird der Provider \textit{aws} in einer spezifischen Version eingebunden. Der Constraint \glqq $\sim$>\grqq{} sorgt dafür, dass nur Versionen des Providers innerhalb des 3.35.x Branches benutzt werden (\glqq Minor Patches\grqq{}).
 %TC:ignore
 \begin{listing}[h]
