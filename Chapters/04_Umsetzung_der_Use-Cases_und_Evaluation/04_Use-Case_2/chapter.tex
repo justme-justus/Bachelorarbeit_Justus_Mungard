@@ -329,7 +329,7 @@ Dieser simple Entscheidungsbaum soll den wichtigen Aspekt des \glqq DNS-Fallback
 %Statische Routen innerhalb VPC nicht more specific -> Transit Gateway
 %Import von Remote State, um Azure VPN Gateway zu verkürzen... Eigentlich ziemlich coole Idee von mir... :)
 %mmdb.py damit man nicht "blind" ist...
-\textbf{\underline{Beschleunigung des \gls{Deployment}s}}\\
+\textbf{\underline{Beschleunigung des \gls{Deployment}s}}\label{accelerate-deployment-use-case-2}\\
 Das Azure VPN Gateway benötigt viel Zeit für die Erstellung (siehe \ref{azure-deployment-time}). Da Use-Case 2 direkt auf diesem Use-Case aufsetzt, hätte das ebenso eine lange \gls{Deployment}-Zeit nach sich gezogen. So war ursprünglich war die Idee, den Programmcode aus Use-Case 1 zu kopieren und um die Infrastruktur-Komponenten aus Use-Case 2 zu ergänzen. Somit hätte sich die \gls{Deployment} Zeit $t_{gesamt}$ aus den jeweiligen \gls{Deployment}-Zeiten der Infrastrukturen aus Use-Case 1 und Use-Case 2 zusammengesetzt:\\
 $t_{gesamt} = t_{Infrastruktur_{U1}} + t_{Infrastruktur_{U2}}$
 

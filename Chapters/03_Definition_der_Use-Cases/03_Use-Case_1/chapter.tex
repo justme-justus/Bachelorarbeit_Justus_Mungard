@@ -1,5 +1,6 @@
 \chapter{Definition der Use-Cases} \label{Defintion der Use-Cases}
 
+In diesem Kapitel werden die Use-Cases für ein Hybrid Cloud-\gls{Deployment} vorgestellt und näher erläutert. Es handelt sich um in der Praxis übliche Anforderungen aus dem Unternehmensumfeld. Es findet eine Vorauswahl über geeignete technische Komponenten statt, welche anschließend in Kapitel \ref{Umsetzung der Use-Cases und Evaluation} genutzt werden. Weiterhin werden Evaluationskriterien genannt, um messbare Kriterien für eine erfolgreiche Umsetzung zu haben. Grundlegende Kenntnisse v.a. über IPv4(-Routing), VPN und Building Blocks der Public Cloud-Plattformen aus dem vorangegangenen Kapitel \ref{Technische_Grundlagen} werden vorausgesetzt.
 %kleine und mittlere \gls{Deployment}s... statt KMU. Bachelor-Arbeit war moving target
 %Mein Ansatz: bis zu einer technischen Größenordnung ist das okay... Ansonsten Direct Connect oder Express Route
 %Für kleine und mittlere \gls{Deployment}s (nicht KMU) -> keine kaufmännische sondern technologische Betrachtung
@@ -10,7 +11,7 @@
 %ToDo: Genauer beschreiben, was beim Kunden schon zur Verfügung steht (Private Cloud) und dass das abstrahiert (vereinfacht) dargestellt wird
 
 
-\section{Use Case 1: Basis mit Ende-zu-Ende-Konnektivität}\label{base-deployment}
+\section{Use Case 1: Basis Deployment mit Ende-zu-Ende-Konnektivität}\label{base-deployment}
 
 %Use-Case 1: Ende-zu-Ende-Kommunikation, Beispiel Server
 %Historisch gewachsen...
@@ -23,7 +24,7 @@ Optimalerweise wird durch dieses \gls{Deployment} auch die Redundanz erhöht: F�
 
 %Kein NAT -> Ende-zu-Ende-Kommunikation _aller_ Teilnehmer
 
-Der Use-Case soll als Grundaufbau für alle weiteren Use-Cases dienen und eine Ende-zu-Ende-Konnektivität für alle Teilnehmer garantieren. Das Dreieck aus AWS, Azure und Private Cloud wird fortan als \textit{Backbone} bezeichnet.
+Der Use-Case soll als Grundaufbau für alle weiteren Use-Cases dienen und eine Ende-zu-Ende-Konnektivität für alle Teilnehmer garantieren. Das Dreieck aus AWS, Azure und Private Cloud (s. Abb. \ref{grafik:Use-Case-1_Basis_Deployment}) wird fortan als \textit{Backbone} bezeichnet.
 
 \begin{figure}[h]
   \centering
@@ -43,7 +44,7 @@ Das dynamische Routing bietet den Vorteil, dass IPv4-Routen nicht manuell bei al
 Für das automatisierte \gls{Deployment} der Infrastruktur eignet sich Terraform der Firma Hashicorp. Es besitzt eine Vielzahl an \textit{Resources} (u.a. Azure und AWS), welche es ermöglichen, Infrastrukturkomponenten \textit{reproduzierbar} bereitzustellen.\\
 Darüber hinaus wird ein IPAM benötigt zur IPv4-Adressverwaltung. Die automatische Zuteilung von Adressbereichen darf nicht dazu führen, dass Adressbereiche mehrfach verteilt werden oder sich Adressbereiche überlappen. Gewählt wurde hier das Werkzeug phpIPAM\cite{phpipam2020}: Es lässt sich sehr gut mit Terraform integrieren, da ein entsprechender Provider zur Verfügung steht\cite{phpipamtf2020}.\\
 Die VPN-Gateways, die das Backbone aufspannen, sind mit \textit{Virtual private gateway} bei AWS und \textit{VPN Gateway} bei Azure gesetzt. Dies sind die typischen \textit{Building-Blocks}, die von den Cloud-Providern für VPN-Verbindungen angeboten werden. Nur wenn sich im Laufe der Arbeit herausstellen sollte, dass diese Systeme nicht interoperabel sein sollten, wird versucht, Alternativen zu finden.\\
-Als Router, der die Private Cloud repräsentiert, wurde ein VyOS Router gewählt. Dieser steht als Open Source zur Verfügung, es gibt allerdings auch bezahlten Support für Produktionsumgebungen. Der Router hat IPsec- und BGP-Unterstützung und besitzt ein Command Line Interface, über das Konfigurationen getätigt werden können. Eine REST-API steht ebenso zur Verfügung, aber diese ist zum Stand der Bachelor-Arbeit \textit{cutting edge} und eher dürftig dokumentiert\cite{vyosapi2021}. Ein nativer Terraform Provider steht nicht zur Verfügung.
+Als Router, der die Private Cloud repräsentiert, wurde ein VyOS Router gewählt. Dieser steht als Open Source zur Verfügung, es gibt allerdings auch bezahlten Support für Produktionsumgebungen. Der Router hat IPsec- und BGP-Unterstützung und besitzt ein Command Line Interface, über das Konfigurationen getätigt werden können. Eine REST-API steht ebenso zur Verfügung, aber diese ist zum Stand der Bachelor-Arbeit \textit{cutting edge} und wenig dokumentiert\cite{vyosapi2021}. Ein nativer Terraform Provider steht nicht zur Verfügung.
 Es soll pro Public Cloud eine virtuelle Maschine bereitgestellt werden, um die Ende-zu-Ende-Konnektivität zwischen den Standorten zu verifizieren.
 Die Annahme ist, dass der VyOS-Router, das IPAM und eine virtuelle Maschine zum Testen in der Private Cloud bereits vorhanden sind. Diese Komponenten sind nicht Teil des (Terraform-)Deployments. Allerdings müssen Konfigurationsänderungen zum \gls{Deployment} geschehen.\\
 Prinzipiell lassen sich viele Router-Modelle nutzen, insofern die Unterstützung für genannte Techniken (Route-based IPsec, BGP) vorhanden ist, bspw. CSR 1000V der Firma Cisco\cite{Durai2016}. Der offene VyOS Router bietet den Vorteil, dass keine Lizenzen für die Nutzung hinterlegt werden müssen, was in vielen Fällen manuelle Konfigurationen erfordert. Außerdem hätten erst einmal passende Lizenzen beschafft werden müssen, was u.U. zu Verzögerungen des Projekts geführt hätte.

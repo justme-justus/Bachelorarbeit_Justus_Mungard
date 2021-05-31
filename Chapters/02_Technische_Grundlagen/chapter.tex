@@ -1,8 +1,8 @@
 \chapter{Technische Grundlagen} \label{Technische_Grundlagen}
-
+In diesem Kapitel werden technische Grundlagen erläutert, welche für ein weiteres Verständnis der Kapitel \ref{Defintion der Use-Cases} und \ref{Umsetzung der Use-Cases und Evaluation} zwingend erforderlich sind.
 \section{Internet Protocol Version 4 (IPv4)} \label{ipv4}
 \subsection{Allgemeines und Adressierungsschema}
-Das Internet Protocol Version 4 ist im OSI-Modell auf Schicht 3 (Network-Layer) angesiedelt\cite{itu1994}. Es dient der \textit{Paketierung} von Daten und anschließenden Ende-zu-Ende-Vermittlung dieser \textit{Pakete} zwischen Netzwerk-Systemen. Dafür notwendig ist eine Adressierung: eine IPv4-Adresse besteht aus einer 32 Bit-Zahl, welche typischerweise dezimal dargestellt wird in so genannter \glqq dotted decimal\grqq{}-Schreibweise. Dafür wird die Binärzahl in vier Oktette mit einem Punkt aufgeteilt und die jeweiligen Oktette in dezimal umgerechnet.
+Das Internet Protocol Version 4 ist im \gls{OSI-Schichtenmodell} auf Schicht 3 (Network-Layer) angesiedelt\cite{itu1994}. Es dient der \textit{Paketierung} von Daten und anschließenden Ende-zu-Ende-Vermittlung dieser \textit{Pakete} zwischen Netzwerk-Systemen. Dafür notwendig ist eine Adressierung: eine IPv4-Adresse besteht aus einer 32 Bit-Zahl, welche typischerweise dezimal dargestellt wird in so genannter \glqq dotted decimal\grqq{}-Schreibweise. Dafür wird die Binärzahl in vier Oktette mit einem Punkt aufgeteilt und die jeweiligen Oktette in dezimal umgerechnet.
 
 {\centering 32 Bit Integer:\\
 \textbf{00000001 0000001 000000011 00000100}\\
@@ -19,9 +19,9 @@ Mit Hilfe von (Sub-)Netzmasken wird die Netzwerkgröße bestimmt. Ein Host mit d
 
 Die ersten 24 Bit sind für das Netzwerk reserviert (Network bits), die letzte 8 Bit sind Host bits. Dieses Netzwerk kann somit theoretisch aus $2^8 = 256$ Hosts bestehen, wobei die erste und letzte Adresse reserviert sind (Netzwerk- und Broadcast-Adresse).
 
-Heutzutage üblich ist die so genannte Classless Inter-Domain Routing-Notation (CIDR), welche IP-Addresse und Netzmaske vereint. Wenn man die genannten Beispiele aus Adresse und Subnetzmaske zusammenführt, erhält man die IP-Adresse in CIDR-Notation: 1.2.3.4/24. /24 entspricht dabei den gesetzten Network bits.
+Heutzutage üblich ist die so genannte Classless Inter-Domain Routing-Notation (\gls{CIDR}), welche IP-Addresse und Netzmaske vereint. Wenn man die genannten Beispiele aus Adresse und Subnetzmaske zusammenführt, erhält man die IP-Adresse in CIDR-Notation: 1.2.3.4/24. /24 entspricht dabei den gesetzten Network bits.
 
-Mit Hilfe der IP-Adresse und Netzmaske lässt sich ermitteln, ob sich ein anderer Host im gleichen \textit{Subnetz} befindet. Dafür berechnet das Betriebssystem die eigene Netzwerkadresse per Bitwise-AND aus eigener IP und Netzmaske:
+Mit Hilfe der IP-Adresse und Netzmaske lässt sich ermitteln, ob sich ein anderer Host im gleichen \textit{Subnetz} befindet. Dafür berechnet das Betriebssystem die eigene Netzwerkadresse per Bitwise-AND aus eigener IP und Netzmaske. In Listing \ref{own-ip-address-AND-subnet} wird die Netzwerkadresse für die IP-Adresse 1.2.3.4 mit der Netzmaske 255.255.255.0 ermittelt.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
@@ -30,13 +30,12 @@ AND 11111111.11111111.11111111.00000000
   = 00000001.00000010.00000011.00000000
   => Netzwerkadresse: 1.2.3.0/24
 \end{minted}
+\caption{Ermittlung der Netzwerkadresse für 1.2.3.4}
 \label{own-ip-address-AND-subnet}
-\caption{Ermittlung der Netzwerkadresse durch 1.2.3.4 AND 255.255.255.0}
-\end{listing}
+\end{listing}\FloatBarrier
 %TC:endignore
-Hat man nun zwei Hosts 1.2.3.240 und 8.9.10.23, mit denen eine IP-Verbindung aufgebaut werden soll, so prüft der Initiator zuerst, ob das jeweilige Netz \textit{link-lokal} erreichbar ist, also im gleichen Subnetz liegt. Es verhält sich gleich zum vorherigen Beispiel, nur dass an dieser Stelle die IP der Gegenstelle genutzt wird.
-
-Für 1.2.3.240:
+Hat man nun zwei Hosts 1.2.3.240 und 8.9.10.23, mit denen eine IP-Verbindung aufgebaut werden soll, so prüft der Initiator zuerst, ob das jeweilige Netz \textit{link-lokal} erreichbar ist, also im gleichen Subnetz liegt. Es verhält sich gleich zum vorherigen Beispiel, nur dass an dieser Stelle die IP der Gegenstelle genutzt wird.\\
+Dies passiert analog für die IP-Adresse 1.2.3.240 (s. Listing \ref{local-ip-address-AND-subnet}). Dabei ist die resultierende Netzwerkadresse die gleiche, daher kann das Paket link-lokal zum Ziel gesendet werden.
 
 %gleiche Adresse wie in Listing... 
 %TC:ignore
@@ -47,13 +46,12 @@ AND 11111111.11111111.11111111.00000000
   = 00000001.00000010.00000011.00000000
   => Netzwerkadresse: 1.2.3.0/24
 \end{minted}
+\caption{Ermittlung der Netzwerkadresse für 1.2.3.240}
 \label{local-ip-address-AND-subnet}
-\caption{Ermittlung der Netzwerkadresse durch 1.2.3.240 AND 255.255.255.0}
 \end{listing}\FloatBarrier
 %TC:endignore
-In diesem Beispiel ist die Netzwerkadresse die gleiche, daher kann das Paket link-lokal zum Ziel gesendet werden.
 
-Für 8.9.10.23\label{ip_ausserhalb}:
+Für die IP-Adresse 8.9.10.23\label{ip_ausserhalb} hingegen liegt die Netzwerkadresse außerhalb der eigenen (s. Listing \ref{remote-ip-address-AND-subnet}), daher muss das Paket \textit{geroutet} werden:
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
@@ -62,11 +60,10 @@ AND 11111111.11111111.11111111.00000000
   = 00001000.00001001.00001010.00010111
   => Netzwerkadresse: 8.9.10.0/24
 \end{minted}
+\caption{Ermittlung der Netzwerkadresse für 8.9.10.23}
 \label{remote-ip-address-AND-subnet}
-\caption{Ermittlung der Netzwerkadresse durch 8.9.10.23 AND 255.255.255.0}
 \end{listing}\FloatBarrier
 %TC:endignore
-Da in diesem Fall die Netzwerkadresse außerhalb der eigenen liegt, müssen Pakete \textit{geroutet} werden.
 
 \subsection{RFC 1918-Adressen}
 Ein Großteil der IP-Adressen werden \textit{blockweise} an Provider, Firmen und Forschungseinrichtungen herausgegeben und können fortan im Internet genutzt werden. Mit RFC 1918 wurden Blöcke durch die Internet Assigned Numbers Authority (IANA) reserviert, welche ausschließlich für private und firmeninterne Nutzung vorgesehen sind\cite{rfc1918}. Sie werden im Internet nicht geroutet. Es handelt sich dabei um die Blöcke:
@@ -81,7 +78,7 @@ Auf diese Blöcke wird auch in der Bachelorarbeit zurückgegriffen, um Zugriff a
 \subsection{IPv4-Routing}
 
 Wie in \ref{ip_ausserhalb} für die IP 8.9.10.23 gefolgert, müssen Pakete, die Ziele in anderen Subnetzen haben, geroutet werden. Dafür besitzen alle Netzwerkteilnehmer eine Routing-Tabelle, um herauszufinden, an welchen \textit{Next-Hop} ein Paket adressiert werden muss.\\
-Im folgenden Beispiel besteht das Netzwerk aus vier Teilnehmern: einem Client, einem Server und zwei Routern (R1 und R2). Alle Geräte verwalten eine Routing-Tabelle, in denen die Zielnetze und Next-Hops hinterlegt sind.
+In Abb. \ref{grafik: next_hop_routing} besteht das Netzwerk aus vier Teilnehmern: einem Client, einem Server und zwei Routern (R1 und R2). Alle Geräte verwalten eine Routing-Tabelle, in denen die Zielnetze und Next-Hops hinterlegt sind.
 Damit weiß der Client, dass Pakete für das Netzwerk 192.168.200.0/24 über R1 mit der IP-Adresse 192.168.0.1 geschickt werden müssen. R1 nimmt das Paket an, schaut wiederum in der eigenen Routing-Tabelle nach und schickt das Paket dann weiter an R2, usw. (Rück-)Pakete vom Server zum Client durchlaufen die gleiche Prozedur pro Hop.\\
 %TC:ignore
 \begin{figure}[h]
@@ -131,7 +128,7 @@ Die Next-Hop IP für Präfixe anderer AS zeigt bei R2-AS10 somit auf die IP von 
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.75]{Figures/ebgp_peerings_additional_connection.pdf}
-  \caption{Gleicher Grundaufbau mit zusätzlicher Verbindung}
+  \caption{Gleicher Grundaufbau wie in Listing \ref{grafik: ebgp_peerings} mit zusätzlicher Verbindung}
   \label{grafik: ebgp_peerings_additional_connection}
 \end{figure}\FloatBarrier
 
@@ -163,12 +160,12 @@ Langfristig soll IPv6 mit einem Adressraum aus $2^{128}$ Bit IPv4 ablösen, doch
 Der häufigste NAT-Mechanismus ist Network Address Port Translation (NAPT). Dabei können $n$ Clients hinter einer einzigen IPv4-Adresse \glqq verborgen\grqq{} und so IP-Adressen eingespart werden. Dafür werden neben der IP-Adresse bspw. noch Information der Transport-Schicht (Layer 4) wie Ports herangezogen, um NAPT-Sessions zuordnen zu können. Ein Router verwaltet diese Sessions in Form einer NAPT-Tabelle. Diese wird notwendig, wenn Rückpakete die verborgenen Clients erreichen sollen.\\
 In dieser Ausarbeitung ist, wenn von NAT oder NATting gesprochen wird und keine anderweitigen Aussagen getroffen werden, der NAPT-Mechanismus gemeint.\\
 Im Beispiel von Abbildung \ref{grafik: napt} werden drei Clients hinter einem Router geNATtet. Alle eingehenden Pakete werden auf die Quell-IP 10.1.0.1 umgeschrieben und es wird ein neuer Quell-Port vergeben. Wenn nun eine Verbindung von einem Client initiiert wird, sieht der Webserver lediglich die Quell-IP und den Quell-Port des Routers, welche durch das NAT vergeben wurden.\\
-Rückpakete vom Webserver zu einem Client werden folgerichtig an den Router adressiert, welcher wiederum in der NAT-Tabelle nachschaut und die Pakete an den Client weiterleitet. Dafür müssen die Pakete auf das ursprüngliche Tupel aus Quell-IP und Quell-Port zurückgeschrieben werden.\\
+Rückpakete vom Webserver zu einem Client werden folgerichtig an den Router adressiert, welcher wiederum in der NAT-Tabelle nachschlägt, um den ursprünglichen Client (interne Absender-IP 10.0.0.x und Quell-Port) herauszufinden. Bevor Pakete also nach intern weitergeschickt werden können, werden sie auf das ursprüngliche Tupel aus Quell-IP und Quell-Port umgeschrieben.\\
 
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.90]{Figures/napt.pdf}
-  \caption{Beispiel Network Address Translation}
+  \caption{Beispiel für Network Address Translation}
   \label{grafik: napt}
 \end{figure}\FloatBarrier
 
@@ -193,19 +190,21 @@ Das DNS ermöglicht, Server im Internet anhand eines Namens, dem Fully Qualified
   \label{grafik: dns-hierarchy}
 \end{figure}\FloatBarrier
 
-Soll z.B. der FQDN www.intern.ba.mungard.de. aufgelöst werden, muss der \textit{Baum} von der Wurzel \glqq .\grqq{} über die Knoten \glqq de\grqq{}, \glqq mungard\grqq{}, ... bis zum Blatt \glqq www\grqq{} durchlaufen werden. Man spricht von einer iterativen Auflösung. Pro Hierarchie-Ebene sind \textit{autoritative Nameserver} verantwortlich für die richtige Delegation des auflösenden Clients.\\
-Das Blatt \glqq www\grqq{} wird auch als Resource Record bezeichnet. Für diese Arbeit sind lediglich A-Records relevant, welche FQDN nach IPv4-Adresse auflösen. Viele weitere DNS-Records existieren, z.B. für IPv6-Adressen (AAAA) oder um Mailserver (MX) für eine Domain anzugeben \cite[S.528]{Fall2011}. Ein Beispiel für einen autoritativen Nameserver ist Bind \cite{liu2006dns}. Innerhalb des Nameservers werden Domains anhand von \textit{Zonen(-Dateien)} verwaltet.
-
+Soll z.B. der FQDN www.intern.ba.mungard.de. aufgelöst werden (s. Abb. \ref{grafik: dns-hierarchy}), muss der \textit{Baum} von der Wurzel \glqq .\grqq{} über die Knoten \glqq de\grqq{}, \glqq mungard\grqq{}, ... bis zum Blatt \glqq www\grqq{} durchlaufen werden. Man spricht von einer iterativen Auflösung. Pro Hierarchie-Ebene sind \textit{autoritative Nameserver} verantwortlich für die richtige Delegation des auflösenden Clients.\\
+Das Blatt \glqq www\grqq{} wird auch als Resource Record bezeichnet. Für diese Arbeit sind lediglich A-Records relevant, welche FQDN nach IPv4-Adresse auflösen. Viele weitere DNS-Records existieren, z.B. für IPv6-Adressen (AAAA) oder um Mailserver (MX) für eine Domain anzugeben \cite[S.528]{Fall2011}.\\
+Ein Beispiel für einen autoritativen Nameserver ist Bind \cite{liu2006dns}. Innerhalb des Nameservers werden Domains anhand von \textit{Zonen(-Dateien)} verwaltet.
+\newpage
 \subsection{DNS-Resolver}
-Endgeräte machen diese iterative Namensauflösung typischerweise nicht selbst, sondern leiten ihre Anfragen an einen DNS-Resolver weiter (\textit{Forwarding}). Dieser ist in Abbildung \ref{grafik: dns-resolver} dafür verantwortlich, zu einem FQDN eine IPv4-Adresse zu finden (iterativ) und dem Endgerät zurückzuliefern. Wenn ein Nameserver für eine gesuchte Domain nicht autoritativ, ist wird der DNS \textit{Client} (hier der Resolver) per NS Record weiterdelegiert.
-
+Clients machen diese iterative Namensauflösung typischerweise nicht selbst, sondern leiten ihre Anfragen an einen DNS-Resolver weiter (\textit{Forwarding}). Dieser sucht \textit{iterativ} zu einem FQDN eine IPv4-Adresse und liefert sie dem Client aus (s. Abb. \ref{grafik: dns-resolver}). Wenn ein Nameserver für eine gesuchte Domain nicht autoritativ ist, wird der Resolver per NS Record weiterdelegiert.\\
+Weiterhin kann ein Resolver Einträge \textit{cachen}, um auf erneute Anfragen für gleiche FQDN schneller zu antworten.%Der letzte Punkt eines FQDN, welcher die Root-Domain repräsentiert, wird üblicherweise ausgelassen.
 \begin{figure}[h]
   \centering
-  \includegraphics{Figures/dns_recursion.pdf}
+  \includegraphics[scale=0.7]{Figures/dns_recursion.pdf}
   \caption{DNS-Resolver}
   \label{grafik: dns-resolver}
 \end{figure}\FloatBarrier
 %TC:ignore
+In Listing \ref{dig-example-fh-kiel} wird ein A-Record für die Domain www01.fh-kiel.de gegen den Resolver von Google (8.8.8.8) mit dem Werkzeug \texttt{dig} aufgelöst.
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
 $ dig www01.fh-kiel.de @8.8.8.8 | grep -v '^$'
@@ -225,13 +224,10 @@ www01.fh-kiel.de.       21599   IN      A       149.222.20.63
 ;; WHEN: Tue May 18 22:21:45 CEST 2021
 ;; MSG SIZE  rcvd: 61
 \end{minted}
+\caption{DNS-Auflösung für einen A-Record gegen den Resolver von Google}
 \label{dig-example-fh-kiel}
-\caption{Eine DNS-Auflösung für einen A-Record (www01.fh-kiel.de) gegen den Resolver von Google (8.8.8.8)}
 \end{listing}\FloatBarrier
 %TC:endignore
-
-
-Weiterhin kann ein Resolver Einträge \textit{cachen}, um auf erneute Anfragen für gleiche FQDN schneller zu antworten.%Der letzte Punkt eines FQDN, welcher die Root-Domain repräsentiert, wird üblicherweise ausgelassen.
 
 \subsection{Split DNS}
 Split DNS ist die Möglichkeit, verschiedene Resource Records anhand der Absender-IP auszuliefern. Dafür pflegen autoritative Nameserver Access Control Lists (ACL) mit verschiedenen IP-Präfixen, um eine Fallunterscheidung treffen zu können\cite[S.565-567]{Fall2011}. Dies ist z.B. relevant, wenn eine Firma zwischen internen und externen Anfragen unterscheiden muss, um den (richtigen) Zugriff auf Ressourcen zu gewährleisten.
@@ -245,7 +241,7 @@ Split DNS ist die Möglichkeit, verschiedene Resource Records anhand der Absende
 
 \subsection{DNS UPDATE}
 Die Methode DNS UPDATE ist in RFC 2136 definiert und erlaubt es, autoritative Zonen eines Nameserver zur Laufzeit zu verändern\cite{rfc2136}. Somit müssen keine Zonen-Dateien manuell angepasst werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten Zonen-Dateien neu einzulesen.\\
-Clients werden über eine ACL ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP zur Authentifizierung genutzt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen} lassen. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (\textit{Pre-Shared Key}) eine DNS UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (TSIG) \cite[S.911-914]{Fall2011}.
+Clients werden über eine ACL ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP zur Authentifizierung genutzt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen}, d.h. fälschen, lassen\cite[S.70-71]{Fall2011}. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (\textit{Pre-Shared Key}) eine DNS UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (TSIG) \cite[S.911-914]{Fall2011}.
 
 \section{Virtual Private Network (VPN)}\label{vpn}
 VPNs werden genutzt, um private Netzwerke über eine öffentlich genutzte Infrastruktur abbilden zu können. Dies erfolgt zwischen VPN-Endpunkten über gängige Enkapsulierungen, z.B. Generic Routing Encapsulation (GRE), Encapsulating Security Payload (ESP) oder OpenVPN.\\
@@ -269,17 +265,17 @@ Der Cloud-Begriff kann je nach Literatur variieren. Diese Arbeit verweist an die
 
 \subsection{Public und Private Cloud}
 Auch für die so genannten \textit{Cloud \gls{Deployment}}-Modelle wird auf die Definition des NIST verwiesen.\cite{mell2011}\\
-Allerdings soll an dieser Stelle ein häufiges Missverständnis hingewiesen werden: Eine Private Cloud existiert nicht zwingend \textit{on-premises} einer Organisation, also bspw. im eigenen Rechenzentrum. Sie kann ebenso über Public Cloud-Plattformen abgebildet werden. Allerdings ist die Voraussetzung, dass alle genutzten Ressourcen dann exklusiv für die Organisation zur Verfügung stehen (\textit{exclusive use by a single organization}). Sie werden nicht mit weiteren Parteien geteilt (\textit{open use by the general public}).\\
+Allerdings soll an dieser Stelle auf ein häufiges Missverständnis hingewiesen werden: Eine Private Cloud existiert nicht zwingend \textit{on-premises} einer Organisation, also bspw. im eigenen Rechenzentrum. Sie kann ebenso über Public Cloud-Plattformen abgebildet werden. Allerdings ist die Voraussetzung, dass alle genutzten Ressourcen dann exklusiv für die Organisation zur Verfügung stehen (\textit{exclusive use by a single organization}). Sie werden nicht mit weiteren Parteien geteilt (\textit{open use by the general public}).\\
 %Abgrenzung Private Cloud ...irgendwo... einarbeiten. Es wird angenommen, dass die Private Cloud schon besteht. Router interessiert, bißchen Infrastrukut (Webserver), Rest interessiert nicht...
 Die Public Cloud-Provider, welche in dieser Arbeit genutzt werden, sind Amazon Web Services (AWS) und Microsoft Azure. Rechenzentren stehen weltweit zur Verfügung, um eine schnelle und latenzarme Anbindung für die Kunden zu ermöglichen. Eine Private Cloud lässt sich bspw. mit OpenStack abbilden\cite{sefraoui2012openstack}.
 
 \subsection{Multi und Hybrid Cloud}
 Eine Multi Cloud vernetzt \textbf{gleiche} Cloud \gls{Deployment}s miteinander, z.B. Public Cloud 	$\leftrightarrow$ Public Cloud oder Private Cloud $\leftrightarrow$ Private Cloud.\\
-Bei einer Hybrid Cloud werden unterschiedliche Bausteine zusammengefasst. In dieser Arbeit soll eine Hybrid Cloud aus AWS, Azure (Public) und Private Cloud bereitgestellt werden.
+Bei einer Hybrid Cloud werden unterschiedliche Bausteine zusammengefasst. In dieser Arbeit soll eine Hybrid Cloud aus AWS, Azure (Public) und Private Cloud bereitgestellt (\glqq {Deployment}\grqq{}) werden.
 
 \section{Public Cloud-Netzwerke}\label{public-cloud-networking}
 In diesem Kapitel wird näher auf die verschiedenen Netzwerk-\textit{Building Blocks} der Public Cloud-Plattformen AWS und Azure eingegangen. Beide bringen oftmals ähnliche Bausteine mit. Es wird daher stets versucht, im jeweiligen Kontext auf beide Plattformen zugleich einzugehen, um die Grundfunktionalität zu erläutern.
-Dieses Kapitel vermittelt lediglich Grundlagen, die für das Verständnis der Use-Cases notwendig sind. Besonderheiten und Constraints, die sich im Verlauf der Bearbeitung ergeben haben, werden im jeweiligen Use-Case unter \glqq Probleme und Lösungsfindung\grqq{} zusammengefasst.
+Dieses Kapitel vermittelt lediglich Grundlagen, die für das Verständnis der Use-Cases in Kapitel \ref{Defintion der Use-Cases} und Kapitel \ref{Umsetzung der Use-Cases und Evaluation} notwendig sind. Besonderheiten und Constraints, die sich im Verlauf der Bearbeitung ergeben haben, werden im jeweiligen Use-Case unter \glqq Probleme und Lösungsfindung\grqq{} zusammengefasst.
 
 \subsection{AWS VPC / Azure VNET}
 AWS Virtual Private Cloud (VPC) und Azure Virtual Network (VNET) bilden private Netzwerke innerhalb eines Cloud-Mandanten ab. Die hier hinterlegten Präfixe bilden eine Menge an möglichen IP-Adressen innerhalb von VPC und VNET ab. Es können sowohl Public IP-Präfixe als auch IPs nach RFC 1918 benutzt werden. Diese Menge an IP-Adressen wird in AWS \textit{CIDR} bzw. Azure \textit{Address Space} als Container zusammengefasst.\\
@@ -308,13 +304,13 @@ AWS und Azure ermöglichen innerhalb der Tunnel die Nutzung von BGP, um dynamisc
 Diverse Automatisierungswerkzeuge ermöglichen es, gewünschte Endzustände von Systemen zu definieren. Mit heutigen Werkzeugen wie z.B. \textit{Ansible} muss ein Administrator wenig Programmiererfahrungen mitbringen und schreibt die gewünschten Parameter in eine Konfigurationsdatei, die zu einem gewünschten Zeitpunkt auf Systemen ausgerollt werden. Viele Probleme wurden bereits von anderen Community-Mitgliedern gelöst. Für komplexere Sachverhalte existieren Plugins.\\
 Man muss bei Automatisierungswerkzeugen zwischen \textit{Configuration Management} (CM) und \textit{Provisioning} unterscheiden. Provisioner dienen der grundsätzlichen Erstellung einer Infrastruktur, während CM-Werkzeuge diese Infrastruktur als vorhanden annehmen und weitere Konfigurationen auf den jeweiligen Komponenten tätigen\cite[S.20]{Brikman2019}.\\
 Eine Analogie wäre: Provisioner setzen das Haus an eine Straße und das CM macht daraufhin die Innenaustattung. Auf die IT angewendet bedeutet dies, dass Provisioner dafür sorgen, dass Ubuntu-Maschinen aufgesetzt werden und zu erreichen sind. Das CM macht daraufhin Paket-Updates und installiert z.B. einen Apache-Webserver.\\
-Es gibt keine klare Linie zwischen den beiden Typen von Werkzeugen. So können viele CM-Werkzeuge auch eine Provisionierung von Infrastruktur abbilden, während Provisioner auch grundlegendes Configuration Management leisten können\cite[S.20]{Brikman2019}. Das bereits angesprochene Ansible ist eher als CM-Tool zu sehen.\\
+Es gibt keine eindeutige Linie zwischen den beiden Typen von Werkzeugen. So können viele CM-Werkzeuge auch ein Provisioning von Infrastruktur abbilden, während Provisioner auch grundlegendes Configuration Management leisten können\cite[S.20]{Brikman2019}. Das bereits angesprochene Ansible ist ein CM-Tool mit eingeschränkter Provisioning-Funktionalität.\\
 Passende Schnittstellen, z.B. in Form einer REST-API, sind Voraussetzung, um Automatisierungswerkzeuge mit entsprechenden Komponenten nutzen zu können.
 
 \subsection{Terraform}
 Das Werkzeug, das hauptsächlich für Automatisierungs-Schritte in dieser Arbeit verwendet wird, ist \textit{Terraform} der Firma Hashicorp. Es ist ein Provisioner mit begrenzten Möglichkeiten für Configuration Management. Es besitzt eine Vielzahl an \textit{Resources}, welche es ermöglichen, Infrastruktur-Komponenten reproduzierbar bereitzustellen. Es wird eine deklarativer Sprachstil genutzt, um gewünschte Zustände der Infrastruktur zu beschreiben. Man spricht auch von \textit{Infrastructure as Code} (IaC).
 
-\textbf{\underline{Provider}}\\
+\textbf{\underline{Provider}}\label{tf-provider}\\
 Provider sind die Grundvoraussetzung, um die Automatisierung einer Plattform mit Terraform bewerkstelligen zu können. Sie ermöglichen es, mit entsprechenden Schnittstellen der Anbieter, z.B. REST, zu interagieren. Provider liefern meist diverse \textit{Resources} mit, welche Veränderungen tätigen können und \textit{Data Sources}, welche \glqq lesend\grqq{} auf die Infrastruktur zugreifen, um Informationen zurückzuliefern. Diese Informationen können dann anderen \textit{Modulen} zur Verfügung gestellt werden.\cite{Brikman2019}\\
 %Serifen-Schrift für Dateinamen...
 Terraform arbeitet stateful: Nach jedem \texttt{terraform apply}, welches zur Erstellung der gewünschten Infrastruktur führt, werden Referenzen aller Infrastrukturkomponenten in der Datei \underline{terraform.tfstate} gespeichert: Ein erneuter Aufruf von \texttt{terraform apply} würde, insofern keine Konfigurationsänderungen gemacht wurden, die Infrastruktur so belassen und sie nicht nochmals bereitstellen bzw. erweitern. Per \texttt{terraform destroy} kann die Infrastruktur wieder zurückgebaut werden.\\
@@ -335,8 +331,9 @@ terraform {
 \label{tf-aws-provider-example}
 \end{listing}
 %TC:endignore
+
 \textbf{\underline{Resources}}\\
-Resources erstellen Infrastuktur-Komponenten und statten diese mit den richtigen Parametern aus. In \ref{deployment_aws_tf} wird ein VPC mit dem CIDR-Block 10.0.0.0/16 und ein darunterliegendes Subnet 10.0.1.0/24 erstellt.
+Resources erstellen Infrastuktur-Komponenten und statten diese mit den richtigen Parametern aus. In Listing \ref{deployment_aws_tf} wird ein VPC mit dem CIDR-Block 10.0.0.0/16 und ein darunterliegendes Subnet 10.0.1.0/24 erstellt.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -381,7 +378,7 @@ output "ubuntu_ami_id" {
 \end{minted}
 \caption{Die Data Source \glqq ubuntu\grqq{} sucht nach dem passenden Ubuntu Image und Output macht die ID global für andere Module verfügbar}
 \label{data-source-find-output-id}
-\end{listing}
+\end{listing}\FloatBarrier
 %TC:endignore
 \subsection{IP Address Management (IPAM)}
 Ein IPAM ist wichtig, insofern die Adressverwaltung automatisiert werden soll. Statisch konfigurierte CIDR-Blöcke im Code sorgen für eine schlechte Wiederverwendbarkeit und Skalierbarkeit von Modulen: IP-Blöcke müssten dann jedes Mal händisch reserviert und in den gewünschten Modulen untergebracht werden.\\
