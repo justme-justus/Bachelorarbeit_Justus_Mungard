@@ -1,6 +1,6 @@
 \chapter{Umsetzung der Use-Cases und Evaluation} \label{Umsetzung der Use-Cases und Evaluation}
 
-\section{Use-Case 1: Basis Deployment mit Ende-zu-Ende-Konnektivität} \label{Use-Case 1: Basis Deployment}
+\section{Use-Case 1: Basis Deployment mit Ende-zu-Ende-Konnektivität} \label{Use-Case 1: Basis \gls{Deployment}}
 %IPAM-Vorbereitungen, TF Matching erläutern
 %Was ist ein Subnet im Cloud-Kontext? Einleitung?
 %TF: Resource, Data, Modul, Provider
@@ -169,7 +169,7 @@ AWS VPN-Konzentratoren bieten aus Redundanzgründen standardmäßig zwei IPs pro
 Wie man sieht, taucht das XML-Element ipsec\_tunnel zwei Mal auf, ist dabei jedoch \textbf{unnummeriert}.
 Der Terraform-Provider aws\_vpn\_connection nutzt diese XML-Antwort, um daraus die Rückgabewerte tunnel1\_* und tunnel2\_* zu erzeugen\cite{awsattributestf2021}, die in der weiteren Ausführung von anderen Modulen wiederverwendet werden. Bei einigen Ausführungen wurden diese Elemente Terraform-intern vertauscht: Da nun weder IPsec-Schlüssel noch interne BGP-Peering-Gegenstellen stimmen, kommen weder IPsec-Tunnel noch die BGP-Peering-Sessions hoch. Dieser Bug ist in Github für den AWS Provider seit 2017 dokumentiert\cite{githubbugtf2021}.
 
-Mit einem Bash-Skript konnte zumindest ein Workaround gefunden werden, um ein erfolgreiches Deployment sicherzustellen. Die Grundannahme ist, dass pro Präfix zwei Pfade auf dem Private Cloud-Router existieren. Wenn nur ein Pfad pro Präfix zur Verfügung steht, kam es mit einer hohen Wahrscheinlichkeit zu einer Vertauschung und muss ein erneutes Deployment erfolgen (\texttt{terraform destroy \&\& terraform apply}). Es wird dreimal versucht, eine funktionierende Infrastruktur bereitzustellen, um die APIs der Cloud-Anbieter zu \textit{schonen} und kein Rate-Limiting zu triggern \cite{awsthrottling2021}.
+Mit einem Bash-Skript konnte zumindest ein Workaround gefunden werden, um ein erfolgreiches \gls{Deployment} sicherzustellen. Die Grundannahme ist, dass pro Präfix zwei Pfade auf dem Private Cloud-Router existieren. Wenn nur ein Pfad pro Präfix zur Verfügung steht, kam es mit einer hohen Wahrscheinlichkeit zu einer Vertauschung und muss ein erneutes \gls{Deployment} erfolgen (\texttt{terraform destroy \&\& terraform apply}). Es wird dreimal versucht, eine funktionierende Infrastruktur bereitzustellen, um die APIs der Cloud-Anbieter zu \textit{schonen} und kein Rate-Limiting zu triggern \cite{awsthrottling2021}.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -190,11 +190,11 @@ Listing \ref{grafik:programmablaufplan_bash_deploy_tf} zeigt den Programmlaufpla
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.6]{Figures/programmablaufplan_bash_deploy_tf.pdf}
-  \caption{Programmablaufplan für das Terraform Deployment Skript}
+  \caption{Programmablaufplan für das Terraform \gls{Deployment} Skript}
   \label{grafik:programmablaufplan_bash_deploy_tf}
 \end{figure}\FloatBarrier
 
-Durch das Bash-Skript wurde dieser Bug nicht zum \textit{Showstopper}, allerdings führten Redeployments zu relativ langen Deployment-Zeiten (siehe auch \ref{azure-deployment-time}).
+Durch das Bash-Skript wurde dieser Bug nicht zum \textit{Showstopper}, allerdings führten Redeployments zu relativ langen \gls{Deployment}-Zeiten (siehe auch \ref{azure-deployment-time}).
 
 Anmerkung: Dieser Bug wurde angeblich noch kurz vor Abgabe dieser Arbeit behoben. Das konnte allerdings nicht mehr verifiziert werden. Es ist im Commit ersichtlich, dass es sich um einen Bug in der internen Sortierfunktion handelt.\cite{awsfixtf2021}
 
@@ -268,7 +268,7 @@ resource "null_resource" "vyos_config" {
 }
 
 \end{minted}
-\caption{Terraform kopiert per \texttt{ssh} ein Skript auf den VyOS-Router, welches den Zustand vor Deployment \glqq einfriert\grqq{}.}
+\caption{Terraform kopiert per \texttt{ssh} ein Skript auf den VyOS-Router, welches den Zustand vor \gls{Deployment} \glqq einfriert\grqq{}.}
 \label{save-last-commit-vyos}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -279,7 +279,7 @@ Nach \textit{terraform apply} liegt auf dem VyOS-Router eine Datei, die den letz
 vyos@vyos-cloud# cat ~tf/last_manual_commit.txt
 2021-05-05 09:47:51 by tf via cli
 \end{minted}
-\caption{Timestamp des letzten (manuellen) commits vor Deployment per Terraform.}
+\caption{Timestamp des letzten (manuellen) commits vor \gls{Deployment} per Terraform.}
 \label{save-last-commit-file}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -301,12 +301,12 @@ resource "null_resource" "vyos_config_destroy" {
 %TC:endignore
 \textbf{\underline{Lange Laufzeiten für Erstellung von Azure VPN Gateway}}\label{azure-deployment-time}\\
 Die Erstellung des Azure VPN Gateways kann bis zu 45 Minuten in Anspruch nehmen \cite{azurevpndeployment2021}. In der Praxis waren es meist etwa 25 Minuten für den Standort \glqq North Europe\grqq{}. Auch das Löschen eines VPN Gateways via \texttt{terraform destroy} dauert bis zu 15 Minuten. Nur wenn dieses Gateway gelöscht wurde, kann ein \textit{Re-Deployment} erfolgen, welches vor allem dann notwendig ist, wenn die Vertauschung von IPsec-Parametern (siehe \ref{xml-tunnel-parameters}) eintrifft.\\
-Bei diesem Phänomen handelt es sich nicht um einen Bug im eigentlichen Sinne, macht aber das Deployment z.B. für Live-Demonstrationen nicht praktikabel. Da alle weiteren Use-Cases auf diesem Use-Case 1 aufbauen und ebenso in Terraform abgebildet werden sollten, musste eine Lösung gefunden werden, um die Deployment-Zeiten zu verkürzen, da jede Änderung des Codes ein (teilweises) Re-Deployment notwendig macht (vgl. später).
+Bei diesem Phänomen handelt es sich nicht um einen Bug im eigentlichen Sinne, macht aber das \gls{Deployment} z.B. für Live-Demonstrationen nicht praktikabel. Da alle weiteren Use-Cases auf diesem Use-Case 1 aufbauen und ebenso in Terraform abgebildet werden sollten, musste eine Lösung gefunden werden, um die \gls{Deployment}-Zeiten zu verkürzen, da jede Änderung des Codes ein (teilweises) Re-Deployment notwendig macht (vgl. später).
 
 %Dies wird zum Beispiel gebraucht, wenn an der Konfiguration der Infrastruktur Änderungen vorgenommen werden, da Terraform durch diese State-Datei weiß, dass 
 %TC:ignore
 \subsection{Evaluation}
-Nach dem erfolgreichen Deployment wird folgender Status von Terraform zurückgemeldet:
+Nach dem erfolgreichen \gls{Deployment} wird folgender Status von Terraform zurückgemeldet:
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
 Apply complete! Resources: 29 added, 0 changed, 0 destroyed.
@@ -316,7 +316,7 @@ Outputs:
 aws_subnet_id = "subnet-0192ae38a3a16f584"
 [... weitere Output-Variablen ...]
 \end{minted}
-\caption{Terraform Status nach Deployment Use-Case 1}
+\caption{Terraform Status nach \gls{Deployment} Use-Case 1}
 \label{tf-base-deployment-ok}
 \end{listing}
 %TC:endignore
