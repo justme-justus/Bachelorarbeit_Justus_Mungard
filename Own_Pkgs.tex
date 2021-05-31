@@ -1,5 +1,12 @@
 %SVG
 %\usepackage{svg}
 %\usepackage{amsmath}
+\usepackage{chngcntr}
 \usepackage{placeins}
 \usepackage{enumitem}
+\usepackage[utf8]{inputenc}
+\usepackage[toc,acronym]{glossaries}
+%https://tex.stackexchange.com/questions/116534/lstlisting-line-wrapping/116572
+%https://tex.stackexchange.com/questions/269491/mixing-minted-with-lstlisting
+\usepackage[chapter]{minted}
+\AtEndEnvironment{listing}{\vspace{-14pt}}

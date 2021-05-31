@@ -142,10 +142,7 @@
 
 \lstset{style=mystyle}
 
-%Try minted
-%https://tex.stackexchange.com/questions/116534/lstlisting-line-wrapping/116572
 \usepackage{lmodern} % for bold teletype font
-\usepackage{minted}
 
 %====================================================
 
@@ -267,6 +264,9 @@
 %römische Aufzählungen mit \RM{Zahl}
 \newcommand{\RM}[1]{\MakeUppercase{\romannumeral #1}}
 
+%Glossareintraege
+\makeglossaries
+\loadglsentries{Chapters/06_Glossar/entries}
 
 % ============= Dokumentbeginn =============
 
@@ -292,6 +292,7 @@
 \include{TemplateElements/a_Erklaerung}
 \newpage
 
+\input{Chapters/00_Abstract/chapter}
 %Inhaltsverzeichnis
 \pagestyle{plain}
 \tableofcontents
@@ -315,6 +316,8 @@
 \bibliography{biblatex}
 
 \listoffigures
+\addcontentsline{toc}{chapter}{Listingverzeichnis}
+\listoflistings
 
 \end{document}
 

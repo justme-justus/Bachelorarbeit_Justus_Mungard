@@ -49,7 +49,7 @@ AND 11111111.11111111.11111111.00000000
 \end{minted}
 \label{local-ip-address-AND-subnet}
 \caption{Ermittlung der Netzwerkadresse durch 1.2.3.240 AND 255.255.255.0}
-\end{listing}
+\end{listing}\FloatBarrier
 %TC:endignore
 In diesem Beispiel ist die Netzwerkadresse die gleiche, daher kann das Paket link-lokal zum Ziel gesendet werden.
 
@@ -64,17 +64,17 @@ AND 11111111.11111111.11111111.00000000
 \end{minted}
 \label{remote-ip-address-AND-subnet}
 \caption{Ermittlung der Netzwerkadresse durch 8.9.10.23 AND 255.255.255.0}
-\end{listing}
+\end{listing}\FloatBarrier
 %TC:endignore
 Da in diesem Fall die Netzwerkadresse außerhalb der eigenen liegt, müssen Pakete \textit{geroutet} werden.
 
 \subsection{RFC 1918-Adressen}
-Ein Großteil der IP-Adressen werden \textit{blockweise} an Provider, Firmen und Forschungseinrichtungen herausgegeben und können fortan im Internet genutzt werden. Mit RFC 1918  wurden Blöcke durch die Internet Assigned Numbers Authority (IANA) reserviert, welche ausschließlich für private und firmeninterne Nutzung vorgesehen sind. Sie werden im Internet nicht geroutet. Es handelt sich dabei um die Blöcke:
+Ein Großteil der IP-Adressen werden \textit{blockweise} an Provider, Firmen und Forschungseinrichtungen herausgegeben und können fortan im Internet genutzt werden. Mit RFC 1918 wurden Blöcke durch die Internet Assigned Numbers Authority (IANA) reserviert, welche ausschließlich für private und firmeninterne Nutzung vorgesehen sind\cite{rfc1918}. Sie werden im Internet nicht geroutet. Es handelt sich dabei um die Blöcke:
 \begin{itemize}
 \item 10.0.0.0/8
 \item 172.16.0.0/12
 \item 192.168.0.0/16
-\end{itemize} \cite{rfc1918}.
+\end{itemize}
 
 Auf diese Blöcke wird auch in der Bachelorarbeit zurückgegriffen, um Zugriff auf \textit{interne}, vom Internet \textit{isolierte} Ressourcen zu ermöglichen.
 
