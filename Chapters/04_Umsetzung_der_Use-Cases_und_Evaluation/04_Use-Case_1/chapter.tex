@@ -205,7 +205,7 @@ Durch das Bash-Skript konnte die Schwere des Bugs abgemildert werden, um ein fun
 
 Anmerkung: Dieser Bug wurde angeblich noch kurz vor Abgabe dieser Arbeit behoben. Das konnte allerdings nicht mehr verifiziert werden. Es ist im Commit ersichtlich, dass es sich um einen Bug in der internen Sortierfunktion handelt.\cite{awsfixtf2021}
 
-\subsection{Zustandslose VyOS-Konfiguration}\\
+\subsection{Zustandslose VyOS-Konfiguration}
 %Terraform Einleitung
 Terraform speichert alle Referenzen auf Infrastrukturkomponenten in der Datei terraform.tfstate (s. Kapitel \ref{tf-provider}). Da es für VyOS keinen vollwertigen Terraform-Provider gibt, wurde mit Templates, die verschiedene \texttt{set}-Kommandos ausführen, gearbeitet.\\
 Diese Konfigurationsänderungen sind dadurch völlig zustandlos, da sie nicht invertierbar sind: Terraform kennt nicht die Umkehrung der \texttt{set}-Kommandos, welche benötigt würden, um bei \texttt{terraform destroy} die Konfigurationen am VyOS-Router rückgängig zu machen.
@@ -306,7 +306,7 @@ resource "null_resource" "vyos_config_destroy" {
 \label{apply-last-commit-vyos}
 \end{listing}\FloatBarrier
 %TC:endignore
-\subsection{Lange Laufzeiten für Erstellung von Azure VPN Gateway}\label{azure-deployment-time}\\
+\subsection{Lange Laufzeiten für Erstellung von Azure VPN Gateway}\label{azure-deployment-time}
 Die Erstellung des Azure VPN Gateways kann bis zu 45 Minuten in Anspruch nehmen\cite{azurevpndeployment2021}. In der Praxis waren es meist etwa 25 Minuten für den Standort \glqq North Europe\grqq{}. Auch das Löschen eines VPN Gateways via \texttt{terraform destroy} dauert bis zu 15 Minuten. Nur wenn dieses Gateway gelöscht wurde, kann ein \textit{Re-\gls{Deployment}} erfolgen, welches vor allem dann notwendig ist, wenn die Vertauschung von IPsec-Parametern (s. Kapitel \ref{xml-tunnel-parameters}) eintrifft.\\
 Bei diesem Phänomen handelt es sich nicht um einen Bug im eigentlichen Sinne, macht aber das \gls{Deployment} z.B. für Live-Demonstrationen nicht praktikabel. Da alle weiteren Use-Cases auf diesem Use-Case 1 aufbauen und ebenso in Terraform abgebildet werden sollten, musste eine Lösung gefunden werden, um die \gls{Deployment}-Zeiten zu verkürzen, da jede Änderung des Codes ein (teilweises) Re-\gls{Deployment} notwendig macht (vgl. Kapitel \ref{accelerate-deployment-use-case-2}).
 

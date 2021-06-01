@@ -317,7 +317,7 @@ persist-tun
 %Import von Remote State, um Azure VPN Gateway zu verkürzen... Eigentlich ziemlich coole Idee von mir... :)
 %mmdb.py damit man nicht "blind" ist...
 Analog zu den Kapiteln \ref{xml-tunnel-parameters} bis \ref{azure-deployment-time} werden im Folgenden Probleme und Lösungsfindung erläutert.
-\subsection{Beschleunigung des \gls{Deployment}s}\label{accelerate-deployment-use-case-2}\\
+\subsection{Beschleunigung des \gls{Deployment}s}\label{accelerate-deployment-use-case-2}
 Das Azure VPN Gateway benötigt viel Zeit für die Erstellung (s. Kapitel \ref{azure-deployment-time}). Da Use-Case 2 direkt auf diesem Use-Case aufsetzt, hätte das ebenso eine lange \gls{Deployment}-Zeit nach sich gezogen. So war ursprünglich die Idee, den Programmcode aus Use-Case 1 zu kopieren und um die Infrastruktur-Komponenten aus Use-Case 2 zu ergänzen. Somit hätte sich die \gls{Deployment} Zeit $t_{gesamt}$ aus den jeweiligen \gls{Deployment}-Zeiten der Infrastrukturen aus Use-Case 1 und Use-Case 2 zusammengesetzt:\\
 $t_{gesamt} = t_{Infrastruktur_{U1}} + t_{Infrastruktur_{U2}}$
 
@@ -349,7 +349,7 @@ Im Allgemeinen hat sich dieser \glqq Teile-und-herrsche\grqq{}-Ansatz im Zusamme
 %Warum brauchen wir more specifics?
 %CIDR / Subnet / Route Tables in Azure und AWS in technische Grundlagen
 \newpage
-\subsection{More-specific Routing in AWS Route Tables}\\
+\subsection{More-specific Routing in AWS Route Tables}
 Die Roadwarrior Clients müssen in einem eigenen Subnetz \glqq hinter\grqq{} dem VPN-Konzentrator terminiert werden. Dafür werden Routing-Einträge notwendig, damit AWS VPC bzw. Azure VNET die Information besitzen, über welchen \textit{Next-Hop} das Roadwarrior-VPN-Subnetz erreicht werden kann. Durch \textit{Route Tables} stellt dies auch keine Hürde dar in Azure. AWS hingegen bietet keine Möglichkeit, Subnetze mit einer längeren Netzmaske in der Route Table zu hinterlegen, falls sie ein Subnetz des VPC CIDR darstellen würden. Man spricht auch von \glqq more specifics\grqq{}.\\
 Im Beispiel von Abb. \ref{grafik:more_specific_not_allowed_aws} sei das VPC CIDR 192.168.0.0/16 (Target: local). Es soll eine Route auf ein Netzwerk 192.168.100.0/24 über die AWS Instance \glqq i-06230ccaa[...]\grqq{} (Next-Hop) gesetzt werden, was eine more specific Route zum VPC CIDR darstellt.
 Es wird im AWS Dashboard beim Versuch, eine more-specific Route anzulegen, eine Fehlermeldung ausgegeben.
@@ -373,7 +373,7 @@ Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway d
 \end{figure}\FloatBarrier
 VPC CIDR und VPC Subnet werden in diesem Beispiel synonym verwendet, was formell nicht korrekt ist: Route Tables werden in Subnets genutzt, nicht im CIDR. Dies dient jedoch zur Vereinfachung des Schaubildes. Das Transit Gateway lernt die VPC CIDR automatisch, insofern \textit{Route Propagation} eingeschaltet ist.
 \newpage
-\subsection{Untersuchung von GeoIP-Daten}\\
+\subsection{Untersuchung von GeoIP-Daten}
 Die GeoIP-Datenbank ist ein Binärformat\cite{maxmind2021binary}. Dies konnte durch das Werkzeug \texttt{file} nochmals bestätigt werden (\glqq data\grqq{})\cite{filemanpage2021}.
 %TC:ignore
 \begin{listing}[h]
