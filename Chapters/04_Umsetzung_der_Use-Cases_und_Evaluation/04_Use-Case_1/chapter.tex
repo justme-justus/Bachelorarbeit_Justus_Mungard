@@ -125,7 +125,7 @@ resource "null_resource" "vyos_config" {
 \end{listing}\FloatBarrier
 %TC:endignore
 \newpage
-Folgend werden zentrale Probleme erläutert, die bei der technischen Umsetzung von Use-Case 1 auftraten. Die erarbeiteten Lösungen sollen tiefreichend dargestellt werden.
+Folgend werden zentrale Probleme geschildert, die bei der technischen Umsetzung von Use-Case 1 auftraten. Die erarbeiteten Lösungen werden ausführlich erläutert.
 %\subsection{Probleme und Lösungsfindung}
 %Probleme: Race Condition externe IP, Redeploy wegen TF Bug, statische Route zu BGP Neighbor (Azure - AWS: Pseudo directly, Azure - VyOS: Static, Azure - AWS), stateless VyOS Config, lange Laufzeiten Erstellung VPN Gateway Azure
 
@@ -391,12 +391,12 @@ rtt min/avg/max/mdev = 25.729/25.729/25.729/0.000 ms
 \label{tf-base-deployment-ping-ok}
 \end{listing}\FloatBarrier
 %TC:endignore
-Es wurden vereinzelte Messungen in verschiedene Richtungen mit dem Werkzeug \texttt{iperf3} gemacht, die grundsätzlich \glqq ordentliche\grqq{} Bandbreiten versprechen, so bspw.:
+Es wurden vereinzelte Messungen in verschiedene Richtungen mit dem Werkzeug \texttt{iperf3} gemacht, welches Bandbreitenmessungen ermöglicht. Es zeigt grundsätzlich \glqq ordentliche\grqq{} Bandbreiten (s. Listing \ref{iperf3-vpc-vnet}).
 
 %Messung Sender vyos-aws -> vyos-azure
 %TC:ignore
 \begin{listing}[h]
-\begin{minted}[breaklines,frame=single]{bash}
+\begin{minted}[linenos,breaklines,frame=single]{bash}
 root@vyos-aws-ovpn-gw:~# iperf3 -c 10.32.0.5
 Connecting to host 10.32.0.5, port 5201
 [  4] local 10.33.2.93 port 44298 connected to 10.32.0.5 port 5201
@@ -420,7 +420,8 @@ Connecting to host 10.32.0.5, port 5201
 \label{iperf3-vpc-vnet}
 \end{listing}\FloatBarrier
 %TC:endignore
-Man sieht allerdings an der vorletzten Zeile (\glqq Retr 62\grqq{}), dass TCP Retransmissions stattgefunden haben. Es ist wahrscheinlich, dass ein \textit{Flaschenhals} existiert, Paketverluste konnten mit diversen Ping-Messungen (s.o.) nicht festgestellt werden. Wie in der Abgrenzung geschrieben, werden Bandbreiten, insofern sich nicht ein deutlicher negativer \textit{Impact} bemerkbar macht, in dieser Arbeit nicht tiefergehend untersucht (s. Ausblick \ref{ausblick}). Es wurde an dieser Stelle mit einem Floodping lediglich untersucht, ob sich ein deutlicher Paketverlust bemerkbar macht.
+Man sieht allerdings an Zeile 18, dass TCP Retransmissions (\glqq Retr 62\grqq{}) stattgefunden haben. Es ist wahrscheinlich, dass ein \textit{Flaschenhals} existiert, Paketverluste konnten mit diversen Ping-Messungen (s. Listing \ref{tf-base-deployment-ping-ok}) nicht festgestellt werden.\\
+Es werden Bandbreiten, insofern sich nicht ein deutlicher negative Auswirkungen wahrgenommen werden, in dieser Arbeit nicht tiefergehend untersucht (s. Kapitel \ref{abgrenzung}). Ein Ausblick zu Bandbreitenoptimierung wird im Ausblick gegeben (s. Kapitel \ref{ausblick}). Es wurde an dieser Stelle mit einem Floodping lediglich untersucht, ob sich ein deutlicher Paketverlust bemerkbar macht (s. Listing \ref{floodping}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -431,7 +432,7 @@ PING 10.33.2.93 (10.33.2.93) 1200(1228) bytes of data.
 1000 packets transmitted, 1000 received, 0% packet loss, time 13370ms
 rtt min/avg/max/mdev = 25.968/28.533/173.755/10.763 ms, pipe 11, ipg/ewma 13.384/27.159 ms
 \end{minted}
-\caption{Floodping (\texttt{-f}) mit 1200 Byte großen Paketen und 1000 Wiederholungen}
+\caption{Floodping Azure $\rightarrow$ AWS}
 \label{floodping}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -439,16 +440,16 @@ rtt min/avg/max/mdev = 25.968/28.533/173.755/10.763 ms, pipe 11, ipg/ewma 13.384
 %BFD für schneller Konvergenzzeiten? -> Ausblick...
 %RTT und Ping in Einleitung / ICMP
 
-Es wurden außerdem von allen Teilnehmern zu allen Teilnehmern Ping-Tests gemacht und währenddessen eine Verbindung getrennt. Da ein Präfix über zwei Pfade zu sehen ist, ist die Erwartung, dass ein Backup-Pfad genutzt wird.\\
+Um die Redundanz zu des Backbones zu testen, wurden von allen Teilnehmern zu allen Teilnehmern Ping-Tests gemacht und währenddessen eine Verbindung getrennt. Da ein Präfix über zwei Pfade zu sehen ist, ist die Erwartung, dass ein Backup-Pfad genutzt wird (s. Listing \ref{grafik:Use-Case-1_Basis_Deployment_missing_link}).\\
 
 \begin{figure}[h]
   \centering
   \includegraphics{Figures/Use-Case-1_Basis_Deployment_missing_link.pdf}
-  \caption{Backbone mit einer fehlenden Verbindung zwischen Private Cloud und AWS.}
+  \caption{Backbone mit einer fehlenden Verbindung zwischen Private Cloud und AWS}
   \label{grafik:Use-Case-1_Basis_Deployment_missing_link}
 \end{figure}\FloatBarrier
 
-Man kann an Listing \ref{tf-base-deployment-ping-ok-missing-link} sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \textit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde ICMP-Echo-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung in Listing \ref{tf-base-deployment-ping-ok-missing-link} etwa 44 Sekunden unterbrochen war.\\
+Man kann in Listing \ref{tf-base-deployment-ping-ok-missing-link} sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \textit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde ICMP-Echo-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung in Listing \ref{tf-base-deployment-ping-ok-missing-link} etwa 44 Sekunden unterbrochen war.\\
 Weiterhin hat sich die Round-Trip-Time von ~20 ms auf ~62 ms erhöht. Dies ist eine logische Konsequenz, da Pakete nun längere Wege (\textit{mehr Hops}) zurücklegen müssen. Alle Ping-Tests waren trotz Kappen einer Verbindung erfolgreich. Man muss dabei allerdings Paketverluste während der Konvergenzzeit hinnehmen.
 %TC:ignore
 \begin{listing}[h]
@@ -468,8 +469,8 @@ PING 10.33.0.121 (10.33.0.121) 56(84) bytes of data.
 64 bytes from 10.33.0.121: icmp_seq=65 ttl=61 time=62.4 ms
 [...]
 \end{minted}
-\caption{Ping-Tests zwischen verschiedenen Cloud-Plattformen mit Kappen einer Backbone-Verbindung.}
+\caption{Ping-Tests zwischen den Cloud-Plattformen mit Kappen einer Backbone-Verbindung}
 \label{tf-base-deployment-ping-ok-missing-link}
 \end{listing}\FloatBarrier
 %TC:endignore
-Alle Evaluationskriterien (siehe \ref{eval-kriterien-uc1}) wurden somit erfüllt und der Use-Case konnte erfolgreich umgesetzt werden.
+Alle Evaluationskriterien (siehe Kapitel \ref{eval-kriterien-uc1}) wurden somit erfüllt und der Use-Case konnte erfolgreich umgesetzt werden.

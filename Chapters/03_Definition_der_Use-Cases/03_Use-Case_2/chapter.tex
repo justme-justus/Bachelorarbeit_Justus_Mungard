@@ -65,11 +65,33 @@ Auf Prüfung der Gültigkeit von Zertifikaten mittels Certificate Revocation Lis
 Als PKI wird eine pfSense-Instanz genutzt. Dieses Firewall-Betriebssystem bietet eine simple PKI, welche via Web-GUI administrierbar ist und so das Ausstellen und die Verwaltung der Client- und Server-Zertifikate erleichtert.\cite[S.376-383]{Netgate2020}
 
 %Evaluationskriterien nummerieren
-Der technische Fokus wird in diesem Use-Case auf DNS liegen. Es soll in dem Szenario zwei essenzielle Aufgaben lösen, die durch die Evaluationskriterien vorgegeben werden:
-\begin{itemize}
-\item Mit Hilfe von GeoIP-Daten soll ermöglicht werden, immer den nächstgelegenen VPN-Konzentrator zu finden. Wenn kein Server in der Nähe ist, soll ein beliebiger Server kontaktiert werden (random)\cite{bindrrset2020}. Wenn das Terraform \gls{Deployment} noch nicht stattgefunden hat, also keine Public Cloud-Standorte zur Verfügung stehen, soll sich der Client immer mit dem VPN-Konzentrator der Private Cloud verbinden.
+Der technische Fokus wird in diesem Use-Case auf DNS liegen. Es soll in dem Szenario zwei essenzielle Aufgaben lösen, die durch die Evaluationskriterien vorgegeben werden:\label{evalkriterien-uc2}
+\begin{enumerate}
+\item Mit Hilfe von GeoIP-Daten soll ermöglicht werden, immer den nächstgelegenen VPN-Konzentrator zu finden.\label{geoip-nearest-vpn}
+\begin{enumerate}[label=(\alph*)]
+    \item Wenn ein Server in der Nähe ist, soll dieser kontaktiert werden.\label{server-nearest}
+    \item Wenn kein Server in der Nähe ist, soll ein beliebiger Server kontaktiert werden (random)\cite{bindrrset2020}.\label{no-server}
+    \item Wenn das Terraform \gls{Deployment} noch nicht stattgefunden hat, also keine Public Cloud-Standorte zur Verfügung stehen, soll sich der Client immer mit dem VPN-Konzentrator der Private Cloud verbinden.\label{server-not-deployed}
+\end{enumerate}
 \item Sobald der Roadwarrior mit einem VPN-Konzentrator verbunden ist, soll immer der (beispielhafte) Server, der am jeweiligen Standort bereitgestellt wurde, kontaktiert werden.
-\end{itemize}
+\end{enumerate}
+
+Um die unterschiedlichen Fälle aus \ref{geoip-nearest-vpn} zu verdeutlichen, wurden zwei Entscheidungsbäume entwickelt. Der Server-seitige Fall der DNS-Auflösung wird in Abb. \ref{grafik:Use-Case_2_Entscheidungsbaum_GeoIP} aufgezeigt.
+\begin{figure}[h]
+  \centering
+  \includegraphics{Figures/entscheidungsbaum_bind_geoip.pdf}
+  \caption{Entscheidungsbaum: DNS-Server}
+  \label{grafik:Use-Case_2_Entscheidungsbaum_GeoIP}
+\end{figure}\FloatBarrier
+
+Fall \ref{server-not-deployed} ist Client-seitig gesteuert und kommt dann zum Tragen, wenn der FQDN vpn.ba.mungard.de nicht auflösbar sein sollte (s. Abb. \ref{grafik:Use-Case_2_Entscheidungsbaum_OpenVPN}).
+
+\begin{figure}[h]
+  \centering
+  \includegraphics{Figures/entscheidungsbaum_openvpn_config.pdf}
+  \caption{Entscheidungsbaum: Roadwarrior-VPN}
+  \label{grafik:Use-Case_2_Entscheidungsbaum_OpenVPN}
+\end{figure}\FloatBarrier
 
 Mit Hilfe des Bind Nameservers ab Version 9.10 ist es möglich, die GeoIP-Datenbank des Anbieters MaxMind auszuwerten, um DNS-Anfragen in Abhängigkeit der Absender-IP zu beantworten\cite{bindgeoip2020}. Bei dieser IP handelt es sich typischerweise um die Resolver-IP des \textit{lokalen} Internet-Dienstleisters. Die Annahme für diesen Use-Case ist daher, dass der DNS-Resolver in der gleichen Region wie der Roadwarrior angesiedelt ist\label{dns-resolver-region}.\\
 Um mit GeoIP-Daten der Firma MaxMind arbeiten zu können, muss Bind mit einem speziellen Flag (\texttt{-{}-with-maxminddb}) kompiliert werden. Im Ubuntu 20.04 Standardpaket von Bind 9 ist dieses Feature bereits vorhanden (s. Listing \ref{bind-mmdb-compiler-flag}).

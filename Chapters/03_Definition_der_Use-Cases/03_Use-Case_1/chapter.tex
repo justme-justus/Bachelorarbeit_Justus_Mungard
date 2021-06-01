@@ -48,10 +48,6 @@ Als Router, der die Private Cloud repräsentiert, wurde ein VyOS Router gewählt
 Es soll pro Public Cloud eine virtuelle Maschine bereitgestellt werden, um die Ende-zu-Ende-Konnektivität zwischen den Standorten zu verifizieren.
 Die Annahme ist, dass der VyOS-Router, das IPAM und eine virtuelle Maschine zum Testen in der Private Cloud bereits vorhanden sind. Diese Komponenten sind nicht Teil des (Terraform-)Deployments. Allerdings müssen Konfigurationsänderungen zum \gls{Deployment} geschehen.\\
 Prinzipiell lassen sich viele Router-Modelle nutzen, insofern die Unterstützung für genannte Techniken (Route-based IPsec, BGP) vorhanden ist, bspw. CSR 1000V der Firma Cisco\cite{Durai2016}. Der offene VyOS Router bietet den Vorteil, dass keine Lizenzen für die Nutzung hinterlegt werden müssen, was in vielen Fällen manuelle Konfigurationen erfordert. Außerdem hätten erst einmal passende Lizenzen beschafft werden müssen, was u.U. zu Verzögerungen des Projekts geführt hätte.
-
-
-
-
 %Kein NAT, da am Anfang evtl. einfacher, aber am Ende nur Ärger und Freischaltungen etc...
 
 %Um den Anspruch der Automatisierung gerecht zu werden, ...
