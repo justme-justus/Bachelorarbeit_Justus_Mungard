@@ -1,5 +1,7 @@
 \chapter{Technische Grundlagen} \label{Technische_Grundlagen}
-In diesem Kapitel werden technische Grundlagen erläutert, welche für ein weiteres Verständnis der Kapitel \ref{Defintion der Use-Cases} und \ref{Umsetzung der Use-Cases und Evaluation} zwingend erforderlich sind.
+In diesem Kapitel werden technische Grundlagen erläutert, welche für ein weiteres Verständnis der Kapitel \ref{Defintion der Use-Cases} und \ref{Umsetzung der Use-Cases und Evaluation} erforderlich sind.
+\todo{1 Satz pro Section. Und warum.}
+
 \section{Internet Protocol Version 4 (IPv4)} \label{ipv4}
 \subsection{Allgemeines und Adressierungsschema}
 Das Internet Protocol Version 4 ist im \gls{OSI-Schichtenmodell} auf Schicht 3 (Network-Layer) angesiedelt\cite{itu1994}. Es dient der \textit{Paketierung} von Daten und anschließenden Ende-zu-Ende-Vermittlung dieser \textit{Pakete} zwischen Netzwerk-Systemen. Dafür notwendig ist eine Adressierung: eine IPv4-Adresse besteht aus einer 32 Bit-Zahl, welche typischerweise dezimal dargestellt wird in so genannter \glqq dotted decimal\grqq{}-Schreibweise. Dafür wird die Binärzahl in vier Oktette mit einem Punkt aufgeteilt und die jeweiligen Oktette in dezimal umgerechnet.
@@ -37,7 +39,6 @@ AND 11111111.11111111.11111111.00000000
 Hat man nun zwei Hosts 1.2.3.240 und 8.9.10.23, mit denen eine IP-Verbindung aufgebaut werden soll, so prüft der Initiator zuerst, ob das jeweilige Netz \textit{link-lokal} erreichbar ist, also im gleichen Subnetz liegt. Es verhält sich gleich zum vorherigen Beispiel, nur dass an dieser Stelle die IP der Gegenstelle genutzt wird.\\
 Dies passiert analog für die IP-Adresse 1.2.3.240 (s. Listing \ref{local-ip-address-AND-subnet}). Dabei ist die resultierende Netzwerkadresse die gleiche, daher kann das Paket link-lokal zum Ziel gesendet werden.
 
-%gleiche Adresse wie in Listing... 
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
@@ -106,7 +107,6 @@ Bei nochmaliger Betrachtung der Abbildung \ref{grafik: next_hop_routing_with_def
 Routen hingegen, die als Next-Hop eine IP-Adresse beinhalten, müssen entweder als statische oder dynamische Route den Weg in die Routing-Tabelle finden. Statische Routen sind Routen, bei denen ein Administrator Ziel-Netzwerk und Next-Hop manuell auf den Geräten pflegt.\\
 Bis zu einer gewissen Netzwerkgröße lassen sich die Routing-Einträge statisch pflegen. Ab größeren Skalierungen mit vielen Routern und Zielnetzwerken wird die Administration jedoch problematisch. So kann es passieren, dass Router in der Konfiguration vergessen werden oder Routing-Einträge fehlen: dies macht eine Weiterleitung dann unmöglich und die Pakete werden verworfen.\\
 Weiterhin bieten statische Routen wenig Flexibilität, wenn Verbindungen ausfallen: Es ist zwar möglich, Backup-Routen zu definieren, die zum gleichen Ziel über einen anderen Next-Hop führen mit Hilfe einer schlechteren \textit{Routing-Metrik}. Allerdings kann man nicht alle \textit{Fallback-Szenarien} des Routings vorab durchdenken.
-%Routing Bild mit Dreieck
 
 \textbf{\underline{Dynamisches IP-Routing}}\\
 IP-Routing auf Basis von dynamischen Routing-Protokollen kann geschilderte Probleme umgehen, indem manuelle Administrationsaufwände verringert bzw. nicht erforderlich werden. Router, die ein dynamisches Routing-Protokoll nutzen, können gegenüber benachbarten Routern Erreichbarkeit für bestimmte Netzwerke signalisieren. Diese Information wird kaskadiert durch das gesamte Netzwerk getragen und es erhalten alle berechtigten Router einer \textit{Routing-Domäne} die Information, \textit{welche} Netzwerke erreichbar sind und \textit{wie} sie erreicht werden können. Auch Fallback-Szenarien sind durch dynamische Routing-Protokolle abgedeckt. Meist werden Backup-Routen schon im Speicher vorgehalten, um bei Ausfall einer Verbindung das Routing zu \textit{schwenken}. Man spricht auch von \textit{Routing-Konvergenz}.
@@ -136,22 +136,6 @@ In Listing \ref{grafik: ebgp_peerings_additional_connection} wurde noch eine Ver
 Die Präfixe mit roter Schrift sind dabei allerdings nicht wertlos. Sie können als Backup-Pfad dienen, falls der bessere Pfad wegfallen sollte. Falls bspw. die Verbindung zwischen AS 10 und AS 30 ausfällt, \textit{konvergiert} das BGP auf allen Routern wieder hin zum Beispiel aus Abbildung \ref{grafik: ebgp_peerings}.\\
 BGP-Router ignorieren AS-Pfade, in denen die eigene AS-Nummer bereits vorkommt. Pakete werden dann gemäß RFC 4271 verworfen. Dadurch werden effektiv Routing-Schleifen verhindert\cite{rfc4271}.\\
 BGP sieht analog zu RFC 1918-Adressen Bereiche für AS-Nummern vor, die privat, also nicht im Internet, verwendet werden dürfen. Diese Nummern sind in RFC 6996 gelistet und gehen von einschließlich 64512 bis 65534\cite{rfc6996}.
-
-%Cisco Doku
-%next-hop self?
-%BGP hat noch weitere \textit{Tie-Breaker}...
-%AS-Pfad dient auch der Schleifenverhinderung
-%64512–65534
-%Beispieldiagramm
-
-
-%Typische IGPs sind: OSPF, EIGRP, RIP, IS-IS
-%Heutzutage findet nur noch ein EGP Verwendung: BGP
-
-%Transfernetzwerk
-%keine Metrik / AD
-%Next Hops in Cloud funktionieren anders...
-%In den Ursprüngen des Internets waren IP-Adressen \textit{classful}: die Netzwerkgröße wurde über die Klassenzugehörigkeit einer IP-Adresse bestimmt. Ein Class A Netz fiel in die \textit{Range} 0.0.0.0 - 127.255.255.255. So hätte obige IP-Adresse zu dem Class-A-Netzwerk "1.0.0.0" gehört
 
 \subsection{Network Address Translation (NAT)}
 Grundlegend geht es bei NAT darum, eine IP-Adresse \textit{umzuschreiben}. Dies ist sowohl für die Absender- als auch die Ziel-Adresse möglich. Dies kann verschiedene Gründe haben, oftmals geht es aber darum, IPv4-Adressen einzusparen.\\
@@ -254,19 +238,16 @@ Das Diagramm ist dabei nicht spezifisch für eine bestimmte VPN-Technologie. Es 
   \label{grafik: vpn-example}
 \end{figure}\FloatBarrier
 
-%Quelle
 Die in dieser Arbeit verwendeten VPN-Technologien sind IPsec und OpenVPN. IPsec wird u.a. für die Vernetzung von (Cloud-)Standorten, auch Site-to-Site (S2S) genannt, genutzt und arbeitet auf OSI-Schicht 3. Ebenso dient es zur \textit{Einwahl} in (Firmen-)Netzwerke. IPsec wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
 OpenVPN ist ein Open Source-Projekt und es nutzt \textit{Transport Layer Security} (TLS) für die verschlüsselte Übertragung von Daten via UDP oder TCP. Das Protokoll ist auf OSI-Schicht 7 zu finden und es wird vor allem für Client-to-Site-Verbindungen genutzt (C2S): Passende Software ist für viele verschiedene Plattformen verfügbar (u.a. Windows, Linux, Mac, Android) und sowohl Client- als auch Server-Applikation sind kostenfrei erhältlich.\\
 Angesprochene MTU-Probleme (s. \ref{mtumss}) können sich bei einer getunnelten Verbindung auf Grund des zusätzliches \textit{Overheads} auf Grund der Enkapsulierung zeigen. Eine IP-Fragmentierung sollte optimalerweise verhindert werden.
 
 \section{Cloud}\label{cloud}
-%VyOS PaaS? VyOS kann als hybrid zwischen IaaS und PaaS angesehen werden, da man die virtuelle Maschine bis auf CPU nichts weiter konfigurieren kann... und sie ist für Infrastruktur verantwortlich...
 Der Cloud-Begriff kann je nach Literatur variieren. Diese Arbeit verweist an dieser Stelle auf die Definition des \textit{National Institute of Standards and Technology (NIST)}. Ebenso werden dort die drei typischen \textit{Cloud Delivery}-Modelle Software as a Service (SaaS), Platform as a Service (PaaS) und Infrastructure as a Service (IaaS) definiert, welche fortan als bekannt vorausgesetzt werden.\cite{mell2011}
 
 \subsection{Public und Private Cloud}
 Auch für die so genannten \textit{Cloud \gls{Deployment}}-Modelle wird auf die Definition des NIST verwiesen.\cite{mell2011}\\
 Allerdings soll an dieser Stelle auf ein häufiges Missverständnis hingewiesen werden: Eine Private Cloud existiert nicht zwingend \textit{on-premises} einer Organisation, also bspw. im eigenen Rechenzentrum. Sie kann ebenso über Public Cloud-Plattformen abgebildet werden. Allerdings ist die Voraussetzung, dass alle genutzten Ressourcen dann exklusiv für die Organisation zur Verfügung stehen (\textit{exclusive use by a single organization}). Sie werden nicht mit weiteren Parteien geteilt (\textit{open use by the general public}).\\
-%Abgrenzung Private Cloud ...irgendwo... einarbeiten. Es wird angenommen, dass die Private Cloud schon besteht. Router interessiert, bißchen Infrastrukut (Webserver), Rest interessiert nicht...
 Die Public Cloud-Provider, welche in dieser Arbeit genutzt werden, sind Amazon Web Services (AWS) und Microsoft Azure. Rechenzentren stehen weltweit zur Verfügung, um eine schnelle und latenzarme Anbindung für die Kunden zu ermöglichen. Eine Private Cloud lässt sich bspw. mit OpenStack abbilden\cite{sefraoui2012openstack}.
 
 \subsection{Multi und Hybrid Cloud}
@@ -312,7 +293,6 @@ Das Werkzeug, das hauptsächlich für Automatisierungs-Schritte in dieser Arbeit
 
 \textbf{\underline{Provider}}\label{tf-provider}\\
 Provider sind die Grundvoraussetzung, um die Automatisierung einer Plattform mit Terraform bewerkstelligen zu können. Sie ermöglichen es, mit entsprechenden Schnittstellen der Anbieter, z.B. REST, zu interagieren. Provider liefern meist diverse \textit{Resources} mit, welche Veränderungen tätigen können und \textit{Data Sources}, welche \glqq lesend\grqq{} auf die Infrastruktur zugreifen, um Informationen zurückzuliefern. Diese Informationen können dann anderen \textit{Modulen} zur Verfügung gestellt werden.\cite{Brikman2019}\\
-%Serifen-Schrift für Dateinamen...
 Terraform arbeitet stateful: Nach jedem \texttt{terraform apply}, welches zur Erstellung der gewünschten Infrastruktur führt, werden Referenzen aller Infrastrukturkomponenten in der Datei \underline{terraform.tfstate} gespeichert: Ein erneuter Aufruf von \texttt{terraform apply} würde, insofern keine Konfigurationsänderungen gemacht wurden, die Infrastruktur so belassen und sie nicht nochmals bereitstellen bzw. erweitern. Per \texttt{terraform destroy} kann die Infrastruktur wieder zurückgebaut werden.\\
 In Listing \ref{tf-aws-provider-example} wird der Provider \textit{aws} in einer spezifischen Version eingebunden. Der Constraint \glqq $\sim$>\grqq{} sorgt dafür, dass nur Versionen des Providers innerhalb des 3.35.x Branches benutzt werden (\glqq Minor Patches\grqq{}).
 %TC:ignore

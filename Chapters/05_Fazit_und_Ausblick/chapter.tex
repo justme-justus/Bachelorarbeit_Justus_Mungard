@@ -1,53 +1,20 @@
 \chapter{Schlussbetrachtung} \label{Fazit und Ausblick}
-%Anforderung: Ende-zu-Ende-Erreichbarkeit! Für z.B. Endpoint Scanning
-%Gleiches Profil für alle VPN-Konzentratoren
-
 \section{Fazit}
 
 In dieser Arbeit konnte erfolgreich demonstriert werden, dass eine sichere und isolierte Hybrid Cloud-Vernetzung ohne den Einsatz von proprietären Herstellerlösungen möglich ist. Robuste und offen dokumentierte Technologien wie IPsec, DNS oder BGP, welche im Internet schon seit Jahrzehnten genutzt werden, haben auch in \glqq modernen\grqq{} Cloud-Umgebungen weiterhin ihre Berechtigung.\\
-Im Allgemeinen konnten die Vorerfahrungen des Autors aus dem \textit{klassischen} Netzwerkbereich gewinnbringend genutzt werden, um sie auf Ideen und Technologien des (hybriden) Cloud-Networkings zu übertragen: Am Ende des Tages werden auch in dieser Disziplin Pakete von A nach B verschickt et vice versa. Cloud-Ingenieure der \textit{Big Player} AWS und Azure werden nicht bei jeder erdenklichen Möglichkeit das Rad neu erfinden.\\
+Im Allgemeinen konnten die Vorerfahrungen des Autors aus dem \textit{klassischen} Netzwerkbereich gewinnbringend genutzt werden, um sie auf Ideen und Technologien des (hybriden) Cloud-Networkings zu übertragen: Am Ende des Tages werden auch in dieser Disziplin Pakete von A nach B verschickt. Cloud-Ingenieure der \textit{Big Player} AWS und Azure werden nicht bei jeder erdenklichen Möglichkeit das Rad neu erfinden.\\
+\todo{nicht ganz so aggro: kern punkt -> benennen was neu ist und was alt ist und hilft und was alt ist und weg ist.}
 Es reicht aber auch nicht, sich ausschließlich auf das vorhandene Skill-Set zu berufen. Es haben eben nicht mehr alle Paradigmen aus der \glqq alten Welt\grqq{} ihre Gültigkeit: Technologien kamen dazu, zum Teil wurden alte Zöpfe abgeschnitten. So sind OSI-Layer 1 und 2 für den Netzwerk-Administrator in der Cloud gewissermaßen nicht existent und spielen keine Rolle mehr. Im Gegenzug muss dieser sich jedoch mit neuen Werkzeugen beschäftigen. Das hier genutzte Automatisierungswerkzeug Terraform ist nur eines unter vielen.\\
-%Silos wie sie auch bei NetUSE der Fall sind...
-Silodenken, bei dem Netzwerk, Security, Datenbanken, etc. in Einzeldisziplinen aufgeteilt werden, ist nicht mehr zeitgemäß, da diese Komponenten im Cloud-Umfeld noch viel enger vermascht sind. Auch die Entkoppelung von der \glqq wahren\grqq{}, physischen Infrastruktur und die dadurch unterstützte Annahme, dass durch eine \glqq Cloud-Magie\grqq{} alles problemlos und für alle Ewigkeiten funktioniert, kann sich dabei als zu fahrlässig herausstellen. So kann (und will) man gar nicht mehr wissen, \glqq welches Bit über welchen Draht im Rechenzentrum läuft\grqq{}, aber eine gute technische Ressourcenplanung und das Durchdenken von Fail-Over-Szenarien sind nach wie vor unentbehrliche Prozesse. Dies hat der Brand im Straßburger Rechenzentrum des Cloud-Providers OVH nochmals deutlich vor Augen geführt\cite{ChristofKerkmann2021}.\\
-So konnte mit Use-Case 1 demonstriert werden, wie ein verteilter Internetdienst über Cloud-Grenzen hinweg existieren und dadurch redundant ausgelegt werden kann. Ein Re-Routing von Paketen erfolgt, falls eine Verbindung zwischen Cloud-Standorten wegfällt. Es lassen sich dabei noch weitere VPN-Verbindungen zu Gegenstellen bereitstellen, um die Redundanz und Bandbreite nochmals zu erhöhen (s. Kapitel \ref{ausblick}).\\
+Silodenken, bei dem Netzwerk, Security, Datenbanken, etc. in Einzeldisziplinen aufgeteilt werden, ist nicht mehr zeitgemäß, da diese Komponenten im Cloud-Umfeld noch viel enger verbunden sind. Auch die Entkoppelung von der \glqq wahren\grqq{}, physischen Infrastruktur und die dadurch unterstützte Annahme, dass durch eine \glqq Cloud-Magie\grqq{} alles problemlos und für alle Ewigkeiten funktioniert, kann sich als zu fahrlässig herausstellen. So kann (und will) man gar nicht mehr wissen, \glqq welches Bit über welchen Draht im Rechenzentrum läuft\grqq{}, aber eine gute technische Ressourcenplanung und das Durchdenken von Fail-Over-Szenarien sind nach wie vor unentbehrliche Prozesse. Dies hat der Brand im Straßburger Rechenzentrum des Cloud-Providers OVH nochmals deutlich vor Augen geführt\cite{ChristofKerkmann2021}.\\
+Mit Use-Case 1 konnte demonstriert werden, wie ein verteilter Internetdienst über Cloud-Grenzen hinweg existieren und dadurch redundant ausgelegt werden kann. Ein Re-Routing von Paketen erfolgt, falls eine Verbindung zwischen Cloud-Standorten wegfällt. Es lassen sich dabei noch weitere VPN-Verbindungen zu Gegenstellen bereitstellen, um die Redundanz und Bandbreite nochmals zu erhöhen (s. Kapitel \ref{ausblick}).\\
 In Use-Case 2 konnte erfolgreich gezeigt werden, wie geobasiertes DNS genutzt werden kann, um Verbindungen mit niedrigen Latenzen zu gewährleisten. Weiterhin ist es möglich, Infrastruktur neu zu provisionieren und daraufhin direkt per DNS erreichbar zu machen.\\ 
 Die in der Arbeit aufgezeigten Use-Cases können mit Hilfe von Terraform und IPAM automatisiert ausgerollt und wieder zurückgebaut werden. In der Praxis, bei der bei Kunden keine \glqq grüne Wiese\grqq{} vorherrscht, kann u.U. nicht auf diese Tools zurückgegriffen und es muss im Einzelfall betrachtet werden, welche Schnittstellen und Werkzeuge bereits genutzt werden bzw. sinnvoll erscheinen. Grundlegend lässt sich sagen, dass sich viele Themen mit Fokus Cloud in irgendeiner Form automatisieren lassen. Public Clouds sind grob umschrieben große \glqq Baukasten-Systeme\grqq{} mit diversen Kombinationsmöglichkeiten.\\
 Dabei spielen die eigentlichen Tools nur eine untergeordnete Rolle: wichtig ist im Sinne des Kunden eine Kostensenkung durch fehlerarme und optimierte Prozesse. Bevor Prozesse aber automatisiert abgebildet werden können, bedürfen sie einer genauen Erfassung mit gleichzeitiger Formulierung von messbaren (Kosten-)Kriterien.% Ein kompletter Umstieg auf Cloud-Computing inkl. Automatisierungs-Layer bedeutet dabei nicht pauschal die \glqq beste\grqq{} Lösung.\\
 
-Sollte eine Hybrid Cloud-Strategie in Erwägung gezogen werden, muss man sich bewusst sein, dass man technologisch oftmals mit dem \textit{kleinsten gemeinsamen Vielfachen (kgV)} arbeitet. Dieses Projekt war insofern eine dankbare Aufgabe, als die Public Cloud-Provider AWS und Azure offene Technologien für VPN und Routing anbieten. Würde jedoch nur eine Plattform bspw. keine BGP-Unterstützung haben, hätte sich das kgV verändert: Änderungen der Topologie oder ein kompletter Verzicht auf dynamisches Routing hätten in Betracht gezogen werden müssen. Kleinere aber lösbare Probleme offenbarten sich bereits bei der Auswahl des richtigen Transfernetzes für das BGP-Peering (s. Kapitel \ref{transfer-azure-aws}) oder der Auswahl des VPN-Konzentrators für Roadwarrior-VPN (s. Kapitel \ref{uc1-vorauswahl}).\\
+Sollte eine Hybrid Cloud-Strategie in Erwägung gezogen werden, muss man sich bewusst sein, dass man technologisch oftmals mit dem \textit{kleinsten gemeinsamen Vielfachen (kgV)}\todo{für mich kein term. mag die metapher nicht} arbeitet. Dieses Projekt war insofern eine dankbare Aufgabe, als die Public Cloud-Provider AWS und Azure offene Technologien für VPN und Routing anbieten. Würde jedoch nur eine Plattform bspw. keine BGP-Unterstützung haben, hätte sich das kgV verändert: Änderungen der Topologie oder ein kompletter Verzicht auf dynamisches Routing hätten in Betracht gezogen werden müssen. Kleinere aber lösbare Probleme offenbarten sich bereits bei der Auswahl des richtigen Transfernetzes für das BGP-Peering (s. Kapitel \ref{transfer-azure-aws}) oder der Auswahl des VPN-Konzentrators für Roadwarrior-VPN (s. Kapitel \ref{uc1-vorauswahl}).\\
 Hersteller von SD-WAN Lösungen versuchen diese Probleme zu umgehen, indem mehr oder weniger \textbf{alle} Netzwerk-Logiken in virtuelle Maschinen ausgelagert werden. Nachteile wurden mit Vendor Lock-In und somit fehlender Interoperabilität bereits genannt. Weiterhin ist dabei die Annahme, dass alles so bleibt wie zum Zeitpunkt des \gls{Deployment}s. Jedoch ist Cloud technologisch ein \textit{moving target}: APIs oder notwendige Technologien können sich jederzeit ändern oder abgekündigt werden\cite{Yegge2020}. Gehen Hersteller dann schnellstmöglich auf Änderungen bei den Cloud-Providern ein? Können Bugfixes dann problemlos eingespielt werden, ohne die Produktion zu gefährden?\\ 
 Die Gefahr, dadurch einen Single-Point-Of-Failure ins Netzwerk zu integrieren, ist hoch, wenn man bedenkt, dass vergleichbare Lösungen meist ohne den Einsatz von \glqq Proxies\grqq{} erreicht werden können und direkt von den Cloud-Providern unterstützt werden.
-
-
-%Industriedruck...
-%
-%Die Hoffnung ist, dass die Standards von AWS und Azure direkt supportet werden...
-%AWS Azure machen Änderungen wenn unten drunter... SPOF?
-%Außerdem beschäftigt man sich nicht mit Cloud...
-
-
-
-%Das hätte auch für das interne Routing sicherlich Konsequenzen gehabt... (das was am Ende auch SD-WAN Anbieter machen...) aber auch hier (s. Transfernetzwerk...) Dies kann je nach Definition des Scopes unterschiedliche Auswirkungen haben.
-%
-%Spezielle Building Blocks... nicht erreichbar für andere Teilnehmer, nicht vorhanden in anderen Clouds...
-%
-%dass alle Buildings Blocks, die genutzt werden, möglichst generisch nutzbar sein müssen. Spezielle
-
-%MPLS LINK
-%2. Satz in Einleitung
-%https://steve-yegge.medium.com/dear-google-cloud-your-deprecation-policy-is-killing-you-ee7525dc05dc
-%Bei SD-WAN geht es z.B. darum, verschiedene (Cloud-)Standorte miteinander zu vernetzen, ohne auf teure Anschlüsse wie MPLS angewiesen zu sein. Durch geeignete Abstraktionsschichten soll ähnlich wie in der Arbeit eine Ende-zu-Ende-Konnektivität über Standorte ermöglicht werden. 
-%https://aws.amazon.com/marketplace/search?searchTerms=sd-wan
-%Viele Hersteller haben die Zeichen der Zeit erkannt und versprechen, den Umstieg auf Cloud zu erleichtern und warten mit einem großen Produktportfolio auf. Eine Gefahr, neben dem bereits angesprochenen Vendor Lock-In, besteht für den Kunden allerdings bei solchen Lösungen darin, dass Cloud-Computing stetig im Wandel ist - im Gegensatz zum klassischen Betrieb eines Rechenzentrums. APIs oder Technologien können abgekündigt werden. Gehen die Hersteller dann schnellstmöglich auf Änderungen ein? Können neue Features und Bugfixes dann eingespielt werden, ohne die Produktion zu gefährden? Wohlgemerkt kann eine Abkündigung ebenso Tools wie Terraform treffen. Optimalerweise ohne Änderungen am Code zu machen.   
-%Alter Wein aus neuen Schläuchen
-
-%Wohlgemerkt kann dies auch die hier vorgestellten Automatisierungstools treffen, Terraform hat eine große, wachsende Community. Bei Problemen ist man alleine auf den Hersteller angewiesen
-%ist der falsche Ansatz / Portierung von alt nach neu kann auch gefährlich sein... das holt einen ein... Freischaltungen??
-%vielleicht wirds vorher schon in Terraform gefixt
-%z.B (s. ...) (Workarounds mit TG, Route Table, Next Hop Routing...). Kleinster gemeinsamer Nenner...
-
 \section{Ausblick}\label{ausblick}
-%EDNS Client Subnet https://datatracker.ietf.org/doc/html/rfc7871
 Wie bereits in der Abgrenzung geschrieben, sollte in dieser Arbeit wenig auf (mögliche) Bandbreiten eingegangen werden, da diese von zu vielen Faktoren beeinflusst werden kann:
 \begin{itemize}
     \item Sind die virtuellen Maschinen und VPN Building Blocks performant genug, um die verfügbaren Bandbreiten auszunutzen?
@@ -56,8 +23,6 @@ Wie bereits in der Abgrenzung geschrieben, sollte in dieser Arbeit wenig auf (m�
     \item Ermöglichen Cloud-Plattformen Optimierungen wie z.B. TCP-Offloading?
     \item Wird auf einer Verbindung fragmentiert? Wie wirken sich verschiedene MTU-Parameter aus?
     \item Sind die Cloud-Standorte (Dublin und Frankfurt) Routing-technisch \textit{zu weit} voneinander entfernt?
-    %https://aws.amazon.com/premiumsupport/knowledge-center/transit-gateway-ecmp-multiple-tunnels/
-    %https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-highlyavailable
     \item Wie kann sich Equal Cost Multipath (ECMP) auf die verfügbare Bandbreite auswirken? Funktioniert ECMP richtungsunabhängig?
 \end{itemize}
 Grundsätzlich hat sich im Laufe dieser Arbeit gezeigt, dass die Verbindungen, auch durch die zusätzliche Redundanz des Backbones, stabil sind. Weiterhin war in Anbetracht typischer Anforderungen im Firmenumfeld die Performance gut, z.B. wenn über den Tunnel auf entfernten Systemen gearbeitet wurde per SSH. Wie vereinzelte Messungen jedoch zeigen, existiert wahrscheinlich zwischen AWS und Azure ein Flaschenhals (s. Listing \ref{iperf3-vpc-vnet}). Hohe Paketverluste, die dies rechtfertigen würden, sind nicht zu messen (\ref{floodping}).\\
@@ -75,15 +40,6 @@ An dieser Stelle könnte angesetzt werden, um mit einer weiteren Arbeit zu unter
 DNS war in dieser Arbeit das zentrale Protokoll, um Roadwarrior mit Hilfe von GeoIP zum nächstgelegen Standort zu lenken. Die Grundannahme war dabei, dass der DNS-Resolver in der Nähe des Roadwarriors installiert ist, da lediglich die (letzte) Resolver-IP beim autoritativen Nameserver ankommt (siehe \ref{dns-resolver-region}). Es existiert seit 2016 ein \textit{Informational RFC}, welcher dieses Problem mit der \textit{EDNS}-Option \textit{Client Subnet} zu lösen versucht\cite{rfc7871}. Sie könnte zukünftig hilfreich sein, um den ursprünglichen Standort nach einer Kaskadierung von DNS-Anfragen oder NAT zu erhalten. Die Option wurde in der Arbeit nicht berücksichtigt, da eine breite Unterstützung bei in der Praxis genutzten DNS-Resolvern zum Zeitpunkt der Arbeit noch nicht gegeben war.\\ 
 Cloud Computing offenbart viele Felder, in denen weitere Ausarbeitungen gemacht werden können und es ist auch beruflich ein immer wichtiger werdendes Themenfeld:
 Eine Umfrage unter IT-Freelancern aus dem Jahr 2021 zeigt, dass nach ihrem Verständnis die Themen Automatisierung, Cloud Computing und Security die größten Chancen haben, trotz Corona-Krise projektiert zu werden\cite{SOLCOMGmbH2021}. Alle drei Themen wurden \glqq naturgemäß\grqq{} bis zu einem gewissen Grad in dieser Arbeit behandelt und es zeigt noch mal deutlich, dass thematische Überlagerungen zukünftig kaum noch zu verhindern und eher als gegenseitige Antreiber zu verstehen sind.
-
-
-
-%Wegen enger Vermaschung (s.o.) alles möglich
-
-
-
-
-
 \iffalse
 % Dabei besitzt die Azure-VM nur einen CPU-Kern. Es wurden meist kleine Maschinentypen gewählt:
 
