@@ -1,8 +1,8 @@
 \chapter{Technische Grundlagen} \label{Technische_Grundlagen}
-In diesem Kapitel werden technische Grundlagen erläutert, welche für ein weiteres Verständnis der Kapitel \ref{Defintion der Use-Cases} und \ref{Umsetzung der Use-Cases und Evaluation} erforderlich sind.
-\todo{1 Satz pro Section. Und warum.}
 
+In diesem Kapitel werden technische Grundlagen erläutert, welche für ein weiteres Verständnis der Kapitel \ref{Defintion der Use-Cases} und \ref{Umsetzung der Use-Cases und Evaluation} erforderlich sind.
 \section{Internet Protocol Version 4 (IPv4)} \label{ipv4}
+
 \subsection{Allgemeines und Adressierungsschema}
 Das Internet Protocol Version 4 ist im \gls{OSI-Schichtenmodell} auf Schicht 3 (Network-Layer) angesiedelt\cite{itu1994}. Es dient der \textit{Paketierung} von Daten und anschließenden Ende-zu-Ende-Vermittlung dieser \textit{Pakete} zwischen Netzwerk-Systemen. Dafür notwendig ist eine Adressierung: eine IPv4-Adresse besteht aus einer 32 Bit-Zahl, welche typischerweise dezimal dargestellt wird in so genannter \glqq dotted decimal\grqq{}-Schreibweise. Dafür wird die Binärzahl in vier Oktette mit einem Punkt aufgeteilt und die jeweiligen Oktette in dezimal umgerechnet.
 
@@ -238,7 +238,7 @@ Das Diagramm ist dabei nicht spezifisch für eine bestimmte VPN-Technologie. Es 
   \label{grafik: vpn-example}
 \end{figure}\FloatBarrier
 
-Die in dieser Arbeit verwendeten VPN-Technologien sind IPsec und OpenVPN. IPsec wird u.a. für die Vernetzung von (Cloud-)Standorten, auch Site-to-Site (S2S) genannt, genutzt und arbeitet auf OSI-Schicht 3. Ebenso dient es zur \textit{Einwahl} in (Firmen-)Netzwerke. IPsec wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
+Die in dieser Arbeit verwendeten VPN-Technologien sind Internet Protocol Security (IPsec) und OpenVPN. IPsec wird u.a. für die Vernetzung von (Cloud-)Standorten, auch Site-to-Site (S2S) genannt, genutzt und arbeitet auf OSI-Schicht 3. Ebenso dient es zur \textit{Einwahl} in (Firmen-)Netzwerke. IPsec wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
 OpenVPN ist ein Open Source-Projekt und es nutzt \textit{Transport Layer Security} (TLS) für die verschlüsselte Übertragung von Daten via UDP oder TCP. Das Protokoll ist auf OSI-Schicht 7 zu finden und es wird vor allem für Client-to-Site-Verbindungen genutzt (C2S): Passende Software ist für viele verschiedene Plattformen verfügbar (u.a. Windows, Linux, Mac, Android) und sowohl Client- als auch Server-Applikation sind kostenfrei erhältlich.\\
 Angesprochene MTU-Probleme (s. \ref{mtumss}) können sich bei einer getunnelten Verbindung auf Grund des zusätzliches \textit{Overheads} auf Grund der Enkapsulierung zeigen. Eine IP-Fragmentierung sollte optimalerweise verhindert werden.
 

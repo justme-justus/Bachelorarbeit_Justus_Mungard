@@ -429,7 +429,7 @@ Um die Redundanz zu des Backbones zu testen, wurden von allen Teilnehmern zu all
   \label{grafik:Use-Case-1_Basis_Deployment_missing_link}
 \end{figure}\FloatBarrier
 
-Man kann in Listing \ref{tf-base-deployment-ping-ok-missing-link} sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \textit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde ICMP-Echo-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung in Listing \ref{tf-base-deployment-ping-ok-missing-link} etwa 44 Sekunden unterbrochen war.\\
+Man kann in Listing \ref{tf-base-deployment-ping-ok-missing-link} sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \textit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde ICMP-Echo-Request-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung in Listing \ref{tf-base-deployment-ping-ok-missing-link} etwa 44 Sekunden unterbrochen war.\\
 Weiterhin hat sich die Round-Trip-Time von ~20 ms auf ~62 ms erhöht. Dies ist eine logische Konsequenz, da Pakete nun längere Wege (\textit{mehr Hops}) zurücklegen müssen. Alle Ping-Tests waren trotz Kappen einer Verbindung erfolgreich. Man muss dabei allerdings Paketverluste während der Konvergenzzeit hinnehmen.
 %TC:ignore
 \begin{listing}[h]
