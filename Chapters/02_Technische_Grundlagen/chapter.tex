@@ -336,7 +336,7 @@ Dabei zeigt sich auch der deklarative Aspekt von Terraform. Die Resource \glqq a
 Terraform Module sind \textit{Container}, die mehrere Resources in *.tf-Dateien zusammenfassen \cite{tfmodule2021}. Es ist zwar möglich, alle notwendigen Resources in einer einzigen *.tf-Datei zu konfigurieren, allerdings ist es \textit{best practice}, verschiedene Resources der Übersichtlichkeit wegen aufzuteilen und in einer geeigneten Ordnerstruktur unterzubringen. Die jeweiligen Dateien innerhalb eines Ordners heißen dann \underline{main.tf}. Um Attribute an andere Module weiterzugeben, werden \textit{Outputs} genutzt. 
 
 \textbf{\underline{Data Sources und Outputs}}\\
-Data Sources führen keine Änderung herbei, sondern werden genutzt, um detaillierte Informationen zu Infrastruktur-Komponenten zurückzugeben oder um etwas zu finden. In Listing \ref{data-source-find-output-id} wird nach einem Amazon Machine Image (AMI) für Ubuntu gesucht. Die ID (image\_id) für das \textit{most recent} Release kann per Output an andere Module weitergegeben werden. Diese können die ID dann z.B. nutzen, um per Resource eine virtuelle Maschine mit dem gewünschten Ubuntu-Image bereitzustellen.
+Data Sources führen keine Änderung herbei, sondern werden genutzt, um detaillierte Informationen zu Infrastruktur-Komponenten zurückzugeben oder um etwas zu finden. In Listing \ref{data-source-find-output-id} wird mit Hilfe der Data Source \glqq ubuntu\grqq{} nach einem Amazon Machine Image (AMI) für Ubuntu gesucht. Die ID (image\_id) für das \textit{most recent} Release wird per Output an andere Module übergeben. Diese können die ID dann z.B. nutzen, um per Resource eine virtuelle Maschine mit dem gewünschten Ubuntu-Image bereitzustellen.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -356,7 +356,7 @@ output "ubuntu_ami_id" {
   value = data.aws_ami.ubuntu.image_id
 }
 \end{minted}
-\caption{Die Data Source \glqq ubuntu\grqq{} sucht nach dem passenden Ubuntu Image und Output macht die ID global für andere Module verfügbar}
+\caption{Suche nach einem Amazon Machine Image für Ubuntu}
 \label{data-source-find-output-id}
 \end{listing}\FloatBarrier
 %TC:endignore

@@ -91,7 +91,7 @@ Fall \ref{server-not-deployed} ist Client-seitig gesteuert und kommt dann zum Tr
 \end{figure}\FloatBarrier
 
 Mit Hilfe des Bind Nameservers ab Version 9.10 ist es möglich, die GeoIP-Datenbank des Anbieters MaxMind auszuwerten, um DNS-Anfragen in Abhängigkeit der Absender-IP zu beantworten\cite{bindgeoip2020}. Bei dieser IP handelt es sich typischerweise um die Resolver-IP des \textit{lokalen} Internet-Dienstleisters. Die Annahme für diesen Use-Case ist daher, dass der DNS-Resolver in der gleichen Region wie der Roadwarrior angesiedelt ist\label{dns-resolver-region}.\\
-Um mit GeoIP-Daten der Firma MaxMind arbeiten zu können, muss Bind mit einem speziellen Flag (\texttt{-{}-with-maxminddb}) kompiliert werden. Im Ubuntu 20.04 Standardpaket von Bind 9 ist dieses Feature bereits vorhanden (s. Listing \ref{bind-mmdb-compiler-flag}).
+Um mit GeoIP-Daten der Firma MaxMind arbeiten zu können, muss Bind (Linux-Binary: \texttt{named}) mit einem speziellen Flag (\texttt{-{}-with-maxminddb}) kompiliert werden. Im Ubuntu 20.04 Standardpaket von Bind 9 ist dieses Feature bereits vorhanden (s. Listing \ref{bind-mmdb-compiler-flag}).
 
 %TC:ignore
 \begin{listing}[h]
@@ -101,7 +101,7 @@ $ named -V | grep -o -- '--with-maxminddb'
 --with-maxminddb
 
 \end{minted}
-\caption{Das Ubuntu 20.04 Standardpaket wurde bereits mit dem Flag kompiliert.}
+\caption{\texttt{named} Compiler-Flags (gefiltert)}
 \label{bind-mmdb-compiler-flag}
 \end{listing}
 %TC:endignore

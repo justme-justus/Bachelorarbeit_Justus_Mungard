@@ -277,7 +277,15 @@
 \bibliography{biblatex}
 
 \listoffigures
+\newpage
+\phantomsection
 \addcontentsline{toc}{chapter}{Listingverzeichnis}
-\listoflistings
+\renewcommand\lstlistingname{Listingsverzeichnis}
+\renewcommand\lstlistlistingname{Listingverzeichnis}
+%\listoflistings
+\makeatletter
+\let\l@listing\l@figure
+\makeatother
+\lstlistoflistings
 
 \end{document}
