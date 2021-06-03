@@ -8,8 +8,8 @@ In der Public Cloud existiert keine klassische Netzwerk-Infrastruktur mehr, welc
 
 \section{Ziel}
 
-Es existieren bereits proprietäre Lösungen am Markt, um eine Vernetzung über Cloud-Anbieter hinweg zu ermöglichen. Sie fallen in die Kategorie \textit{Software-Defined Wide Area Network (SD-WAN)} und sind nicht interoperabel zu SD-WAN-Lösungen anderer Hersteller.\\
-Ziel der Arbeit ist es, ein möglichst herstellerunabhängiges Netzwerk, welches eine Ende-zu-Ende-Konnektivität ermöglicht, zwischen verschiedenen Cloud-Plattformen herzustellen. Es soll gezeigt werden, wie neue Infrastruktur automatisiert und Cloud-übergreifend integriert werden kann, so dass sie anschließend für alle berechtigten Teilnehmer erreichbar ist. Dies soll möglichst mit freier, offener Software und RFC-konformen Protokollen geschehen.\\
+Es existieren bereits proprietäre Lösungen am Markt, um eine Vernetzung über Cloud-Anbieter hinweg zu ermöglichen. Sie fallen in die Kategorie \textit{Software-Defined Wide Area Network (SD-WAN)} und sind nicht interoperabel zu \gls{SD-WAN}-Lösungen anderer Hersteller.\\
+Ziel der Arbeit ist es, ein möglichst herstellerunabhängiges Netzwerk, welches eine Ende-zu-Ende-Konnektivität ermöglicht, zwischen verschiedenen Cloud-Plattformen herzustellen. Es soll gezeigt werden, wie neue Infrastruktur automatisiert und Cloud-übergreifend integriert werden kann, so dass sie anschließend für alle berechtigten Teilnehmer erreichbar ist. Dies soll möglichst mit freier, offener Software und \gls{RFC}-konformen Protokollen geschehen.\\
 Interessant ist diese Lösung für Unternehmen, welche die Lizenzkosten für proprietäre Lösungen sparen wollen oder bevorzugt auf offene Systeme und Standards setzen, welche eine hohe Interoperabilität zu anderen (offenen) Systemen versprechen.
 
 \section{Inhalt}
@@ -40,7 +40,7 @@ Diese technisch abgebildeten Use-Cases sind im Einzelnen als Proof-of-Concept (P
 \textbf{\underline{Abgrenzungen}}\label{abgrenzung}
 
 \begin{itemize}
-\item Es wird herausgearbeitet, wie eine Ende-zu-Ende-Konnektivität zwischen verschiedenen Cloud-Plattform ermöglicht werden kann. Dies soll mit privaten RFC 1918-Adressen geschehen und dies automatisiert evtl. unter Zuhilfenahme eines IP Adressmanagements (IPAM).
+\item Es wird herausgearbeitet, wie eine Ende-zu-Ende-Konnektivität zwischen verschiedenen Cloud-Plattform ermöglicht werden kann. Dies soll mit privaten \gls{RFC} 1918-Adressen geschehen und dies automatisiert evtl. unter Zuhilfenahme eines IP Adressmanagements (IPAM).
 \item IPv6-Adressierung wird in dieser Arbeit nicht berücksichtigt: IPv6-Unterstützung ist auf den Cloud-Plattformen teilweise eingeschränkt und Kunden nutzen meist noch IPv4 für interne Adressierungen\cite{azureipv6_2020}.
 \item Broadcast- und Multicast-Anwendungen werden in den Use-Cases nicht berücksichtigt. Auch hier gibt es nur eingeschränkte Unterstützung seitens der Cloud-Provider.
 \item Typische \gls{on-premises} (Private) Cloud-Lösungen wie OpenStack oder OpenShift werden auf Grund ihrer hohen Komplexität in der Bachelor-Arbeit nicht berücksichtigt. Solche Plattformen sollen in der Bachelor-Arbeit durch eine Abstraktion dargestellt werden.
@@ -53,9 +53,9 @@ Diese technisch abgebildeten Use-Cases sind im Einzelnen als Proof-of-Concept (P
 \iffalse
 Serifen Schrit für Programmnamen?
 Teilweise gekürzt mit [...] oder Funktionsnamen der Einfachheit umbenannt oder vereinfacht dargestellt
-Todo: RFC 5737 in Einleitung (Documentation IPs)
+Todo: \gls{RFC} 5737 in Einleitung (Documentation IPs)
 Getestet mit Terraform Version...
-Abkürzungen AWS, VPC werden einmal erläutert, danach Schicht im Schacht
+Abkürzungen AWS, \gls{VPC} werden einmal erläutert, danach Schicht im Schacht
 Rein technischer Natur, es wird nicht auf Kostenoptimierung eingangen -> dafür ist Cloud-Costs zu komplex
 Abgrenzung: alle Public-IP und Private-IP beziehen sich auf IPv3!!!
 Kommandos sind mit Dollar markiert. Sie werden genutzt, wenn ein Filterausdruck erkennbar sein soll, oftmals mit grep

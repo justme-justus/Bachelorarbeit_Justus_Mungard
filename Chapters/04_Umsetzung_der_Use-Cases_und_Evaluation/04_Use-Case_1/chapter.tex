@@ -4,11 +4,11 @@ Dieses Kapitel beinhaltet die Umsetzung der Use-Cases (\glqq Kerntätigkeiten\gr
 \section{Use-Case 1: Basis Deployment mit Ende-zu-Ende-Konnektivität} \label{Use-Case 1: Basis Deployment}
 \subsection{Umsetzung: Kerntätigkeiten}
 
-Im phpIPAM müssen mehrere Netzbereiche reserviert werden. Es werden Netzbereiche benötigt, in denen Maschinen per IPv4 kommunizieren können. Diese Netze werden mit VPC bzw. VNET assoziiert.\\
-Für VNET wurde der Netzblock \glqq 10.32.0.0/16\grqq{} und für VPC der Netzblock \glqq 10.33.0.0/16\grqq{} vorreserviert, aus dem kleinere Subnets für die jeweilige Cloud entnommen werden können. Weiterhin ist die Annahme, dass die Private Cloud bereits einen Netzbereich besitzt, in dem Maschinen angesiedelt sind: \glqq 192.168.201.0/24.\grqq{}\\
-Es werden \textit{Transfernetzwerke}\label{transfer-azure-aws} benötigt, über die die IPv4-Pakete geschickt werden und die BGP-Präfixe ausgetauscht werden können. AWS sieht hierfür /30-Präfixe aus dem Bereich \glqq 169.254.0.0/16\grqq{} vor \cite{awsvpn2021}, Azure hat eine Range reserviert: \glqq 169.254.21.0\grqq{} -\\ \glqq 169.254.22.255\grqq{} \cite{azurebgp2020}. Als Kompromiss können daher nur Netze aus den Azure-Bereichen genutzt werden, da die Bereiche, die AWS zur Verfügung stellt, größtenteils außerhalb dieser Range liegen. Auch diese Netzbereiche müssen im IPAM vorreserviert werden und für die Transfernetzwerke automatisiert konfiguriert werden.\\
+Im phpIPAM müssen mehrere Netzbereiche reserviert werden. Es werden Netzbereiche benötigt, in denen Maschinen per IPv4 kommunizieren können. Diese Netze werden mit \gls{VPC} bzw. \gls{VNET} assoziiert.\\
+Für \gls{VNET} wurde der Netzblock \glqq 10.32.0.0/16\grqq{} und für \gls{VPC} der Netzblock \glqq 10.33.0.0/16\grqq{} vorreserviert, aus dem kleinere Subnets für die jeweilige Cloud entnommen werden können. Weiterhin ist die Annahme, dass die Private Cloud bereits einen Netzbereich besitzt, in dem Maschinen angesiedelt sind: \glqq 192.168.201.0/24.\grqq{}\\
+Es werden \textit{Transfernetzwerke}\label{transfer-azure-aws} benötigt, über die die IPv4-Pakete geschickt werden und die \gls{BGP}-Präfixe ausgetauscht werden können. AWS sieht hierfür /30-Präfixe aus dem Bereich \glqq 169.254.0.0/16\grqq{} vor \cite{awsvpn2021}, Azure hat eine Range reserviert: \glqq 169.254.21.0\grqq{} -\\ \glqq 169.254.22.255\grqq{} \cite{azurebgp2020}. Als Kompromiss können daher nur Netze aus den Azure-Bereichen genutzt werden, da die Bereiche, die AWS zur Verfügung stellt, größtenteils außerhalb dieser Range liegen. Auch diese Netzbereiche müssen im \gls{IPAM} vorreserviert werden und für die Transfernetzwerke automatisiert konfiguriert werden.\\
 In Listing \ref{apipa-reservation-ipam} wird in phpIPAM nach dem Bereich \glqq TF\_CLOUD\_BGP\_TRANSFER\grqq{}, aus dem alle Transfernetzwerke entommen werden, gesucht. Die Suche passiert per Data Source.\\
-Innerhalb des Bereichs wird aus dem vorreservierten Block \glqq Cloud\_Transfer\_BGP\_1\grqq{} ein /30-Netzwerk per resource entnommen. Die Reservierung der Netzblöcke für VPC und VNET erfolgen analog.
+Innerhalb des Bereichs wird aus dem vorreservierten Block \glqq Cloud\_Transfer\_BGP\_1\grqq{} ein /30-Netzwerk per resource entnommen. Die Reservierung der Netzblöcke für \gls{VPC} und \gls{VNET} erfolgen analog.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -165,7 +165,7 @@ AWS \gls{VPN-Konzentrator}en bieten aus Redundanzgründen standardmäßig zwei I
 \end{listing}\FloatBarrier
 %TC:endignore
 Wie man in Listing \ref{tf-xml-response-aws} sieht, taucht das XML-Element ipsec\_tunnel zwei Mal auf, ist dabei jedoch \textbf{unnummeriert}.
-Der Terraform-Provider aws\_vpn\_connection nutzt diese XML-Antwort, um daraus die Rückgabewerte tunnel1\_* und tunnel2\_* zu erzeugen\cite{awsattributestf2021}, die in der weiteren Ausführung von anderen Modulen wiederverwendet werden. Bei einigen Ausführungen wurden diese Elemente Terraform-intern vertauscht: Da nun weder \gls{IPsec}-Schlüssel noch interne BGP-Peering-Gegenstellen stimmen, kommen weder \gls{IPsec}-Tunnel noch die BGP-Peering-Sessions hoch. Dieser Bug für den AWS Provider ist in Github seit 2017 dokumentiert\cite{githubbugtf2021}.\\
+Der Terraform-Provider aws\_vpn\_connection nutzt diese XML-Antwort, um daraus die Rückgabewerte tunnel1\_* und tunnel2\_* zu erzeugen\cite{awsattributestf2021}, die in der weiteren Ausführung von anderen Modulen wiederverwendet werden. Bei einigen Ausführungen wurden diese Elemente Terraform-intern vertauscht: Da nun weder \gls{IPsec}-Schlüssel noch interne \gls{BGP}-Peering-Gegenstellen stimmen, kommen weder \gls{IPsec}-Tunnel noch die \gls{BGP}-Peering-Sessions hoch. Dieser Bug für den AWS Provider ist in Github seit 2017 dokumentiert\cite{githubbugtf2021}.\\
 Mit einem Bash-Skript konnte zumindest ein Workaround gefunden werden, um ein erfolgreiches \gls{Deployment} sicherzustellen. Die Grundannahme ist, dass pro Präfix zwei Pfade auf dem Private Cloud-Router existieren und somit redundant sind (s. Listing \ref{bgp-paths-vyos}). Wenn nur ein Pfad pro Präfix zur Verfügung steht, kam es mit einer hohen Wahrscheinlichkeit zu einer Vertauschung und es muss ein erneutes \gls{Deployment} erfolgen (\texttt{terraform destroy \&\& terraform apply}). Es wird dreimal versucht, eine funktionierende Infrastruktur bereitzustellen, um die APIs der Cloud-Anbieter zu \textit{schonen} und kein Rate-Limiting zu triggern \cite{awsthrottling2021}.
 %TC:ignore
 \begin{listing}[h]
@@ -311,7 +311,7 @@ aws_subnet_id = "subnet-0192ae38a3a16f584"
 \label{tf-base-deployment-ok}
 \end{listing}\FloatBarrier
 %TC:endignore
-Die im IPAM reservierten Netze (s. Abb. \ref{grafik:subnet_aws_vpc_reserved}) sind in AWS VPC als Subnets wiederzufinden (s. Abb. \ref{grafik:subnet_aws_vpc_reserved}). Die Prüfung analog für Azure ist ebenso erfolgreich.
+Die im \gls{IPAM} reservierten Netze (s. Abb. \ref{grafik:subnet_aws_vpc_reserved}) sind in AWS \gls{VPC} als Subnets wiederzufinden (s. Abb. \ref{grafik:subnet_aws_vpc_reserved}). Die Prüfung analog für Azure ist ebenso erfolgreich.
 
 \begin{figure}[h]
   \centering
@@ -323,7 +323,7 @@ Die im IPAM reservierten Netze (s. Abb. \ref{grafik:subnet_aws_vpc_reserved}) si
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.4]{Figures/subnet_aws_reserved_server.png}
-  \caption{Das in phpIPAM reservierte Subnet in AWS VPC}
+  \caption{Das in phpIPAM reservierte Subnet in AWS \gls{VPC}}
   \label{grafik:subnet_aws_vpc_reserved}
 \end{figure}\FloatBarrier
 \newpage
@@ -357,9 +357,9 @@ NetName:        AMAZON-FRA
 \label{whois-amazon-public-ip}
 \end{listing}\FloatBarrier
 %TC:endignore
-Außerdem wurden auf dem Cloud-Router die AWS- und Azure-Präfixe via BGP installiert. Pro Präfix sind zwei Pfade vorhanden (s. Listing \ref{bgp-paths-vyos}).
+Außerdem wurden auf dem Cloud-Router die AWS- und Azure-Präfixe via \gls{BGP} installiert. Pro Präfix sind zwei Pfade vorhanden (s. Listing \ref{bgp-paths-vyos}).
 
-Es wurde pro Cloud eine virtuelle Maschine (Ubuntu) installiert, um die Ende-zu-Ende-Konnektivität zu prüfen. Der Ping in Listing \ref{tf-base-deployment-ping-ok} von VM in AWS VPC $\rightarrow$ VM Azure VNET ist erfolgreich. Analog waren alle weiteren Ping-Tests zwischen den Cloud-Plattformen erfolgreich.
+Es wurde pro Cloud eine virtuelle Maschine (Ubuntu) installiert, um die Ende-zu-Ende-Konnektivität zu prüfen. Der Ping in Listing \ref{tf-base-deployment-ping-ok} von \gls{VM} in AWS \gls{VPC} $\rightarrow$ \gls{VM} Azure \gls{VNET} ist erfolgreich. Analog waren alle weiteren Ping-Tests zwischen den Cloud-Plattformen erfolgreich.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -403,7 +403,7 @@ Connecting to host 10.32.0.5, port 5201
 \label{iperf3-vpc-vnet}
 \end{listing}\FloatBarrier
 %TC:endignore
-Man sieht allerdings an Zeile 18, dass TCP Retransmissions (\glqq Retr 62\grqq{}) stattgefunden haben. Es ist wahrscheinlich, dass ein \textit{Flaschenhals} existiert, Paketverluste konnten mit diversen Ping-Messungen (s. Listing \ref{tf-base-deployment-ping-ok}) nicht festgestellt werden.\\
+Man sieht allerdings an Zeile 18, dass \gls{TCP} Retransmissions (\glqq Retr 62\grqq{}) stattgefunden haben. Es ist wahrscheinlich, dass ein \textit{Flaschenhals} existiert, Paketverluste konnten mit diversen Ping-Messungen (s. Listing \ref{tf-base-deployment-ping-ok}) nicht festgestellt werden.\\
 Es werden Bandbreiten, insofern sich nicht ein deutlicher negative Auswirkungen wahrgenommen werden, in dieser Arbeit nicht tiefergehend untersucht (s. Kapitel \ref{abgrenzung}). Ein Ausblick zu Bandbreitenoptimierung wird im Ausblick gegeben (s. Kapitel \ref{ausblick}). Es wurde an dieser Stelle mit einem Floodping lediglich untersucht, ob sich ein deutlicher Paketverlust bemerkbar macht (s. Listing \ref{floodping}).
 %TC:ignore
 \begin{listing}[h]
@@ -429,7 +429,7 @@ Um die Redundanz zu des Backbones zu testen, wurden von allen Teilnehmern zu all
   \label{grafik:Use-Case-1_Basis_Deployment_missing_link}
 \end{figure}\FloatBarrier
 
-Man kann in Listing \ref{tf-base-deployment-ping-ok-missing-link} sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \textit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde \gls{ICMP}-Echo-Request-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung in Listing \ref{tf-base-deployment-ping-ok-missing-link} etwa 44 Sekunden unterbrochen war.\\
+Man kann in Listing \ref{tf-base-deployment-ping-ok-missing-link} sehr gut erkennen, dass das \gls{BGP} eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \textit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde \gls{ICMP}-Echo-Request-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung in Listing \ref{tf-base-deployment-ping-ok-missing-link} etwa 44 Sekunden unterbrochen war.\\
 Weiterhin hat sich die Round-Trip-Time von ~20 ms auf ~62 ms erhöht. Dies ist eine logische Konsequenz, da Pakete nun längere Wege (\textit{mehr Hops}) zurücklegen müssen. Alle Ping-Tests waren trotz Kappen einer Verbindung erfolgreich. Man muss dabei allerdings Paketverluste während der Konvergenzzeit hinnehmen.
 %TC:ignore
 \begin{listing}[h]

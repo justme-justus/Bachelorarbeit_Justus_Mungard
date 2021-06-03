@@ -38,11 +38,11 @@ resource "azurerm_linux_virtual_machine"  "azurerm_linux_virtual_machine" {
 \label{tf-azure-vyos-machine-image}
 \end{listing}\FloatBarrier
 %TC:endignore
-Public/Private-Schlüsselpaar wurde vorab erstellt, von der pfSense-PKI signiert und mit dem Zertifikat auf dem Terraform-Server gespeichert. Während des Terraform-\gls{Deployment}s wird Private Key und Zertifikat per Terraform Provisioner auf das Zielsystem kopiert. Sie werden in der Config dann via \textit{set interfaces openvpn vtun0 tls cert-file / key-file} referenziert.\\
+Public/Private-Schlüsselpaar wurde vorab erstellt, von der pfSense-\gls{PKI} signiert und mit dem Zertifikat auf dem Terraform-Server gespeichert. Während des Terraform-\gls{Deployment}s wird Private Key und Zertifikat per Terraform Provisioner auf das Zielsystem kopiert. Sie werden in der Config dann via \textit{set interfaces openvpn vtun0 tls cert-file / key-file} referenziert.\\
 In der Praxis sollte darauf verzichtet werden, das Schlüsselmaterial \glqq auf einem anderen System vorzulagern\grqq{}: Ein privater Schlüssel sollte nur auf dem Server erzeugt und gespeichert werden, auf dem dieser final genutzt wird. Optimalerweise wäre dies zur Laufzeit der Terraform-\gls{Deployment}s. Zur Vereinfachung des Use-Cases wurde auf diesen Schritt verzichtet. Eine Möglichkeit zur automatisierten Signatur von vertrauenswürdigen Zertifikaten ist das Simple Certificate Enrollment Protocol (SCEP)\cite[S.554]{Schmeh2013}.\\
 Für den sich verbindenden \gls{Roadwarrior}-\gls{Client} sind diverse Konfigurationen hinterlegt: Suchdomäne, (interner) Name-Server und Routen, die über den \gls{VPN-Konzentrator} erreicht werden können (s. Listing \ref{vpn-c2s-server-config}).
-Weiterhin wird ein MSS-Clamping (s. Kapitel \ref{mtumss}) vorgenommen, um IP-Fragmen\-tierung von TCP-Applikationen möglichst zu verhindern.\\
-Das Subnetz, in dem die OpenVPN-\gls{Client}s terminiert werden, wird wieder dynamisch aus dem IPAM alloziert.
+Weiterhin wird ein \gls{MSS}-Clamping (s. Kapitel \ref{mtumss}) vorgenommen, um IP-Fragmen\-tierung von \gls{TCP}-Applikationen möglichst zu verhindern.\\
+Das Subnetz, in dem die OpenVPN-\gls{Client}s terminiert werden, wird wieder dynamisch aus dem \gls{IPAM} alloziert.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
@@ -63,7 +63,7 @@ set interfaces openvpn vtun0 tls key-file '/config/auth/vpn-server-aws.ba.mungar
 \end{listing}
 %TC:endignore
 
-Die drei Cloud-Standorte wurden in diesem Proof-of-Concept verteilt über verschiedenen Regionen: Dublin (Azure), Frankfurt (AWS), Kiel (Private Cloud). Es werden drei \gls{Roadwarrior}-\gls{Client}s simuliert, die ebenso am jeweiligen Standort stehen. Dazu wurden weitere VMs an den Cloud-Standorten hochgefahren: Sie wurden völlig isoliert von dem restlichen \gls{Deployment} installiert und sind nicht Teil der internen Netzwerke 10.32.0.0/16 bzw. 10.33.0.0/16 (s. Listing \ref{ext-ip-addr-roadwarrior}). Zugang zu internen Ressourcen wird nur über eine erfolgreiche Authentifizierung am \gls{VPN-Konzentrator} gewährleistet.
+Die drei Cloud-Standorte wurden in diesem Proof-of-Concept verteilt über verschiedenen Regionen: Dublin (Azure), Frankfurt (AWS), Kiel (Private Cloud). Es werden drei \gls{Roadwarrior}-\gls{Client}s simuliert, die ebenso am jeweiligen Standort stehen. Dazu wurden weitere \gls{VM}s an den Cloud-Standorten hochgefahren: Sie wurden völlig isoliert von dem restlichen \gls{Deployment} installiert und sind nicht Teil der internen Netzwerke 10.32.0.0/16 bzw. 10.33.0.0/16 (s. Listing \ref{ext-ip-addr-roadwarrior}). Zugang zu internen Ressourcen wird nur über eine erfolgreiche Authentifizierung am \gls{VPN-Konzentrator} gewährleistet.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -248,7 +248,7 @@ www.intern.ba.mungard.de.             15 IN A           10.32.0.4
 \label{zone-dump-dublin-internal}
 \end{listing}\FloatBarrier
 %TC:endignore
-Es wurde eine Ubuntu-VM pro Standort (hier Azure in Dublin) via Terraform bereitgestellt. Per remote-exec provisioner wird das Apache2-Paket installiert und die Default-HTML-Seite (\glqq It works!\grqq{}) per \texttt{sed} manipuliert. Damit im Web-Browser der Standort sofort ersichtlich sein, von dem die HTML-Seite ausgeliefert wurde. Analoge Konfiguration hat für den Standort AWS in Frankfurt stattgefunden.
+Es wurde eine Ubuntu-\gls{VM} pro Standort (hier Azure in Dublin) via Terraform bereitgestellt. Per remote-exec provisioner wird das Apache2-Paket installiert und die Default-HTML-Seite (\glqq It works!\grqq{}) per \texttt{sed} manipuliert. Damit im Web-Browser der Standort sofort ersichtlich sein, von dem die HTML-Seite ausgeliefert wurde. Analoge Konfiguration hat für den Standort AWS in Frankfurt stattgefunden.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -330,8 +330,8 @@ $t_{gesamt} = t_{Infrastruktur_{U2}}$
 Im Allgemeinen hat sich dieser \glqq Teile-und-herrsche\grqq{}-Ansatz im Zusammenspiel mit Terraform als sehr hilfreich erwiesen, um Konsistenz-Probleme der asynchronen Cloud-APIs während der \gls{Deployment}-Phase zu verringern\cite[S.183-184]{Brikman2019}. Probleme während des \gls{Deployment}s entstanden v.a. dann, wenn \glqq zu viele\grqq{} Abhängigkeiten in der Infrastruktur vorhanden waren. Für die Verschaltung von aufgeteilten Terraform-\gls{Deployment}s eignet sich das Werkzeug Terragrunt\cite[S.98]{Brikman2019}.
 \newpage
 \subsection{More-specific Routing in AWS Route Tables}
-Die \gls{Roadwarrior} \gls{Client}s müssen in einem eigenen Subnetz \glqq hinter\grqq{} dem \gls{VPN-Konzentrator} terminiert werden. Dafür werden Routing-Einträge notwendig, damit AWS VPC bzw. Azure VNET die Information besitzen, über welchen \textit{Next-Hop} das \gls{Roadwarrior}-\gls{VPN}-Subnetz erreicht werden kann. Durch \textit{Route Tables} stellt dies auch keine Hürde dar in Azure. AWS hingegen bietet keine Möglichkeit, Subnetze mit einer längeren Netzmaske in der Route Table zu hinterlegen, falls sie ein Subnetz des VPC \gls{CIDR} darstellen würden. Man spricht auch von \glqq more specifics\grqq{}.\\
-Im Beispiel von Abb. \ref{grafik:more_specific_not_allowed_aws} sei das VPC \gls{CIDR} 192.168.0.0/16 (Target: local). Es soll eine Route auf ein Netzwerk 192.168.100.0/24 über die AWS Instance \glqq i-06230ccaa[...]\grqq{} (Next-Hop) gesetzt werden, was eine more specific Route zum VPC \gls{CIDR} darstellt.
+Die \gls{Roadwarrior} \gls{Client}s müssen in einem eigenen Subnetz \glqq hinter\grqq{} dem \gls{VPN-Konzentrator} terminiert werden. Dafür werden Routing-Einträge notwendig, damit AWS \gls{VPC} bzw. Azure \gls{VNET} die Information besitzen, über welchen \textit{Next-Hop} das \gls{Roadwarrior}-\gls{VPN}-Subnetz erreicht werden kann. Durch \textit{Route Tables} stellt dies auch keine Hürde dar in Azure. AWS hingegen bietet keine Möglichkeit, Subnetze mit einer längeren Netzmaske in der Route Table zu hinterlegen, falls sie ein Subnetz des \gls{VPC} \gls{CIDR} darstellen würden. Man spricht auch von \glqq more specifics\grqq{}.\\
+Im Beispiel von Abb. \ref{grafik:more_specific_not_allowed_aws} sei das \gls{VPC} \gls{CIDR} 192.168.0.0/16 (Target: local). Es soll eine Route auf ein Netzwerk 192.168.100.0/24 über die AWS Instance \glqq i-06230ccaa[...]\grqq{} (Next-Hop) gesetzt werden, was eine more specific Route zum \gls{VPC} \gls{CIDR} darstellt.
 Es wird im AWS Dashboard beim Versuch, eine more-specific Route anzulegen, eine Fehlermeldung ausgegeben.
 
 \begin{figure}[h]
@@ -341,16 +341,16 @@ Es wird im AWS Dashboard beim Versuch, eine more-specific Route anzulegen, eine 
   \label{grafik:more_specific_not_allowed_aws}
 \end{figure}\FloatBarrier
 More specific Routing wird laut Amazon User Guide für das \textbf{Main Route Table} nicht unterstützt\cite[S.230]{awsug2020}. Dieser Constraint bezieht sich allerdings auf \textbf{alle} Route Tables, wie weitere Tests zeigten.\\
-Präfixe zu nutzen, welche nicht more specific sind, ginge insofern als das Routing \textit{innerhalb} des VPCs möglich wird, allerdings werden diese Präfixe nicht durch BGP den anderen Stellen bekannt gemacht. Somit erreichen Pakete aus Netzwerken, welche nicht im AWS VPC \glqq leben\grqq{}, das VPN-\gls{Client}-Netzwerk nicht.\\
+Präfixe zu nutzen, welche nicht more specific sind, ginge insofern als das Routing \textit{innerhalb} des \gls{VPC}s möglich wird, allerdings werden diese Präfixe nicht durch \gls{BGP} den anderen Stellen bekannt gemacht. Somit erreichen Pakete aus Netzwerken, welche nicht im AWS \gls{VPC} \glqq leben\grqq{}, das VPN-\gls{Client}-Netzwerk nicht.\\
 Hide-NAT ist keine Lösung, da dies die Anforderung nach Ende-zu-Ende-Konnektivität verletzen würden (s. Kapitel \ref{nat-bad}).\\
-Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway dieses Problem erfolgreich gelöst werden. Es bietet die Möglichkeit \textit{Peerings} zwischen verschiedenen VPCs herzustellen. Die Idee war, zwei VPCs zu nutzen: ein VPC für \gls{Roadwarrior}-\gls{VPN} und ein VPC für den (Web-)Server. Alle \gls{VPN}-Verbindungen hängen fortan auf dem Transit Gateway, welches sowohl alle AWS-Routen kennt (statische Routing-Einträge) als auch alle weiteren Routen über BGP lernt. Die VPCs routen alle Ziele zu RFC 1918-Netzwerken statisch auf das Transit Gateway, welches Pakete entweder weiter an das benachbarte VPC oder über das Backbone-Netzwerk zum Ziel weiterschickt. Das folgende Netzwerkdiagramm in Abb. \ref{grafik:aws_tgw_route_tables} mit anhängigen Routing-Tabellen soll diesen Sachverhalt verdeutlichen.
+Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway dieses Problem erfolgreich gelöst werden. Es bietet die Möglichkeit \textit{Peerings} zwischen verschiedenen \gls{VPC}s herzustellen. Die Idee war, zwei \gls{VPC}s zu nutzen: ein \gls{VPC} für \gls{Roadwarrior}-\gls{VPN} und ein \gls{VPC} für den (Web-)Server. Alle \gls{VPN}-Verbindungen hängen fortan auf dem Transit Gateway, welches sowohl alle AWS-Routen kennt (statische Routing-Einträge) als auch alle weiteren Routen über \gls{BGP} lernt. Die \gls{VPC}s routen alle Ziele zu \gls{RFC} 1918-Netzwerken statisch auf das Transit Gateway, welches Pakete entweder weiter an das benachbarte \gls{VPC} oder über das Backbone-Netzwerk zum Ziel weiterschickt. Das folgende Netzwerkdiagramm in Abb. \ref{grafik:aws_tgw_route_tables} mit anhängigen Routing-Tabellen soll diesen Sachverhalt verdeutlichen.
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.75]{Figures/Use-Case-2_AWS_TGW_Route-Tables.pdf}
-  \caption{AWS Transit Gateway für Terminierung von \gls{VPN}-Verbindungen und VPC-Peerings}
+  \caption{AWS Transit Gateway für Terminierung von \gls{VPN}-Verbindungen und \gls{VPC}-Peerings}
   \label{grafik:aws_tgw_route_tables}
 \end{figure}\FloatBarrier
-VPC \gls{CIDR} und VPC Subnet werden in diesem Beispiel synonym verwendet, was formell nicht korrekt ist: Route Tables werden in Subnets genutzt, nicht im \gls{CIDR}. Dies dient jedoch zur Vereinfachung des Schaubildes. Das Transit Gateway lernt die VPC \gls{CIDR} automatisch, insofern \textit{Route Propagation} eingeschaltet ist.
+VPC \gls{CIDR} und \gls{VPC} Subnet werden in diesem Beispiel synonym verwendet, was formell nicht korrekt ist: Route Tables werden in Subnets genutzt, nicht im \gls{CIDR}. Dies dient jedoch zur Vereinfachung des Schaubildes. Das Transit Gateway lernt die \gls{VPC} \gls{CIDR} automatisch, insofern \textit{Route Propagation} eingeschaltet ist.
 \newpage
 \subsection{Untersuchung von \gls{GeoIP}-Daten}
 Die \gls{GeoIP}-Datenbank ist ein Binärformat\cite{maxmind2021binary}. Dies konnte durch das Werkzeug \texttt{file} nochmals bestätigt werden (\glqq data\grqq{})\cite{filemanpage2021}.
@@ -514,22 +514,22 @@ Wed May 12 11:27:26 2021 TCP/UDP: Preserving recently used remote address: [AF_I
 Wed May 12 11:27:26 2021 UDP link remote: [AF_INET]94.245.93.144:61231
 Wed May 12 11:27:26 2021 TLS: Initial packet from [AF_INET]94.245.93.144:61231, sid=edbf2413 4ce1aa1c
 Wed May 12 11:27:26 2021 [vpn-server-azure.ba.mungard.de] Peer Connection Initiated with [AF_INET]94.245.93.144:61231
-Wed May 12 11:27:27 2021 PUSH: Received control message: 'PUSH_REPLY,dhcp-option \gls{DNS} 192.168.201.1,route 10.32.0.0 255.255.0.0,route 10.33.0.0 255.255.0.0,route 192.168.201.0 255.255.255.0,dhcp-option DOMAIN intern.ba.mungard.de,route-gateway 10.32.1.1,topology subnet,ping 10,ping-restart 60,ifconfig 10.32.1.2 255.255.255.0'
+Wed May 12 11:27:27 2021 PUSH: Received control message: 'PUSH_REPLY,dhcp-option DNS 192.168.201.1,route 10.32.0.0 255.255.0.0,route 10.33.0.0 255.255.0.0,route 192.168.201.0 255.255.255.0,dhcp-option DOMAIN intern.ba.mungard.de,route-gateway 10.32.1.1,topology subnet,ping 10,ping-restart 60,ifconfig 10.32.1.2 255.255.255.0'
 Wed May 12 11:27:27 2021 ROUTE_GATEWAY 10.42.0.1/255.255.255.0 IFACE=eth0 HWADDR=00:0d:3a:dc:ec:4f
 Wed May 12 11:27:27 2021 /sbin/ip addr add dev tun0 10.32.1.2/24 broadcast 10.32.1.255
 Wed May 12 11:27:27 2021 /etc/openvpn/update-systemd-resolved tun0 1500 1557 10.32.1.2 255.255.255.0 init
-May 12 11:27:27 update-systemd-resolved: Adding IPv4 \gls{DNS} Server 192.168.201.1
+May 12 11:27:27 update-systemd-resolved: Adding IPv4 DNS Server 192.168.201.1
 Wed May 12 11:27:27 2021 /sbin/ip route add 10.32.0.0/16 via 10.32.1.1
 Wed May 12 11:27:27 2021 /sbin/ip route add 10.33.0.0/16 via 10.32.1.1
 Wed May 12 11:27:27 2021 /sbin/ip route add 192.168.201.0/24 via 10.32.1.1
 
 \end{minted}
-\caption{OpenVPN Verbindungs-Log des \gls{Roadwarrior}-\gls{Client}s}
+\caption{OpenVPN Verbindungs-Log des Roadwarrior-Clients}
 \label{openvpn-connect-log}
 \end{listing}\FloatBarrier
 %TC:endignore
 \newpage
-Um den Fallback zu testen, wurde eine spezielle \texttt{iptables}-Regel eingerichtet, die ausgehende Pakete, in denen der String \glqq vpn\grqq{} enthalten ist, verwirft. \textit{vpn-default} bleibt hingegen erlaubt: Die Regel wird über der erstgenannten Regel ausgewertet (s. Listing \ref{iptables-deny-string-dns}).
+Um den Fallback zu testen, wurde eine spezielle \texttt{\gls{iptables}}-Regel eingerichtet, die ausgehende Pakete, in denen der String \glqq vpn\grqq{} enthalten ist, verwirft. \textit{vpn-default} bleibt hingegen erlaubt: Die Regel wird über der erstgenannten Regel ausgewertet (s. Listing \ref{iptables-deny-string-dns}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -538,7 +538,7 @@ $ sudo iptables-save | grep vpn
 -A OUTPUT -p udp -m string --string "vpn" --algo bm --to 65535 -m udp --dport 53 -j DROP
 
 \end{minted}
-\caption{\texttt{iptables}-Filterregeln für \gls{DNS}-Anfragen}
+\caption{\texttt{iptables}-Filterregeln für DNS-Anfragen}
 \label{iptables-deny-string-dns}
 \end{listing}\FloatBarrier
 %TC:endignore
