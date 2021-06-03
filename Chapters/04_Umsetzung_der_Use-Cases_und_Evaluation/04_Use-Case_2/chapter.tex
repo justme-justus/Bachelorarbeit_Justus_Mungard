@@ -71,7 +71,7 @@ ubuntu@vpn-client-azure:~$ ip -brief -4 address show | grep -v lo
 eth0             UP             10.42.0.4/24
 
 \end{minted}
-\caption{IP-Adresse in CIDR-Notation des \gls{Roadwarrior}-\gls{Client}s}
+\caption{IP-Adresse in \gls{CIDR}-Notation des \gls{Roadwarrior}-\gls{Client}s}
 \label{ext-ip-addr-roadwarrior}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -96,11 +96,11 @@ PING 192.168.201.1 (192.168.201.1) 56(84) bytes of data.
 1 packets transmitted, 0 received, 100% packet loss, time 0ms
 
 \end{minted}
-\caption{Kein Zugriff des \gls{Roadwarrior}-\gls{Client}s auf interne Ressourcen ohne VPN-Verbindung}
+\caption{Kein Zugriff des \gls{Roadwarrior}-\gls{Client}s auf interne Ressourcen ohne \gls{VPN}-Verbindung}
 \label{internet-access-roadwarrior}
 \end{listing}\FloatBarrier
 %TC:endignore
-Die MaxMind \gls{GeoIP}-Datenbank wurde auf dem DNS-Server installiert und in der Bind-Konfiguration referenziert (s. Listing \ref{bind-geoip-directory}).
+Die MaxMind \gls{GeoIP}-Datenbank wurde auf dem \gls{DNS}-Server installiert und in der Bind-Konfiguration referenziert (s. Listing \ref{bind-geoip-directory}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -115,7 +115,7 @@ options {
 \label{bind-geoip-directory}
 \end{listing}\FloatBarrier
 %TC:endignore
-Dadurch wurde ermöglicht, \gls{GeoIP}-Daten in einer Access Control List (ACL) zu nutzen und verschiedene Fälle zu definieren. Die ACL heißt in diesem Falle \glqq dublin\grqq{} und erlaubt Zugriffe aus der Stadt Dublin bzw. Zugriff für den TSIG-Key \glqq db-vpn.ba.mungard.de\grqq{} (s. Listing \ref{tsig-key-acl}). Dieser Key wird benötigt, um Zonen-Updates machen zu können und ist im entsprechenden Terraform-Modul hinterlegt.
+Dadurch wurde ermöglicht, \gls{GeoIP}-Daten in einer Access Control List (\gls{ACL}) zu nutzen und verschiedene Fälle zu definieren. Die \gls{ACL} heißt in diesem Falle \glqq dublin\grqq{} und erlaubt Zugriffe aus der Stadt Dublin bzw. Zugriff für den \gls{TSIG}-Key \glqq db-vpn.ba.mungard.de\grqq{} (s. Listing \ref{tsig-key-acl}). Dieser Key wird benötigt, um Zonen-Updates machen zu können und ist im entsprechenden Terraform-Modul hinterlegt.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
@@ -124,11 +124,11 @@ acl "dublin" {
         key "db-vpn.ba.mungard.de.";
 };
 \end{minted}
-\caption{ACL \glqq dublin\grqq{} für \gls{GeoIP} und TSIG-Key}
+\caption{\gls{ACL} \glqq dublin\grqq{} für \gls{GeoIP} und \gls{TSIG}-Key}
 \label{tsig-key-acl}
 \end{listing}\FloatBarrier
 %TC:endignore
-Weiterhin existiert ein \textit{\gls{View}} \glqq Dublin\grqq{}, in dem die ACL und Zonen-Daten zusammengeführt werden (s. Listing \ref{view-dublin-bind}). Mit \textit{allow-update} werden Zonen-Updates explizit und ausschließlich für genannten TSIG-Key erlaubt.
+Weiterhin existiert ein \textit{\gls{View}} \glqq Dublin\grqq{}, in dem die \gls{ACL} und Zonen-Daten zusammengeführt werden (s. Listing \ref{view-dublin-bind}). Mit \textit{allow-update} werden Zonen-Updates explizit und ausschließlich für genannten \gls{TSIG}-Key erlaubt.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
@@ -141,7 +141,7 @@ view "dublin" {
         };
 };
 \end{minted}
-\caption{\gls{View} \glqq dublin\grqq{} für Zusammenführung von ACL und Zonendatei}
+\caption{\gls{View} \glqq dublin\grqq{} für Zusammenführung von \gls{ACL} und Zonendatei}
 \label{view-dublin-bind}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -157,7 +157,7 @@ default-vpn             A       195.244.254.197
 \label{zone-dublin-before-deployment}
 \end{listing}\FloatBarrier
 %TC:endignore
-Die Konfigurationen für Frankfurter und Kieler \gls{Client}s wurden analog vollzogen. Dies gilt ebenso für das interne DNS. Allerdings wird hier kein \gls{GeoIP} genutzt, sondern anhand der Absender-IP-Adresse wird eine ACL (hier \glqq dublin-internal\grqq{}) \textit{getroffen} (s. Listing \ref{view-internal-bind}). Auch die internen Zonen sind durch Terraform via DNS UPDATE editierbar (key \glqq db-vpn-internal.ba.mungard.de.\grqq{}).
+Die Konfigurationen für Frankfurter und Kieler \gls{Client}s wurden analog vollzogen. Dies gilt ebenso für das interne \gls{DNS}. Allerdings wird hier kein \gls{GeoIP} genutzt, sondern anhand der Absender-IP-Adresse wird eine \gls{ACL} (hier \glqq dublin-internal\grqq{}) \textit{getroffen} (s. Listing \ref{view-internal-bind}). Auch die internen Zonen sind durch Terraform via \gls{DNS} UPDATE editierbar (key \glqq db-vpn-internal.ba.mungard.de.\grqq{}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
@@ -166,11 +166,11 @@ acl "dublin-internal" {
         key "db-vpn-internal.ba.mungard.de.";
 };
 \end{minted}
-\caption{ACL \glqq dublin-internal\grqq{} für internes DNS}
+\caption{\gls{ACL} \glqq dublin-internal\grqq{} für internes \gls{DNS}}
 \label{view-internal-bind}
 \end{listing}\FloatBarrier
 %TC:endignore
-Weiterhin gibt es eine ACL \glqq match-all\grqq{}, welche für anfragende \gls{Client}s vorgesehen ist, die nicht per \gls{GeoIP} identifiziert werden. Durch das Netzwerk 0.0.0.0/0 treffen die ACL alle restlichen Teilnehmer des Internets (s. Listing \ref{view-matchall-bin}).
+Weiterhin gibt es eine \gls{ACL} \glqq match-all\grqq{}, welche für anfragende \gls{Client}s vorgesehen ist, die nicht per \gls{GeoIP} identifiziert werden. Durch das Netzwerk 0.0.0.0/0 treffen die \gls{ACL} alle restlichen Teilnehmer des Internets (s. Listing \ref{view-matchall-bin}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
@@ -179,12 +179,12 @@ acl "match-all" {
         key "all-vpn.ba.mungard.de.";
 };
 \end{minted}
-\caption{ACL \glqq match-all\grqq{} für alle übrigen Anfragen}
+\caption{\gls{ACL} \glqq match-all\grqq{} für alle übrigen Anfragen}
 \label{view-matchall-bin}
 \end{listing}\FloatBarrier
 %TC:endignore
 
-Im Terraform-Modul muss ein Provider \textit{pro} TSIG-Key konfiguriert werden. Der server-Parameter konfiguriert den Nameserver, der per DNS UPDATE editiert werden soll. Außerdem ist das Pre-Shared-Secret (TSIG-Key) hinterlegt. Es wird für die Domain vpn.ba.mungard.de die IP-Adresse (\textit{var.dublin\_ip}) des \gls{VPN-Konzentrator}s in Dublin (Azure) eingetragen, welche dynamisch zur Laufzeit entsteht (s. Listing \ref{tf-provider-dns}).
+Im Terraform-Modul muss ein Provider \textit{pro} \gls{TSIG}-Key konfiguriert werden. Der server-Parameter konfiguriert den Nameserver, der per \gls{DNS} UPDATE editiert werden soll. Außerdem ist das Pre-Shared-Secret (\gls{TSIG}-Key) hinterlegt. Es wird für die Domain vpn.ba.mungard.de die IP-Adresse (\textit{var.dublin\_ip}) des \gls{VPN-Konzentrator}s in Dublin (Azure) eingetragen, welche dynamisch zur Laufzeit entsteht (s. Listing \ref{tf-provider-dns}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -205,7 +205,7 @@ resource "dns_a_record_set" "vpn-dublin" {
   ttl = 15
 }
 \end{minted}
-\caption{Terraform Modul zur Veränderung von DNS-Zonen}
+\caption{Terraform Modul zur Veränderung von \gls{DNS}-Zonen}
 \label{tf-provider-dns}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -275,7 +275,7 @@ resource "null_resource" "www_config" {
 %TC:endignore
 
 Die OpenVPN \gls{Client}-Konfigurationen wurden vor Terraform-\gls{Deployment} bereits \textit{inline} in einer Textdatei vorbereitet (s. Listing \ref{vpn-c2s-server-config}). Auch hier gilt analog zur Server-Konfiguration, dass Schlüsselmaterial optimalerweise erst zur Laufzeit erstellt wird. Zertifikate und privater Schlüssel wurden im folgenden Beispiel gefiltert. Von zentraler Bedeutung sind Zeilen 1 und 2: Durch mehrfache Angabe einer remote-Direktive kann ein Fallback auf \textit{default-vpn.ba.mungard.de} stattfinden, sollte \textit{vpn.ba.mungard.de} nicht auflösbar sein. Die erste remote-Direktive wird dabei \textbf{immer} zuerst kontaktiert, dann folgt der Fallback auf die zweite.\\
-Dies gilt für den Fall, falls das \gls{Deployment} noch nicht stattgefunden hat und der \gls{Client} nicht in der Nähe von Kiel ist, um per \gls{GeoIP}-ACL Zugriff auf die Auflösung von \textit{vpn.ba.mungard.de} erhält. Per \textit{pullfilter ignore redirect-gateway} wird verhindert, dass ein Default Gateway über den Tunnel signalisiert wird: Nur alle \textbf{bekannten} Routen kommen über die OpenVPN-Server-Konfiguration. Es findet kein \textit{full tunneling} statt.
+Dies gilt für den Fall, falls das \gls{Deployment} noch nicht stattgefunden hat und der \gls{Client} nicht in der Nähe von Kiel ist, um per \gls{GeoIP}-\gls{ACL} Zugriff auf die Auflösung von \textit{vpn.ba.mungard.de} erhält. Per \textit{pullfilter ignore redirect-gateway} wird verhindert, dass ein Default Gateway über den Tunnel signalisiert wird: Nur alle \textbf{bekannten} Routen kommen über die OpenVPN-Server-Konfiguration. Es findet kein \textit{full tunneling} statt.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[linenos,breaklines,frame=single]{text}
@@ -302,7 +302,7 @@ persist-tun
 \newpage
 Analog zu den Kapiteln \ref{xml-tunnel-parameters} bis \ref{azure-deployment-time} werden im Folgenden Probleme und Lösungsfindung erläutert.
 \subsection{Beschleunigung des \gls{Deployment}s}\label{accelerate-deployment-use-case-2}
-Das Azure VPN Gateway benötigt viel Zeit für die Erstellung (s. Kapitel \ref{azure-deployment-time}). Da Use-Case 2 direkt auf diesem Use-Case aufsetzt, hätte das ebenso eine lange \gls{Deployment}-Zeit nach sich gezogen. So war ursprünglich die Idee, den Programmcode aus Use-Case 1 zu kopieren und um die Infrastruktur-Komponenten aus Use-Case 2 zu ergänzen. Somit hätte sich die \gls{Deployment} Zeit $t_{gesamt}$ aus den jeweiligen \gls{Deployment}-Zeiten der Infrastrukturen aus Use-Case 1 und Use-Case 2 zusammengesetzt:\\
+Das Azure \gls{VPN} Gateway benötigt viel Zeit für die Erstellung (s. Kapitel \ref{azure-deployment-time}). Da Use-Case 2 direkt auf diesem Use-Case aufsetzt, hätte das ebenso eine lange \gls{Deployment}-Zeit nach sich gezogen. So war ursprünglich die Idee, den Programmcode aus Use-Case 1 zu kopieren und um die Infrastruktur-Komponenten aus Use-Case 2 zu ergänzen. Somit hätte sich die \gls{Deployment} Zeit $t_{gesamt}$ aus den jeweiligen \gls{Deployment}-Zeiten der Infrastrukturen aus Use-Case 1 und Use-Case 2 zusammengesetzt:\\
 $t_{gesamt} = t_{Infrastruktur_{U1}} + t_{Infrastruktur_{U2}}$
 
 Somit kam die Frage auf, ob man das \gls{Deployment} für Use-Case 2 beschleunigen könnte. Da in Use-Case 2 viele Tests und Änderungen gemacht wurden, musste das \gls{Deployment} oftmals komplett neu erfolgen, was \gls{Deployment}-Zeiten von bis zu anderthalb Stunden (siehe \ref{xml-tunnel-parameters}) nach sich ziehen kann.\\
@@ -330,8 +330,8 @@ $t_{gesamt} = t_{Infrastruktur_{U2}}$
 Im Allgemeinen hat sich dieser \glqq Teile-und-herrsche\grqq{}-Ansatz im Zusammenspiel mit Terraform als sehr hilfreich erwiesen, um Konsistenz-Probleme der asynchronen Cloud-APIs während der \gls{Deployment}-Phase zu verringern\cite[S.183-184]{Brikman2019}. Probleme während des \gls{Deployment}s entstanden v.a. dann, wenn \glqq zu viele\grqq{} Abhängigkeiten in der Infrastruktur vorhanden waren. Für die Verschaltung von aufgeteilten Terraform-\gls{Deployment}s eignet sich das Werkzeug Terragrunt\cite[S.98]{Brikman2019}.
 \newpage
 \subsection{More-specific Routing in AWS Route Tables}
-Die \gls{Roadwarrior} \gls{Client}s müssen in einem eigenen Subnetz \glqq hinter\grqq{} dem \gls{VPN-Konzentrator} terminiert werden. Dafür werden Routing-Einträge notwendig, damit AWS VPC bzw. Azure VNET die Information besitzen, über welchen \textit{Next-Hop} das \gls{Roadwarrior}-VPN-Subnetz erreicht werden kann. Durch \textit{Route Tables} stellt dies auch keine Hürde dar in Azure. AWS hingegen bietet keine Möglichkeit, Subnetze mit einer längeren Netzmaske in der Route Table zu hinterlegen, falls sie ein Subnetz des VPC CIDR darstellen würden. Man spricht auch von \glqq more specifics\grqq{}.\\
-Im Beispiel von Abb. \ref{grafik:more_specific_not_allowed_aws} sei das VPC CIDR 192.168.0.0/16 (Target: local). Es soll eine Route auf ein Netzwerk 192.168.100.0/24 über die AWS Instance \glqq i-06230ccaa[...]\grqq{} (Next-Hop) gesetzt werden, was eine more specific Route zum VPC CIDR darstellt.
+Die \gls{Roadwarrior} \gls{Client}s müssen in einem eigenen Subnetz \glqq hinter\grqq{} dem \gls{VPN-Konzentrator} terminiert werden. Dafür werden Routing-Einträge notwendig, damit AWS VPC bzw. Azure VNET die Information besitzen, über welchen \textit{Next-Hop} das \gls{Roadwarrior}-\gls{VPN}-Subnetz erreicht werden kann. Durch \textit{Route Tables} stellt dies auch keine Hürde dar in Azure. AWS hingegen bietet keine Möglichkeit, Subnetze mit einer längeren Netzmaske in der Route Table zu hinterlegen, falls sie ein Subnetz des VPC \gls{CIDR} darstellen würden. Man spricht auch von \glqq more specifics\grqq{}.\\
+Im Beispiel von Abb. \ref{grafik:more_specific_not_allowed_aws} sei das VPC \gls{CIDR} 192.168.0.0/16 (Target: local). Es soll eine Route auf ein Netzwerk 192.168.100.0/24 über die AWS Instance \glqq i-06230ccaa[...]\grqq{} (Next-Hop) gesetzt werden, was eine more specific Route zum VPC \gls{CIDR} darstellt.
 Es wird im AWS Dashboard beim Versuch, eine more-specific Route anzulegen, eine Fehlermeldung ausgegeben.
 
 \begin{figure}[h]
@@ -343,14 +343,14 @@ Es wird im AWS Dashboard beim Versuch, eine more-specific Route anzulegen, eine 
 More specific Routing wird laut Amazon User Guide für das \textbf{Main Route Table} nicht unterstützt\cite[S.230]{awsug2020}. Dieser Constraint bezieht sich allerdings auf \textbf{alle} Route Tables, wie weitere Tests zeigten.\\
 Präfixe zu nutzen, welche nicht more specific sind, ginge insofern als das Routing \textit{innerhalb} des VPCs möglich wird, allerdings werden diese Präfixe nicht durch BGP den anderen Stellen bekannt gemacht. Somit erreichen Pakete aus Netzwerken, welche nicht im AWS VPC \glqq leben\grqq{}, das VPN-\gls{Client}-Netzwerk nicht.\\
 Hide-NAT ist keine Lösung, da dies die Anforderung nach Ende-zu-Ende-Konnektivität verletzen würden (s. Kapitel \ref{nat-bad}).\\
-Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway dieses Problem erfolgreich gelöst werden. Es bietet die Möglichkeit \textit{Peerings} zwischen verschiedenen VPCs herzustellen. Die Idee war, zwei VPCs zu nutzen: ein VPC für \gls{Roadwarrior}-VPN und ein VPC für den (Web-)Server. Alle VPN-Verbindungen hängen fortan auf dem Transit Gateway, welches sowohl alle AWS-Routen kennt (statische Routing-Einträge) als auch alle weiteren Routen über BGP lernt. Die VPCs routen alle Ziele zu RFC 1918-Netzwerken statisch auf das Transit Gateway, welches Pakete entweder weiter an das benachbarte VPC oder über das Backbone-Netzwerk zum Ziel weiterschickt. Das folgende Netzwerkdiagramm in Abb. \ref{grafik:aws_tgw_route_tables} mit anhängigen Routing-Tabellen soll diesen Sachverhalt verdeutlichen.
+Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway dieses Problem erfolgreich gelöst werden. Es bietet die Möglichkeit \textit{Peerings} zwischen verschiedenen VPCs herzustellen. Die Idee war, zwei VPCs zu nutzen: ein VPC für \gls{Roadwarrior}-\gls{VPN} und ein VPC für den (Web-)Server. Alle \gls{VPN}-Verbindungen hängen fortan auf dem Transit Gateway, welches sowohl alle AWS-Routen kennt (statische Routing-Einträge) als auch alle weiteren Routen über BGP lernt. Die VPCs routen alle Ziele zu RFC 1918-Netzwerken statisch auf das Transit Gateway, welches Pakete entweder weiter an das benachbarte VPC oder über das Backbone-Netzwerk zum Ziel weiterschickt. Das folgende Netzwerkdiagramm in Abb. \ref{grafik:aws_tgw_route_tables} mit anhängigen Routing-Tabellen soll diesen Sachverhalt verdeutlichen.
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.75]{Figures/Use-Case-2_AWS_TGW_Route-Tables.pdf}
-  \caption{AWS Transit Gateway für Terminierung von VPN-Verbindungen und VPC-Peerings}
+  \caption{AWS Transit Gateway für Terminierung von \gls{VPN}-Verbindungen und VPC-Peerings}
   \label{grafik:aws_tgw_route_tables}
 \end{figure}\FloatBarrier
-VPC CIDR und VPC Subnet werden in diesem Beispiel synonym verwendet, was formell nicht korrekt ist: Route Tables werden in Subnets genutzt, nicht im CIDR. Dies dient jedoch zur Vereinfachung des Schaubildes. Das Transit Gateway lernt die VPC CIDR automatisch, insofern \textit{Route Propagation} eingeschaltet ist.
+VPC \gls{CIDR} und VPC Subnet werden in diesem Beispiel synonym verwendet, was formell nicht korrekt ist: Route Tables werden in Subnets genutzt, nicht im \gls{CIDR}. Dies dient jedoch zur Vereinfachung des Schaubildes. Das Transit Gateway lernt die VPC \gls{CIDR} automatisch, insofern \textit{Route Propagation} eingeschaltet ist.
 \newpage
 \subsection{Untersuchung von \gls{GeoIP}-Daten}
 Die \gls{GeoIP}-Datenbank ist ein Binärformat\cite{maxmind2021binary}. Dies konnte durch das Werkzeug \texttt{file} nochmals bestätigt werden (\glqq data\grqq{})\cite{filemanpage2021}.
@@ -365,7 +365,7 @@ $ file /usr/share/GeoIP/GeoLite2-City.mmdb
 \label{file-geoip-db}
 \end{listing}\FloatBarrier
 %TC:endignore
-Die Datensätze mussten \glqq sichtbar\grqq{} gemacht werden, um eine Idee zu bekommen, welche Spezifizierer genutzt werden können, um die DNS-Auflösung in regionaler Abhängigkeit umzusetzen. Weiterhin war nicht sichergestellt, welche Qualität die Datensätze aufweisen. Um dies zu testen, wurde ein kurzes Python-Skript \textit{mmdb.py} geschrieben und das Modul \textit{maxminddb} des \gls{GeoIP}-Anbieters MaxMind eingebunden \cite{maxminddbreader2021}. Per \textit{pretty print} konnten die entsprechenden Datensätze für eine IP-Adresse ausgegeben werden.
+Die Datensätze mussten \glqq sichtbar\grqq{} gemacht werden, um eine Idee zu bekommen, welche Spezifizierer genutzt werden können, um die \gls{DNS}-Auflösung in regionaler Abhängigkeit umzusetzen. Weiterhin war nicht sichergestellt, welche Qualität die Datensätze aufweisen. Um dies zu testen, wurde ein kurzes Python-Skript \textit{mmdb.py} geschrieben und das Modul \textit{maxminddb} des \gls{GeoIP}-Anbieters MaxMind eingebunden \cite{maxminddbreader2021}. Per \textit{pretty print} konnten die entsprechenden Datensätze für eine IP-Adresse ausgegeben werden.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{python3}
@@ -422,7 +422,7 @@ Insgesamt erwiesen sich die Datensätze als sehr brauchbar und akkurat. Per cron
 
 \subsection{Evaluation}
 
-Es wurde pro Cloud-Standort eine virtuelle Maschine hochgefahren, die einen \gls{Roadwarrior}-\gls{Client} simulieren soll. Diese \gls{Client}s haben \textbf{keinen} Zugriff auf interne Komponenten, sondern sind lediglich mit dem Internet verbunden, über welches VPN-Verbindungen zum jeweiligen \gls{VPN-Konzentrator} aufgebaut werden können.
+Es wurde pro Cloud-Standort eine virtuelle Maschine hochgefahren, die einen \gls{Roadwarrior}-\gls{Client} simulieren soll. Diese \gls{Client}s haben \textbf{keinen} Zugriff auf interne Komponenten, sondern sind lediglich mit dem Internet verbunden, über welches \gls{VPN}-Verbindungen zum jeweiligen \gls{VPN-Konzentrator} aufgebaut werden können.
 
 Nach dem \gls{Deployment} von Use-Case 2 wird geprüft, ob sich die Domain vpn.ba.mungard.de auflösen lässt. Dies wird demonstriert in Listing \ref{dns-resolution-client-vpn} für den Standort Azure Dublin.
 %TC:ignore
@@ -448,7 +448,7 @@ mnt-by:         MICROSOFT-MAINT
 \label{whois-microsoft-ip}
 \end{listing}\FloatBarrier
 %TC:endignore
-Das Ziel ist ca. 1 Millisekunde entfernt. Für diesen Ping-Test wurde in der NSG manuell ICMP Echo Request erlaubt (eingehend). Im Standardfall würde für ICMP Echo Request ein \textit{Dropping} erfolgen.
+Das Ziel ist ca. 1 Millisekunde entfernt. Für diesen Ping-Test wurde in der \gls{NSG} manuell \gls{ICMP} Echo Request erlaubt (eingehend). Im Standardfall würde für \gls{ICMP} Echo Request ein \textit{Dropping} erfolgen.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -469,7 +469,7 @@ rtt min/avg/max/mdev = 0.936/1.073/1.216/0.106 ms
 \label{ping-microsoft-ip}
 \end{listing}\FloatBarrier
 %TC:endignore
-Die Annahme von nun an ist, dass die lokale DNS-Auflösung auch für AWS funktioniert. Daher folgt an dieser Stelle nur ein Ping mit vorheriger Auflösung des Hostnamens vpn.ba.mungard.de. Die Round-Trip-Time (RTT) ist vergleichbar mit Azure (s. Listing \ref{ping-microsoft-ip}).
+Die Annahme von nun an ist, dass die lokale \gls{DNS}-Auflösung auch für AWS funktioniert. Daher folgt an dieser Stelle nur ein Ping mit vorheriger Auflösung des Hostnamens vpn.ba.mungard.de. Die Round-Trip-Time (RTT) ist vergleichbar mit Azure (s. Listing \ref{ping-microsoft-ip}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -489,7 +489,7 @@ rtt min/avg/max/mdev = 0.930/1.001/1.157/0.091 ms
 \label{ping-aws-ip}
 \end{listing}\FloatBarrier
 %TC:endignore
-Es wurde eine virtuelle Maschine in der Public Cloud der Firma Hetzner am Standort Nürnberg bereitgestellt, welche einen \gls{Roadwarrior}-\gls{Client} simuliert, welcher an keinem der Standorte (Dublin, Frankfurtl, Kiel) verfügbar ist. Die Annahme ist, dass eine DNS-Anfrage die \glqq match-all\grqq-ACl treffen müsste, was Fall b) repräsentiert (vgl. Abb. \ref{grafik:Use-Case_2_Entscheidungsbaum_GeoIP}). Das \texttt{dig}-Kommando liefert drei A-Records für die Domain vpn.ba.mungard.de aus, somit wird diese ACL getroffen (s. Listing \ref{dig-match-all}).
+Es wurde eine virtuelle Maschine in der Public Cloud der Firma Hetzner am Standort Nürnberg bereitgestellt, welche einen \gls{Roadwarrior}-\gls{Client} simuliert, welcher an keinem der Standorte (Dublin, Frankfurtl, Kiel) verfügbar ist. Die Annahme ist, dass eine \gls{DNS}-Anfrage die \glqq match-all\grqq-ACl treffen müsste, was Fall b) repräsentiert (vgl. Abb. \ref{grafik:Use-Case_2_Entscheidungsbaum_GeoIP}). Das \texttt{dig}-Kommando liefert drei A-Records für die Domain vpn.ba.mungard.de aus, somit wird diese \gls{ACL} getroffen (s. Listing \ref{dig-match-all}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -514,11 +514,11 @@ Wed May 12 11:27:26 2021 TCP/UDP: Preserving recently used remote address: [AF_I
 Wed May 12 11:27:26 2021 UDP link remote: [AF_INET]94.245.93.144:61231
 Wed May 12 11:27:26 2021 TLS: Initial packet from [AF_INET]94.245.93.144:61231, sid=edbf2413 4ce1aa1c
 Wed May 12 11:27:26 2021 [vpn-server-azure.ba.mungard.de] Peer Connection Initiated with [AF_INET]94.245.93.144:61231
-Wed May 12 11:27:27 2021 PUSH: Received control message: 'PUSH_REPLY,dhcp-option DNS 192.168.201.1,route 10.32.0.0 255.255.0.0,route 10.33.0.0 255.255.0.0,route 192.168.201.0 255.255.255.0,dhcp-option DOMAIN intern.ba.mungard.de,route-gateway 10.32.1.1,topology subnet,ping 10,ping-restart 60,ifconfig 10.32.1.2 255.255.255.0'
+Wed May 12 11:27:27 2021 PUSH: Received control message: 'PUSH_REPLY,dhcp-option \gls{DNS} 192.168.201.1,route 10.32.0.0 255.255.0.0,route 10.33.0.0 255.255.0.0,route 192.168.201.0 255.255.255.0,dhcp-option DOMAIN intern.ba.mungard.de,route-gateway 10.32.1.1,topology subnet,ping 10,ping-restart 60,ifconfig 10.32.1.2 255.255.255.0'
 Wed May 12 11:27:27 2021 ROUTE_GATEWAY 10.42.0.1/255.255.255.0 IFACE=eth0 HWADDR=00:0d:3a:dc:ec:4f
 Wed May 12 11:27:27 2021 /sbin/ip addr add dev tun0 10.32.1.2/24 broadcast 10.32.1.255
 Wed May 12 11:27:27 2021 /etc/openvpn/update-systemd-resolved tun0 1500 1557 10.32.1.2 255.255.255.0 init
-May 12 11:27:27 update-systemd-resolved: Adding IPv4 DNS Server 192.168.201.1
+May 12 11:27:27 update-systemd-resolved: Adding IPv4 \gls{DNS} Server 192.168.201.1
 Wed May 12 11:27:27 2021 /sbin/ip route add 10.32.0.0/16 via 10.32.1.1
 Wed May 12 11:27:27 2021 /sbin/ip route add 10.33.0.0/16 via 10.32.1.1
 Wed May 12 11:27:27 2021 /sbin/ip route add 192.168.201.0/24 via 10.32.1.1
@@ -538,7 +538,7 @@ $ sudo iptables-save | grep vpn
 -A OUTPUT -p udp -m string --string "vpn" --algo bm --to 65535 -m udp --dport 53 -j DROP
 
 \end{minted}
-\caption{\texttt{iptables}-Filterregeln für DNS-Anfragen}
+\caption{\texttt{iptables}-Filterregeln für \gls{DNS}-Anfragen}
 \label{iptables-deny-string-dns}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -557,7 +557,7 @@ ubuntu@vpn-client-azure:~$ dig +short default-vpn.ba.mungard.de A
 \label{dig-fail-vpn-fallback-to-default-vpn}
 \end{listing}\FloatBarrier
 %TC:endignore
-Dies macht sich auch beim Verbindungsversuch mit OpenVPN bemerkbar. Ein Fallback auf die IP 195.244.254.197 erfolgt, da vpn.ba.mungard.de nicht mehr auflösbar ist (s. Listing \ref{connection-fail-vpn-fallback-default-vpn}). Die IP-Adresse entpricht dabei dem FQDN default-vpn.ba.mungard.de. Fall c) wurde somit erfolgreich abgebildet (vgl. Abb. \ref{grafik:Use-Case_2_Entscheidungsbaum_GeoIP}).
+Dies macht sich auch beim Verbindungsversuch mit OpenVPN bemerkbar. Ein Fallback auf die IP 195.244.254.197 erfolgt, da vpn.ba.mungard.de nicht mehr auflösbar ist (s. Listing \ref{connection-fail-vpn-fallback-default-vpn}). Die IP-Adresse entpricht dabei dem \gls{FQDN} default-vpn.ba.mungard.de. Fall c) wurde somit erfolgreich abgebildet (vgl. Abb. \ref{grafik:Use-Case_2_Entscheidungsbaum_GeoIP}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -572,7 +572,7 @@ Wed May 12 12:19:19 2021 UDP link remote: [AF_INET]195.244.254.197:61231
 Wed May 12 12:19:20 2021 Initialization Sequence Completed
 
 \end{minted}
-\caption{OpenVPN-Verbindungsversucht mit \texttt{iptables}-Filterregel}
+\caption{Open\gls{VPN}-Verbindungsversucht mit \texttt{iptables}-Filterregel}
 \label{connection-fail-vpn-fallback-default-vpn}
 \end{listing}\FloatBarrier
 %TC:endignore

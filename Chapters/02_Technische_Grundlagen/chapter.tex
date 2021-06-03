@@ -21,7 +21,7 @@ Mit Hilfe von (Sub-)Netzmasken wird die Netzwerkgröße bestimmt. Ein Host mit d
 
 Die ersten 24 Bit sind für das Netzwerk reserviert (Network bits), die letzte 8 Bit sind Host bits. Dieses Netzwerk kann somit theoretisch aus $2^8 = 256$ Hosts bestehen, wobei die erste und letzte Adresse reserviert sind (Netzwerk- und Broadcast-Adresse).
 
-Heutzutage üblich ist die so genannte Classless Inter-Domain Routing-Notation (\gls{CIDR}), welche IP-Addresse und Netzmaske vereint. Wenn man die genannten Beispiele aus Adresse und Subnetzmaske zusammenführt, erhält man die IP-Adresse in CIDR-Notation: 1.2.3.4/24. /24 entspricht dabei den gesetzten Network bits.
+Heutzutage üblich ist die so genannte Classless Inter-Domain Routing-Notation (\gls{CIDR}), welche IP-Addresse und Netzmaske vereint. Wenn man die genannten Beispiele aus Adresse und Subnetzmaske zusammenführt, erhält man die IP-Adresse in \gls{CIDR}-Notation: 1.2.3.4/24. /24 entspricht dabei den gesetzten Network bits.
 
 Mit Hilfe der IP-Adresse und Netzmaske lässt sich ermitteln, ob sich ein anderer Host im gleichen \textit{Subnetz} befindet. Dafür berechnet das Betriebssystem die eigene Netzwerkadresse per Bitwise-AND aus eigener IP und Netzmaske. In Listing \ref{own-ip-address-AND-subnet} wird die Netzwerkadresse für die IP-Adresse 1.2.3.4 mit der Netzmaske 255.255.255.0 ermittelt.
 %TC:ignore
@@ -92,7 +92,7 @@ Damit weiß der \gls{Client}, dass Pakete für das Netzwerk 192.168.200.0/24 üb
 \gls{Client} und Server müssen im Übrigen das Netzwerk 192.168.100.0/30 \textbf{nicht} in ihrer Routing-Tabelle pflegen. Dieses Netzwerk hat ausschließlich eine Relevanz zur Übertragung von Daten zwischen R1 und R2: Man spricht auch von Transfernetzwerken.\\
 Dieses Beispiel bringt ein Skalierungsproblem mit sich: Umso mehr Subnetze existieren, in denen Server zu erreichen sind, desto mehr Routen muss der \gls{Client} in der Routing-Tabelle, u.U. manuell gepflegt, vorhalten. Das gleiche gilt für Server, insofern eine Server-zu-Server-Kommunikation erfolgen soll.\\
 In der Praxis sieht man kaum noch Endsysteme (darunter fallen \gls{Client} und Server), welche mit solchen \textit{spezifischen} Routen arbeiten. Man überlässt die komplexe Verwaltung von Routing-Tabellen den Routern, während die Endsysteme neben der link-lokalen nur noch die \textit{Default}-Route besitzen. In diese Route 0.0.0.0/0 fallen alle Zielnetzwerke, abgesehen vom link-lokalen Subnetz, und sie zeigt immer auf den lokal erreichbaren Router.\\
-Das Setzen der Default Route garantiert allerdings nicht, dass ein Ziel auch wirklich erreicht werden kann, z.B. weil es gar nicht existiert oder das Zielnetzwerk nicht in der Routing-Tabelle eines (Next-Hop-)Routers vorhanden ist. Ein Hilfsprotokoll zur Signalisierung von Erreichbarkeit ist dabei das Internet Control Message Protocol (ICMP). Das bekannte Werkzeug \texttt{ping} nutzt Nachrichten in Form von ICMP Echo Request und ICMP Echo Response, um die Erreichbarkeit via IP eines Endsystems zu prüfen.
+Das Setzen der Default Route garantiert allerdings nicht, dass ein Ziel auch wirklich erreicht werden kann, z.B. weil es gar nicht existiert oder das Zielnetzwerk nicht in der Routing-Tabelle eines (Next-Hop-)Routers vorhanden ist. Ein Hilfsprotokoll zur Signalisierung von Erreichbarkeit ist dabei das Internet Control Message Protocol (\gls{ICMP}). Das bekannte Werkzeug \texttt{ping} nutzt Nachrichten in Form von \gls{ICMP} Echo Request und \gls{ICMP} Echo Response, um die Erreichbarkeit via IP eines Endsystems zu prüfen.
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.85]{Figures/next_hop_routing_default_route.pdf}
@@ -166,7 +166,7 @@ Man nutzt optimalerweise Path MTU Discovery oder beeinflusst die Maximum Segment
 Mit Hilfe von \gls{GeoIP}-Datenbanken ist es möglich, den (ungefähren) Standort anhand der Absender-IP-Adresse eines \gls{Client}s zu bestimmen. Verwendung finden solche Datenbanken häufig bei Internet-Streaming-Anbietern, um Zugriffe auf ein Videoangebot aus dem Ausland zu verhindern. Die Firma MaxMind ist dabei führender Anbieter für solche \gls{GeoIP}-Datenbanken \cite{maxmind2021geoip}.
 
 \section{Domain Name System (DNS)}\label{DNS}
-Das DNS ermöglicht, Server im Internet anhand eines Namens, dem Fully Qualified Domain Name (FQDN), zu erreichen. Somit muss sich ein Benutzer einer Webseite keine IP-Adresse merken, sondern lediglich den dazugehörigen FQDN. Die IP-Adresse wird über die \textit{DNS-Auflösung} herausgefunden. Das DNS ist ein hierarchisches Modell, welches mit Domains arbeitet. Diese unterliegen unterschiedlichen Autoritäten. 
+Das \gls{DNS} ermöglicht, Server im Internet anhand eines Namens, dem Fully Qualified Domain Name (\gls{FQDN}), zu erreichen. Somit muss sich ein Benutzer einer Webseite keine IP-Adresse merken, sondern lediglich den dazugehörigen \gls{FQDN}. Die IP-Adresse wird über die \textit{DNS-Auflösung} herausgefunden. Das \gls{DNS} ist ein hierarchisches Modell, welches mit Domains arbeitet. Diese unterliegen unterschiedlichen Autoritäten. 
 \begin{figure}[h]
   \centering
   \includegraphics{Figures/dns_autoritative.pdf}
@@ -174,13 +174,13 @@ Das DNS ermöglicht, Server im Internet anhand eines Namens, dem Fully Qualified
   \label{grafik: dns-hierarchy}
 \end{figure}\FloatBarrier
 
-Soll z.B. der FQDN www.intern.ba.mungard.de. aufgelöst werden (s. Abb. \ref{grafik: dns-hierarchy}), muss der \textit{Baum} von der Wurzel \glqq .\grqq{} über die Knoten \glqq de\grqq{}, \glqq mungard\grqq{}, ... bis zum Blatt \glqq www\grqq{} durchlaufen werden. Man spricht von einer iterativen Auflösung. Pro Hierarchie-Ebene sind \textit{autoritative Nameserver} verantwortlich für die richtige Delegation des auflösenden \gls{Client}s.\\
-Das Blatt \glqq www\grqq{} wird auch als Resource Record bezeichnet. Für diese Arbeit sind lediglich A-Records relevant, welche FQDN nach IPv4-Adresse auflösen. Viele weitere DNS-Records existieren, z.B. für IPv6-Adressen (AAAA) oder um Mailserver (MX) für eine Domain anzugeben \cite[S.528]{Fall2011}.\\
+Soll z.B. der \gls{FQDN} www.intern.ba.mungard.de. aufgelöst werden (s. Abb. \ref{grafik: dns-hierarchy}), muss der \textit{Baum} von der Wurzel \glqq .\grqq{} über die Knoten \glqq de\grqq{}, \glqq mungard\grqq{}, ... bis zum Blatt \glqq www\grqq{} durchlaufen werden. Man spricht von einer iterativen Auflösung. Pro Hierarchie-Ebene sind \textit{autoritative Nameserver} verantwortlich für die richtige Delegation des auflösenden \gls{Client}s.\\
+Das Blatt \glqq www\grqq{} wird auch als Resource Record bezeichnet. Für diese Arbeit sind lediglich A-Records relevant, welche \gls{FQDN} nach IPv4-Adresse auflösen. Viele weitere \gls{DNS}-Records existieren, z.B. für IPv6-Adressen (AAAA) oder um Mailserver (MX) für eine Domain anzugeben \cite[S.528]{Fall2011}.\\
 Ein Beispiel für einen autoritativen Nameserver ist Bind \cite{liu2006dns}. Innerhalb des Nameservers werden Domains anhand von \textit{Zonen(-Dateien)} verwaltet.
 \newpage
 \subsection{DNS-Resolver}
-\gls{Client}s machen diese iterative Namensauflösung typischerweise nicht selbst, sondern leiten ihre Anfragen an einen DNS-Resolver weiter (\textit{Forwarding}). Dieser sucht \textit{iterativ} zu einem FQDN eine IPv4-Adresse und liefert sie dem \gls{Client} aus (s. Abb. \ref{grafik: dns-resolver}). Wenn ein Nameserver für eine gesuchte Domain nicht autoritativ ist, wird der Resolver per NS Record weiterdelegiert.\\
-Weiterhin kann ein Resolver Einträge \textit{cachen}, um auf erneute Anfragen für gleiche FQDN schneller zu antworten.%Der letzte Punkt eines FQDN, welcher die Root-Domain repräsentiert, wird üblicherweise ausgelassen.
+\gls{Client}s machen diese iterative Namensauflösung typischerweise nicht selbst, sondern leiten ihre Anfragen an einen \gls{DNS}-Resolver weiter (\textit{Forwarding}). Dieser sucht \textit{iterativ} zu einem \gls{FQDN} eine IPv4-Adresse und liefert sie dem \gls{Client} aus (s. Abb. \ref{grafik: dns-resolver}). Wenn ein Nameserver für eine gesuchte Domain nicht autoritativ ist, wird der Resolver per NS Record weiterdelegiert.\\
+Weiterhin kann ein Resolver Einträge \textit{cachen}, um auf erneute Anfragen für gleiche \gls{FQDN} schneller zu antworten.
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.7]{Figures/dns_recursion.pdf}
@@ -213,24 +213,24 @@ www01.fh-kiel.de.       21599   IN      A       149.222.20.63
 \end{listing}\FloatBarrier
 %TC:endignore
 
-\subsection{Split DNS}
-Split DNS ist die Möglichkeit, verschiedene Resource Records anhand der Absender-IP auszuliefern. Dafür pflegen autoritative Nameserver Access Control Lists (ACL) mit verschiedenen IP-Präfixen, um eine Fallunterscheidung treffen zu können\cite[S.565-567]{Fall2011}. Dies ist z.B. relevant, wenn eine Firma zwischen internen und externen Anfragen unterscheiden muss, um den (richtigen) Zugriff auf Ressourcen zu gewährleisten.
+\subsection{Split \gls{DNS}}
+Split \gls{DNS} ist die Möglichkeit, verschiedene Resource Records anhand der Absender-IP auszuliefern. Dafür pflegen autoritative Nameserver Access Control Lists (\gls{ACL}) mit verschiedenen IP-Präfixen, um eine Fallunterscheidung treffen zu können\cite[S.565-567]{Fall2011}. Dies ist z.B. relevant, wenn eine Firma zwischen internen und externen Anfragen unterscheiden muss, um den (richtigen) Zugriff auf Ressourcen zu gewährleisten.
 
 \begin{figure}[h]
   \centering
   \includegraphics{Figures/dns_split_view.pdf}
-  \caption{Split DNS für portal.firma.de.}
+  \caption{Split \gls{DNS} für portal.firma.de.}
   \label{grafik: split-dns}
 \end{figure}\FloatBarrier
 
 \subsection{DNS UPDATE}
-Die Methode DNS UPDATE ist in RFC 2136 definiert und erlaubt es, autoritative Zonen eines Nameserver zur Laufzeit zu verändern\cite{rfc2136}. Somit müssen keine Zonen-Dateien manuell angepasst werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten Zonen-Dateien neu einzulesen.\\
-\gls{Client}s werden über eine ACL ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP zur Authentifizierung genutzt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen}, d.h. fälschen, lassen\cite[S.70-71]{Fall2011}. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (\textit{Pre-Shared Key}) eine DNS UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (TSIG) \cite[S.911-914]{Fall2011}.
+Die Methode \gls{DNS} UPDATE ist in RFC 2136 definiert und erlaubt es, autoritative Zonen eines Nameserver zur Laufzeit zu verändern\cite{rfc2136}. Somit müssen keine Zonen-Dateien manuell angepasst werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten Zonen-Dateien neu einzulesen.\\
+\gls{Client}s werden über eine \gls{ACL} ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP zur Authentifizierung genutzt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen}, d.h. fälschen, lassen\cite[S.70-71]{Fall2011}. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (\textit{Pre-Shared Key}) eine \gls{DNS} UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (\gls{TSIG})\cite[S.911-914]{Fall2011}.
 
 \section{Virtual Private Network (VPN)}\label{vpn}
-VPNs werden genutzt, um private Netzwerke über eine öffentlich genutzte Infrastruktur abbilden zu können. Dies erfolgt zwischen VPN-Endpunkten über gängige Enkapsulierungen, z.B. Generic Routing Encapsulation (GRE), Encapsulating Security Payload (ESP) oder OpenVPN.\\
+\gls{VPN}s werden genutzt, um private Netzwerke über eine öffentlich genutzte Infrastruktur abbilden zu können. Dies erfolgt zwischen \gls{VPN}-Endpunkten über gängige Enkapsulierungen, z.B. Generic Routing Encapsulation (GRE), Encapsulating Security Payload (ESP) oder OpenVPN.\\
 In Abbildung \ref{grafik: vpn-example} werden Daten von \gls{Client} A zu \gls{Client} B über das Internet zwischen Router R1 und Router R2 enkapsuliert. R2 empfängt das Datenpaket, packt es aus und sendet es in der ursprünglichen Form weiter an \gls{Client} B.\\
-Das Diagramm ist dabei nicht spezifisch für eine bestimmte VPN-Technologie. Es können, je nach Technologie, Nutzdaten verschlüsselt werden. 
+Das Diagramm ist dabei nicht spezifisch für eine bestimmte \gls{VPN}-Technologie. Es können, je nach Technologie, Nutzdaten verschlüsselt werden. 
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.65]{Figures/vpn-example.pdf}
@@ -238,7 +238,7 @@ Das Diagramm ist dabei nicht spezifisch für eine bestimmte VPN-Technologie. Es 
   \label{grafik: vpn-example}
 \end{figure}\FloatBarrier
 
-Die in dieser Arbeit verwendeten VPN-Technologien sind Internet Protocol Security (IPsec) und OpenVPN. IPsec wird u.a. für die Vernetzung von (Cloud-)Standorten, auch \gls{Site-to-Site} genannt, genutzt und arbeitet auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 3. Ebenso dient es zur \textit{Einwahl} in (Firmen-)Netzwerke. IPsec wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
+Die in dieser Arbeit verwendeten \gls{VPN}\-Technologien sind Internet Protocol Security (\gls{IPsec}) und OpenVPN. \gls{IPsec} wird u.a. für die Vernetzung von (Cloud-)Standorten, auch \gls{Site-to-Site} genannt, genutzt und arbeitet auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 3. Ebenso dient es zur \textit{Einwahl} in (Firmen-)Netzwerke. \gls{IPsec} wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
 OpenVPN ist ein Open Source-Projekt und es nutzt \textit{Transport Layer Security} (TLS) für die verschlüsselte Übertragung von Daten via UDP oder TCP. Das Protokoll ist auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 7 zu finden und es wird vor allem für \gls{\gls{Client}-to-Site}-Verbindungen genutzt: Passende Software ist für viele verschiedene Plattformen verfügbar (u.a. Windows, Linux, Mac, Android) und sowohl \gls{Client}- als auch Server-Applikation sind kostenfrei erhältlich.\\
 Angesprochene MTU-Probleme (s. \ref{mtumss}) können sich bei einer getunnelten Verbindung auf Grund des zusätzliches \textit{Overheads} auf Grund der Enkapsulierung zeigen. Eine IP-Fragmentierung sollte optimalerweise verhindert werden.
 
@@ -259,24 +259,24 @@ In diesem Kapitel wird näher auf die verschiedenen Netzwerk-\textit{Building Bl
 Dieses Kapitel vermittelt lediglich Grundlagen, die für das Verständnis der Use-Cases in Kapitel \ref{Defintion der Use-Cases} und Kapitel \ref{Umsetzung der Use-Cases und Evaluation} notwendig sind. Besonderheiten und Constraints, die sich im Verlauf der Bearbeitung ergeben haben, werden im jeweiligen Use-Case unter \glqq Probleme und Lösungsfindung\grqq{} zusammengefasst.
 
 \subsection{AWS VPC / Azure VNET}
-AWS Virtual Private Cloud (VPC) und Azure Virtual Network (VNET) bilden private Netzwerke innerhalb eines Cloud-Mandanten ab. Die hier hinterlegten Präfixe bilden eine Menge an möglichen IP-Adressen innerhalb von VPC und VNET ab. Es können sowohl Public IP-Präfixe als auch IPs nach RFC 1918 benutzt werden. Diese Menge an IP-Adressen wird in AWS \textit{CIDR} bzw. Azure \textit{Address Space} als Container zusammengefasst.\\
-AWS gibt /16 als minimale und /28 als maximale Größe des CIDR vor \cite[S.100]{awsug2020}. Azure VNET ist da großzügiger und es darf eine Größe zwischen /8 und /29 gewählt werden\cite[S.10]{Toroman2019}. 
+AWS Virtual Private Cloud (VPC) und Azure Virtual Network (VNET) bilden private Netzwerke innerhalb eines Cloud-Mandanten ab. Die hier hinterlegten Präfixe bilden eine Menge an möglichen IP-Adressen innerhalb von VPC und VNET ab. Es können sowohl Public IP-Präfixe als auch IPs nach RFC 1918 benutzt werden. Diese Menge an IP-Adressen wird in AWS \textit{\gls{CIDR}} bzw. Azure \textit{Address Space} als Container zusammengefasst.\\
+AWS gibt /16 als minimale und /28 als maximale Größe des \gls{CIDR} vor \cite[S.100]{awsug2020}. Azure VNET ist da großzügiger und es darf eine Größe zwischen /8 und /29 gewählt werden\cite[S.10]{Toroman2019}. 
 \subsection{Subnets}
-Innerhalb von VPC und VNET können Subnets angelegt werden. In diesen Subnets können bspw. virtuelle Maschinen mit IPs ausgestattet werden. Wenn also ein VPC ein CIDR-Präfix von 10.0.0.0/16 besitzt, kann z.B. ein Subnet 10.0.1.0/24 \glqq herausgeschnitten\grqq{} werden. Mit Subnets können weitere Objekte verknüpft werden wie z.B. Route Tables, welche das Routing für das Subnet steuern.
+Innerhalb von VPC und VNET können Subnets angelegt werden. In diesen Subnets können bspw. virtuelle Maschinen mit IPs ausgestattet werden. Wenn also ein VPC einen \gls{CIDR}-Block von 10.0.0.0/16 besitzt, kann z.B. ein Subnet 10.0.1.0/24 \glqq herausgeschnitten\grqq{} werden. Mit Subnets können weitere Objekte verknüpft werden wie z.B. Route Tables, welche das Routing für das Subnet steuern.
 
 \subsection{Route Tables}
-Route Tables ermöglichen es, den Fluss von IP-Pakete innerhalb eines Subnets zu steuern. So können z.B. statische Routen auf Ziele innerhalb eines Subnets angelegt werden. VNET kann dies, wie aus dem klassischen Netzwerk gewohnt, über Next-Hop IPs abbilden. VPC hingegen unterstützt als Next-Hop virtuelle Maschinen (Instances) und Interfaces von virtuellen Maschinen. Es existieren noch weitere spezielle Ziele, die genutzt werden können wie z.B. VPN Gateways, um entfernte Netzwerke zu erreichen.\\
+Route Tables ermöglichen es, den Fluss von IP-Pakete innerhalb eines Subnets zu steuern. So können z.B. statische Routen auf Ziele innerhalb eines Subnets angelegt werden. VNET kann dies, wie aus dem klassischen Netzwerk gewohnt, über Next-Hop IPs abbilden. VPC hingegen unterstützt als Next-Hop virtuelle Maschinen (Instances) und Interfaces von virtuellen Maschinen. Es existieren noch weitere spezielle Ziele, die genutzt werden können wie z.B. \gls{VPN} Gateways, um entfernte Netzwerke zu erreichen.\\
 Subnets in Azure erfordern keine Route Tables: Alle Maschinen eines VNET erreichen sich untereinander standardmäßig und erreichen Ressourcen im Internet. Sollte ein granulareres Routing notwendig sein, werden Azure Route Tables erforderlich.\\
 Subnets in VPC erhalten immer eine Route Table: Ohne weitere Konfigurationen wird einem Subnet die Main Route Table zugewiesen. Diese kann vorab editiert werden, so dass z.B. kein Internet-Traffic für virtuelle Maschinen möglich ist. \textit{Non-Main} Route Tables können für spezielle Anforderungen erstellt und Subnets zugewiesen werden.
 
 \subsection{Security Groups}
-AWS Security Groups (SG) bzw. Azure Network Security Groups (NSG) bilden \textit{stateful Firewalling} ab \cite{wool2006packet}. Dabei können sowohl ingress (eingehende), als auch egress (ausgehende) Firewall-Regeln definiert und darauf basierend Pakete gefiltert werden. Typische Protokolle anhand derer Regeln definiert werden können sind UDP, TCP und ICMP.\\
-AWS SGs können einer Instanz zugewiesen werden. Wird keine SG explizit für eine Instanz definiert, kommt eine Default SG zu Einsatz, die vom VPC vorgegeben ist.\\
-Azure NSGs können sowohl Subnets als auch VMs direkt zugewiesen werden. NSGs für Subnets wirken sich global für alle VMs eines Subnets aus. Wenn granularer Zugriff auf bestimmte VMs gewünscht ist, nutzt man zusätzliche NSGs \glqq auf\grqq{} den jeweiligen Instanzen.
+AWS Security Groups (SG) bzw. Azure Network Security Groups (\gls{NSG}) bilden \textit{stateful Firewalling} ab \cite{wool2006packet}. Dabei können sowohl ingress (eingehende), als auch egress (ausgehende) Firewall-Regeln definiert und darauf basierend Pakete gefiltert werden. Typische Protokolle anhand derer Regeln definiert werden können sind UDP, TCP und \gls{ICMP}.\\
+AWS \gls{SG}s können einer Instanz zugewiesen werden. Wird keine \gls{SG} explizit für eine Instanz definiert, kommt eine Default \gls{SG} zu Einsatz, die vom VPC vorgegeben ist.\\
+Azure \gls{NSG}s können sowohl Subnets als auch VMs direkt zugewiesen werden. \gls{NSG}s für Subnets wirken sich global für alle VMs eines Subnets aus. Wenn granularer Zugriff auf bestimmte VMs gewünscht ist, nutzt man zusätzliche \gls{NSG}s \glqq auf\grqq{} den jeweiligen Instanzen.
 
 \subsection{VPN}
-AWS bringt in Form von Virtual Private Gateway und Transit Gateway Möglichkeiten mit, IPsec-basierte \gls{Site-to-Site}-Verbindungen zu terminieren. Ersteres kann Verbindungen nur innerhalb eines VPC terminieren. Transit Gateway bietet die Möglichkeit, verschiedene VPCs miteinander zu \textit{peeren}. VPN-Verbindungen können auf Transit Gateway terminiert werden und Pakete, die über VPN reinkommen, können alle gepeerten VPCs erreichen.\\
-Azure Virtual network gateway kann analog zu AWS Virtual Private Gateway IPsec-Tunnel in einem VNET terminieren.\\
+AWS bringt in Form von Virtual Private Gateway und Transit Gateway Möglichkeiten mit, \gls{IPsec}-basierte \gls{Site-to-Site}-Verbindungen zu terminieren. Ersteres kann Verbindungen nur innerhalb eines VPC terminieren. Transit Gateway bietet die Möglichkeit, verschiedene VPCs miteinander zu \textit{peeren}. \gls{VPN}-Verbindungen können auf Transit Gateway terminiert werden und Pakete, die über \gls{VPN} reinkommen, können alle gepeerten VPCs erreichen.\\
+Azure Virtual network gateway kann analog zu AWS Virtual Private Gateway \gls{IPsec}-Tunnel in einem VNET terminieren.\\
 AWS und Azure ermöglichen innerhalb der Tunnel die Nutzung von BGP, um dynamische Routing-Informationen miteinander auszutauschen.
 
 
@@ -313,7 +313,7 @@ terraform {
 %TC:endignore
 
 \textbf{\underline{Resources}}\\
-Resources erstellen Infrastuktur-Komponenten und statten diese mit den richtigen Parametern aus. In Listing \ref{deployment_aws_tf} wird ein VPC mit dem CIDR-Block 10.0.0.0/16 und ein darunterliegendes Subnet 10.0.1.0/24 erstellt.
+Resources erstellen Infrastuktur-Komponenten und statten diese mit den richtigen Parametern aus. In Listing \ref{deployment_aws_tf} wird ein VPC mit dem \gls{CIDR}-Block 10.0.0.0/16 und ein darunterliegendes Subnet 10.0.1.0/24 erstellt.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -361,12 +361,12 @@ output "ubuntu_ami_id" {
 \end{listing}\FloatBarrier
 %TC:endignore
 \subsection{IP Address Management (IPAM)}
-Ein IPAM ist wichtig, insofern die Adressverwaltung automatisiert werden soll. Statisch konfigurierte CIDR-Blöcke im Code sorgen für eine schlechte Wiederverwendbarkeit und Skalierbarkeit von Modulen: IP-Blöcke müssten dann jedes Mal händisch reserviert und in den gewünschten Modulen untergebracht werden.\\
+Ein IPAM ist wichtig, insofern die Adressverwaltung automatisiert werden soll. Statisch konfigurierte \gls{CIDR}-Blöcke im Code sorgen für eine schlechte Wiederverwendbarkeit und Skalierbarkeit von Modulen: IP-Blöcke müssten dann jedes Mal händisch reserviert und in den gewünschten Modulen untergebracht werden.\\
 Einfacher ist es, im Modul lediglich festzulegen, welche Subnetzgröße erforderlich ist: ein IPAM gibt dann den nächsten freien Block in der passenden Größe zurück. Es wird lediglich ein großer Block vorreserviert, aus dem die freien Blöcke entnommen werden können.
 
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.8]{Figures/ipam_cake.pdf}
-  \caption{IPAM-Reservierung von CIDR-Blöcken}
+  \caption{IPAM-Reservierung von \gls{CIDR}-Blöcken}
   \label{grafik: ipam_ip_reservation}
 \end{figure}\FloatBarrier

@@ -30,7 +30,7 @@ resource "phpipam_first_free_subnet" "free_subnet_apipa" {
 \label{apipa-reservation-ipam}
 \end{listing}\FloatBarrier
 %TC:endignore
-Weiterhin werden Pre-Shared-Keys für die Aushandlung der IPsec-Verbindungen benötigt. AWS erzeugt automatisch solche Schlüssel, welche durch die Terraform-Resource \glqq aws\_vpn\_connection\grqq{} zurückgegeben werden. Diese automatisch erzeugten Schlüssel werden daher für die Backbone-Verbindungen AWS $\leftrightarrow$ Azure und AWS $\leftrightarrow$ Private Cloud genutzt. Da Azure diese Schlüssel nicht erzeugt, wurde ein Terraform-Modul geschrieben, welches 24 Zeichen lange Schlüssel erzeugt (s. Lsiting \ref{tf-generate-psk}). Auf Sonderzeichen wird dabei verzichtet. Diese können anschließend genutzt werden für die Backbone-Verbindung Azure $\leftrightarrow$ Private Cloud.
+Weiterhin werden Pre-Shared-Keys für die Aushandlung der \gls{IPsec}-Verbindungen benötigt. AWS erzeugt automatisch solche Schlüssel, welche durch die Terraform-Resource \glqq aws\_vpn\_connection\grqq{} zurückgegeben werden. Diese automatisch erzeugten Schlüssel werden daher für die Backbone-Verbindungen AWS $\leftrightarrow$ Azure und AWS $\leftrightarrow$ Private Cloud genutzt. Da Azure diese Schlüssel nicht erzeugt, wurde ein Terraform-Modul geschrieben, welches 24 Zeichen lange Schlüssel erzeugt (s. Lsiting \ref{tf-generate-psk}). Auf Sonderzeichen wird dabei verzichtet. Diese können anschließend genutzt werden für die Backbone-Verbindung Azure $\leftrightarrow$ Private Cloud.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -121,7 +121,7 @@ resource "null_resource" "vyos_config" {
 Folgend werden zentrale Probleme geschildert, die bei der technischen Umsetzung von Use-Case 1 auftraten. Die erarbeiteten Lösungen werden ausführlich erläutert.
 
 \newpage
-\subsection{Vertauschung von IPsec-Tunnelparametern}\label{xml-tunnel-parameters}
+\subsection{Vertauschung von \gls{IPsec}-Tunnelparametern}\label{xml-tunnel-parameters}
 
 AWS \gls{VPN-Konzentrator}en bieten aus Redundanzgründen standardmäßig zwei IPs pro Gegenstelle an. 
 %TC:ignore
@@ -165,7 +165,7 @@ AWS \gls{VPN-Konzentrator}en bieten aus Redundanzgründen standardmäßig zwei I
 \end{listing}\FloatBarrier
 %TC:endignore
 Wie man in Listing \ref{tf-xml-response-aws} sieht, taucht das XML-Element ipsec\_tunnel zwei Mal auf, ist dabei jedoch \textbf{unnummeriert}.
-Der Terraform-Provider aws\_vpn\_connection nutzt diese XML-Antwort, um daraus die Rückgabewerte tunnel1\_* und tunnel2\_* zu erzeugen\cite{awsattributestf2021}, die in der weiteren Ausführung von anderen Modulen wiederverwendet werden. Bei einigen Ausführungen wurden diese Elemente Terraform-intern vertauscht: Da nun weder IPsec-Schlüssel noch interne BGP-Peering-Gegenstellen stimmen, kommen weder IPsec-Tunnel noch die BGP-Peering-Sessions hoch. Dieser Bug für den AWS Provider ist in Github seit 2017 dokumentiert\cite{githubbugtf2021}.\\
+Der Terraform-Provider aws\_vpn\_connection nutzt diese XML-Antwort, um daraus die Rückgabewerte tunnel1\_* und tunnel2\_* zu erzeugen\cite{awsattributestf2021}, die in der weiteren Ausführung von anderen Modulen wiederverwendet werden. Bei einigen Ausführungen wurden diese Elemente Terraform-intern vertauscht: Da nun weder \gls{IPsec}-Schlüssel noch interne BGP-Peering-Gegenstellen stimmen, kommen weder \gls{IPsec}-Tunnel noch die BGP-Peering-Sessions hoch. Dieser Bug für den AWS Provider ist in Github seit 2017 dokumentiert\cite{githubbugtf2021}.\\
 Mit einem Bash-Skript konnte zumindest ein Workaround gefunden werden, um ein erfolgreiches \gls{Deployment} sicherzustellen. Die Grundannahme ist, dass pro Präfix zwei Pfade auf dem Private Cloud-Router existieren und somit redundant sind (s. Listing \ref{bgp-paths-vyos}). Wenn nur ein Pfad pro Präfix zur Verfügung steht, kam es mit einer hohen Wahrscheinlichkeit zu einer Vertauschung und es muss ein erneutes \gls{Deployment} erfolgen (\texttt{terraform destroy \&\& terraform apply}). Es wird dreimal versucht, eine funktionierende Infrastruktur bereitzustellen, um die APIs der Cloud-Anbieter zu \textit{schonen} und kein Rate-Limiting zu triggern \cite{awsthrottling2021}.
 %TC:ignore
 \begin{listing}[h]
@@ -210,7 +210,7 @@ vyos@vyos-cloud# delete system time-zone Europe/Berlin
 \end{listing}\FloatBarrier
 %TC:endignore
 Per \textit{Destroy-Time Provisioner} würde dieses Template nur bei einem \textit{terraform destroy} genutzt\cite{destroytimeprovtf2021}. Das Problem ist, dass schon bei minimalen Änderungen des Deploy-Templates auch das Destroy-Template angepasst werden muss.
-Außerdem sind die IPsec-Konfigurationen relativ umfangreich. Es war zu anzunehmen, dass Relikte aus der Konfiguration übrig bleiben, wenn die Negation aus unbekannten Gründen fehlschlug.
+Außerdem sind die \gls{IPsec}-Konfigurationen relativ umfangreich. Es war zu anzunehmen, dass Relikte aus der Konfiguration übrig bleiben, wenn die Negation aus unbekannten Gründen fehlschlug.
 Eine weitere Idee war, mit dem VyOS-Feature \textit{rollback} zu arbeiten. Über eine Commit History werden alle Änderungen an dem System revisionssicher dokumentiert.
 %TC:ignore
 \begin{listing}[h]
@@ -292,8 +292,8 @@ resource "null_resource" "vyos_config_destroy" {
 \label{apply-last-commit-vyos}
 \end{listing}\FloatBarrier
 %TC:endignore
-\subsection{Lange Laufzeiten für Erstellung von Azure VPN Gateway}\label{azure-deployment-time}
-Die Erstellung des Azure VPN Gateways kann bis zu 45 Minuten in Anspruch nehmen\cite{azurevpndeployment2021}. In der Praxis waren es meist etwa 25 Minuten für den Standort \glqq North Europe\grqq{}. Auch das Löschen eines VPN Gateways via \texttt{terraform destroy} dauert bis zu 15 Minuten. Nur wenn dieses Gateway gelöscht wurde, kann ein \textit{Re-\gls{Deployment}} erfolgen, welches vor allem dann notwendig ist, wenn die Vertauschung von IPsec-Parametern (s. Kapitel \ref{xml-tunnel-parameters}) eintrifft.\\
+\subsection{Lange Laufzeiten für Erstellung von Azure \gls{VPN} Gateway}\label{azure-deployment-time}
+Die Erstellung des Azure \gls{VPN} Gateways kann bis zu 45 Minuten in Anspruch nehmen\cite{azurevpndeployment2021}. In der Praxis waren es meist etwa 25 Minuten für den Standort \glqq North Europe\grqq{}. Auch das Löschen eines \gls{VPN} Gateways via \texttt{terraform destroy} dauert bis zu 15 Minuten. Nur wenn dieses Gateway gelöscht wurde, kann ein \textit{Re-\gls{Deployment}} erfolgen, welches vor allem dann notwendig ist, wenn die Vertauschung von \gls{IPsec}-Parametern (s. Kapitel \ref{xml-tunnel-parameters}) eintrifft.\\
 Bei diesem Phänomen handelt es sich nicht um einen Bug im eigentlichen Sinne, macht aber das \gls{Deployment} z.B. für Live-Demonstrationen nicht praktikabel. Da alle weiteren Use-Cases auf diesem Use-Case 1 aufbauen und ebenso in Terraform abgebildet werden sollten, musste eine Lösung gefunden werden, um die \gls{Deployment}-Zeiten zu verkürzen, da jede Änderung des Codes ein (teilweises) Re-\gls{Deployment} notwendig macht (vgl. Kapitel \ref{accelerate-deployment-use-case-2}).
 %TC:ignore
 \subsection{Evaluation}
@@ -327,7 +327,7 @@ Die im IPAM reservierten Netze (s. Abb. \ref{grafik:subnet_aws_vpc_reserved}) si
   \label{grafik:subnet_aws_vpc_reserved}
 \end{figure}\FloatBarrier
 \newpage
-Die IPsec Tunnel sind auf dem VyOS-Router konfiguriert und \textit{up} (s. Listing \ref{tf-base-deployment-ipsec-ok}). D.h. Die Tunnel sind aktiv.
+Die \gls{IPsec} Tunnel sind auf dem VyOS-Router konfiguriert und \textit{up} (s. Listing \ref{tf-base-deployment-ipsec-ok}). D.h. Die Tunnel sind aktiv.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -339,7 +339,7 @@ peer-20.67.209.254-tunnel-vti  up       4h43m19s [...]
 peer-3.65.181.187-tunnel-vti   up       4h47m26s [...]
 
 \end{minted}
-\caption{VyOS IPsec-Tunnel Status}
+\caption{VyOS \gls{IPsec}-Tunnel Status}
 \label{tf-base-deployment-ipsec-ok}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -429,7 +429,7 @@ Um die Redundanz zu des Backbones zu testen, wurden von allen Teilnehmern zu all
   \label{grafik:Use-Case-1_Basis_Deployment_missing_link}
 \end{figure}\FloatBarrier
 
-Man kann in Listing \ref{tf-base-deployment-ping-ok-missing-link} sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \textit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde ICMP-Echo-Request-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung in Listing \ref{tf-base-deployment-ping-ok-missing-link} etwa 44 Sekunden unterbrochen war.\\
+Man kann in Listing \ref{tf-base-deployment-ping-ok-missing-link} sehr gut erkennen, dass das BGP eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \textit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde \gls{ICMP}-Echo-Request-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung in Listing \ref{tf-base-deployment-ping-ok-missing-link} etwa 44 Sekunden unterbrochen war.\\
 Weiterhin hat sich die Round-Trip-Time von ~20 ms auf ~62 ms erhöht. Dies ist eine logische Konsequenz, da Pakete nun längere Wege (\textit{mehr Hops}) zurücklegen müssen. Alle Ping-Tests waren trotz Kappen einer Verbindung erfolgreich. Man muss dabei allerdings Paketverluste während der Konvergenzzeit hinnehmen.
 %TC:ignore
 \begin{listing}[h]
