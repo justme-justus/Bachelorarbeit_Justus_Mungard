@@ -113,7 +113,7 @@ resource "null_resource" "vyos_config" {
 }
 
 \end{minted}
-\caption{Kopie per SSH und remote-exec Provisioner}
+\caption{Kopie per \gls{SSH} und remote-exec Provisioner}
 \label{tf-copy-tpl}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -123,7 +123,7 @@ Folgend werden zentrale Probleme geschildert, die bei der technischen Umsetzung 
 \newpage
 \subsection{Vertauschung von IPsec-Tunnelparametern}\label{xml-tunnel-parameters}
 
-AWS VPN-Konzentratoren bieten aus Redundanzgründen standardmäßig zwei IPs pro Gegenstelle an. 
+AWS \gls{VPN-Konzentrator}en bieten aus Redundanzgründen standardmäßig zwei IPs pro Gegenstelle an. 
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{xml}
@@ -225,7 +225,7 @@ vyos@vyos-cloud:~$ show system commit | head -3
 \label{commit-history-vyos}
 \end{listing}\FloatBarrier
 %TC:endignore
-So würde man die letzte Revision \textit{vor} der Konfiguration der Backbone-Verbindungen festhalten, um bei einem \texttt{terraform destroy} darauf zurückgehen zu können. Ein Rollback macht einen Neustart erforderlich.
+So würde man die letzte Revision \textit{vor} der Konfiguration der Backbone-Verbindungen festhalten, um bei einem \texttt{terraform destroy} darauf zurückgehen zu können. Ein \gls{Rollback} macht einen Neustart erforderlich.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -239,11 +239,11 @@ Possible completions:
     2   2021-05-04 21:17:57 vyos by cli
     
 \end{minted}
-\caption{VyOS Rollback auf Revision $N$ nach Neustart}
+\caption{VyOS \gls{Rollback} auf Revision $N$ nach Neustart}
 \label{rollback-cmd-vyos}
 \end{listing}\FloatBarrier
 %TC:endignore
-Es wurden zwei Bash-Skripte geschrieben: \texttt{save\_last\_manual\_commit.sh} speichert die letzte Revision lokal auf dem VyOS-Router, \texttt{apply\_last\_manual\_commit.sh} macht ein Rollback. Terraform speichert per Skript \texttt{save\_last\_manual\_commit.sh} den Zustand vor dem \gls{Deployment} auf dem VyOS-Router (s. Listing \ref{save-last-commit-vyos}).
+Es wurden zwei Bash-Skripte geschrieben: \texttt{save\_last\_manual\_commit.sh} speichert die letzte Revision lokal auf dem VyOS-Router, \texttt{apply\_last\_manual\_commit.sh} macht ein \gls{Rollback}. Terraform speichert per Skript \texttt{save\_last\_manual\_commit.sh} den Zustand vor dem \gls{Deployment} auf dem VyOS-Router (s. Listing \ref{save-last-commit-vyos}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -276,7 +276,7 @@ vyos@vyos-cloud# cat ~tf/last_manual_commit.txt
 \label{save-last-commit-file}
 \end{listing}\FloatBarrier
 %TC:endignore
-Bei \texttt{terraform destroy} wird das Skript \texttt{apply\_last\_manual\_commit.sh} via Terraform \textit{Destroy-Time Provisioner} ausgeführt, welcher das Rollback mit Hilfe des gespeicherten Zeitstempels auf dem VyOS Router veranlasst (s. Listing \ref{apply-last-commit-vyos}).
+Bei \texttt{terraform destroy} wird das Skript \texttt{apply\_last\_manual\_commit.sh} via Terraform \textit{Destroy-Time Provisioner} ausgeführt, welcher das \gls{Rollback} mit Hilfe des gespeicherten Zeitstempels auf dem VyOS Router veranlasst (s. Listing \ref{apply-last-commit-vyos}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -288,7 +288,7 @@ resource "null_resource" "vyos_config_destroy" {
 }
 
 \end{minted}
-\caption{Rollback zur Terraform \glqq Destroy-Time\grqq{}}
+\caption{\gls{Rollback} zur Terraform \glqq Destroy-Time\grqq{}}
 \label{apply-last-commit-vyos}
 \end{listing}\FloatBarrier
 %TC:endignore

@@ -79,8 +79,8 @@ Auf diese Blöcke wird auch in der Bachelorarbeit zurückgegriffen, um Zugriff a
 \subsection{IPv4-Routing}
 
 Wie in \ref{ip_ausserhalb} für die IP 8.9.10.23 gefolgert, müssen Pakete, die Ziele in anderen Subnetzen haben, geroutet werden. Dafür besitzen alle Netzwerkteilnehmer eine Routing-Tabelle, um herauszufinden, an welchen \textit{Next-Hop} ein Paket adressiert werden muss.\\
-In Abb. \ref{grafik: next_hop_routing} besteht das Netzwerk aus vier Teilnehmern: einem Client, einem Server und zwei Routern (R1 und R2). Alle Geräte verwalten eine Routing-Tabelle, in denen die Zielnetze und Next-Hops hinterlegt sind.
-Damit weiß der Client, dass Pakete für das Netzwerk 192.168.200.0/24 über R1 mit der IP-Adresse 192.168.0.1 geschickt werden müssen. R1 nimmt das Paket an, schaut wiederum in der eigenen Routing-Tabelle nach und schickt das Paket dann weiter an R2, usw. (Rück-)Pakete vom Server zum Client durchlaufen die gleiche Prozedur pro Hop.\\
+In Abb. \ref{grafik: next_hop_routing} besteht das Netzwerk aus vier Teilnehmern: einem \gls{Client}, einem Server und zwei Routern (R1 und R2). Alle Geräte verwalten eine Routing-Tabelle, in denen die Zielnetze und Next-Hops hinterlegt sind.
+Damit weiß der \gls{Client}, dass Pakete für das Netzwerk 192.168.200.0/24 über R1 mit der IP-Adresse 192.168.0.1 geschickt werden müssen. R1 nimmt das Paket an, schaut wiederum in der eigenen Routing-Tabelle nach und schickt das Paket dann weiter an R2, usw. (Rück-)Pakete vom Server zum \gls{Client} durchlaufen die gleiche Prozedur pro Hop.\\
 %TC:ignore
 \begin{figure}[h]
   \centering
@@ -89,9 +89,9 @@ Damit weiß der Client, dass Pakete für das Netzwerk 192.168.200.0/24 über R1 
   \label{grafik: next_hop_routing}
 \end{figure}\FloatBarrier
 %TC:endignore
-Client und Server müssen im Übrigen das Netzwerk 192.168.100.0/30 \textbf{nicht} in ihrer Routing-Tabelle pflegen. Dieses Netzwerk hat ausschließlich eine Relevanz zur Übertragung von Daten zwischen R1 und R2: Man spricht auch von Transfernetzwerken.\\
-Dieses Beispiel bringt ein Skalierungsproblem mit sich: Umso mehr Subnetze existieren, in denen Server zu erreichen sind, desto mehr Routen muss der Client in der Routing-Tabelle, u.U. manuell gepflegt, vorhalten. Das gleiche gilt für Server, insofern eine Server-zu-Server-Kommunikation erfolgen soll.\\
-In der Praxis sieht man kaum noch Endsysteme (darunter fallen Client und Server), welche mit solchen \textit{spezifischen} Routen arbeiten. Man überlässt die komplexe Verwaltung von Routing-Tabellen den Routern, während die Endsysteme neben der link-lokalen nur noch die \textit{Default}-Route besitzen. In diese Route 0.0.0.0/0 fallen alle Zielnetzwerke, abgesehen vom link-lokalen Subnetz, und sie zeigt immer auf den lokal erreichbaren Router.\\
+\gls{Client} und Server müssen im Übrigen das Netzwerk 192.168.100.0/30 \textbf{nicht} in ihrer Routing-Tabelle pflegen. Dieses Netzwerk hat ausschließlich eine Relevanz zur Übertragung von Daten zwischen R1 und R2: Man spricht auch von Transfernetzwerken.\\
+Dieses Beispiel bringt ein Skalierungsproblem mit sich: Umso mehr Subnetze existieren, in denen Server zu erreichen sind, desto mehr Routen muss der \gls{Client} in der Routing-Tabelle, u.U. manuell gepflegt, vorhalten. Das gleiche gilt für Server, insofern eine Server-zu-Server-Kommunikation erfolgen soll.\\
+In der Praxis sieht man kaum noch Endsysteme (darunter fallen \gls{Client} und Server), welche mit solchen \textit{spezifischen} Routen arbeiten. Man überlässt die komplexe Verwaltung von Routing-Tabellen den Routern, während die Endsysteme neben der link-lokalen nur noch die \textit{Default}-Route besitzen. In diese Route 0.0.0.0/0 fallen alle Zielnetzwerke, abgesehen vom link-lokalen Subnetz, und sie zeigt immer auf den lokal erreichbaren Router.\\
 Das Setzen der Default Route garantiert allerdings nicht, dass ein Ziel auch wirklich erreicht werden kann, z.B. weil es gar nicht existiert oder das Zielnetzwerk nicht in der Routing-Tabelle eines (Next-Hop-)Routers vorhanden ist. Ein Hilfsprotokoll zur Signalisierung von Erreichbarkeit ist dabei das Internet Control Message Protocol (ICMP). Das bekannte Werkzeug \texttt{ping} nutzt Nachrichten in Form von ICMP Echo Request und ICMP Echo Response, um die Erreichbarkeit via IP eines Endsystems zu prüfen.
 \begin{figure}[h]
   \centering
@@ -141,10 +141,10 @@ BGP sieht analog zu RFC 1918-Adressen Bereiche für AS-Nummern vor, die privat, 
 Grundlegend geht es bei NAT darum, eine IP-Adresse \textit{umzuschreiben}. Dies ist sowohl für die Absender- als auch die Ziel-Adresse möglich. Dies kann verschiedene Gründe haben, oftmals geht es aber darum, IPv4-Adressen einzusparen.\\
 Dies ist dem Umstand geschuldet, dass IPv4 nur einen Adressraum von 32 Bit hat, was $2^{32} \approx 4*10^9$ Adressen entspricht. Wenn man dagegen hält, dass die Weltbevölkerung zum Zeitpunkt der Arbeit knapp $8*10^9$ Menschen beträgt und viele Menschen bereits mehr als ein Endgerät besitzen, reicht der Adressraum bei weitem nicht mehr aus \cite{weltbevoelkerung2020dsw}.\\
 Langfristig soll IPv6 mit einem Adressraum aus $2^{128}$ Bit IPv4 ablösen, doch selbst im Jahr 2021 fehlt weiterhin die \textbf{vollständige Unterstützung} einiger Hersteller für IPv6. Dies gilt ebenso für Public Cloud-Plattformen.\\
-Der häufigste NAT-Mechanismus ist Network Address Port Translation (NAPT). Dabei können $n$ Clients hinter einer einzigen IPv4-Adresse \glqq verborgen\grqq{} und so IP-Adressen eingespart werden. Dafür werden neben der IP-Adresse bspw. noch Information der Transport-Schicht (Schicht 4) wie Ports herangezogen, um NAPT-Sessions zuordnen zu können. Ein Router verwaltet diese Sessions in Form einer NAPT-Tabelle. Diese wird notwendig, wenn Rückpakete die verborgenen Clients erreichen sollen.\\
+Der häufigste NAT-Mechanismus ist Network Address Port Translation (NAPT). Dabei können $n$ \gls{Client}s hinter einer einzigen IPv4-Adresse \glqq verborgen\grqq{} und so IP-Adressen eingespart werden. Dafür werden neben der IP-Adresse bspw. noch Information der Transport-Schicht (Schicht 4) wie Ports herangezogen, um NAPT-Sessions zuordnen zu können. Ein Router verwaltet diese Sessions in Form einer NAPT-Tabelle. Diese wird notwendig, wenn Rückpakete die verborgenen \gls{Client}s erreichen sollen.\\
 In dieser Ausarbeitung ist, wenn von NAT oder NATting gesprochen wird und keine anderweitigen Aussagen getroffen werden, der NAPT-Mechanismus gemeint.\\
-Im Beispiel von Abbildung \ref{grafik: napt} werden drei Clients hinter einem Router geNATtet. Alle eingehenden Pakete werden auf die Quell-IP 10.1.0.1 umgeschrieben und es wird ein neuer Quell-Port vergeben. Wenn nun eine Verbindung von einem Client initiiert wird, sieht der Webserver lediglich die Quell-IP und den Quell-Port des Routers, welche durch das NAT vergeben wurden.\\
-Rückpakete vom Webserver zu einem Client werden folgerichtig an den Router adressiert, welcher wiederum in der NAT-Tabelle nachschlägt, um den ursprünglichen Client (interne Absender-IP 10.0.0.x und Quell-Port) herauszufinden. Bevor Pakete also nach intern weitergeschickt werden können, werden sie auf das ursprüngliche Tupel aus Quell-IP und Quell-Port umgeschrieben.\\
+Im Beispiel von Abbildung \ref{grafik: napt} werden drei \gls{Client}s hinter einem Router geNATtet. Alle eingehenden Pakete werden auf die Quell-IP 10.1.0.1 umgeschrieben und es wird ein neuer Quell-Port vergeben. Wenn nun eine Verbindung von einem \gls{Client} initiiert wird, sieht der Webserver lediglich die Quell-IP und den Quell-Port des Routers, welche durch das NAT vergeben wurden.\\
+Rückpakete vom Webserver zu einem \gls{Client} werden folgerichtig an den Router adressiert, welcher wiederum in der NAT-Tabelle nachschlägt, um den ursprünglichen \gls{Client} (interne Absender-IP 10.0.0.x und Quell-Port) herauszufinden. Bevor Pakete also nach intern weitergeschickt werden können, werden sie auf das ursprüngliche Tupel aus Quell-IP und Quell-Port umgeschrieben.\\
 
 \begin{figure}[h]
   \centering
@@ -153,8 +153,8 @@ Rückpakete vom Webserver zu einem Client werden folgerichtig an den Router adre
   \label{grafik: napt}
 \end{figure}\FloatBarrier
 
-NAT\label{nat-bad} verletzt das Prinzip der Ende-zu-Ende-Konnektivität: Findet sich für ein \textbf{vom Webserver kommendes} Paket in der NAT-Tabelle kein Eintrag, wird das Paket verworfen. Dies ist bei einer Client-zu-Server-Kommunikation oftmals kein Problem, da Verbindungen ohnehin vom Client initiiert werden und sich daraufhin ein State in der NAT-Tabelle des Routers befindet.\\
-Wenn allerdings eine Client-zu-Client-Kommunikation stattfinden soll, ist man auf aufwändige Mechanismen wie z.B. Hole Punching angewiesen \cite[S.317]{Fall2011}.\\
+NAT\label{nat-bad} verletzt das Prinzip der Ende-zu-Ende-Konnektivität: Findet sich für ein \textbf{vom Webserver kommendes} Paket in der NAT-Tabelle kein Eintrag, wird das Paket verworfen. Dies ist bei einer \gls{Client}-zu-Server-Kommunikation oftmals kein Problem, da Verbindungen ohnehin vom \gls{Client} initiiert werden und sich daraufhin ein State in der NAT-Tabelle des Routers befindet.\\
+Wenn allerdings eine \gls{Client}-zu-\gls{Client}-Kommunikation stattfinden soll, ist man auf aufwändige Mechanismen wie z.B. Hole Punching angewiesen \cite[S.317]{Fall2011}.\\
 Auf NAT soll daher in dieser Arbeit verzichtet werden, wenn dies möglich ist und es soll eine vollwertige Ende-zu-Ende-Konnektivität gewährleistet werden.
 
 \subsection{Maximum Transmission Unit / Maximum Segment Size}\label{mtumss}
@@ -163,7 +163,7 @@ Da die MTU auf dem Weg vom Empfänger zum Ziel variieren und auch mal geringer a
 Man nutzt optimalerweise Path MTU Discovery oder beeinflusst die Maximum Segment Size für TCP (\glqq MSS-Clamping\grqq{}) bei Initiierung der Verbindung, um Fragmentierung (bestmöglich) zu umgehen.
 
 \subsection{GeoIP}
-Mit Hilfe von GeoIP-Datenbanken ist es möglich, den (ungefähren) Standort anhand der Absender-IP-Adresse eines Clients zu bestimmen. Verwendung finden solche Datenbanken häufig bei Internet-Streaming-Anbietern, um Zugriffe auf ein Videoangebot aus dem Ausland zu verhindern. Die Firma MaxMind ist dabei führender Anbieter für solche GeoIP-Datenbanken \cite{maxmind2021geoip}.
+Mit Hilfe von \gls{GeoIP}-Datenbanken ist es möglich, den (ungefähren) Standort anhand der Absender-IP-Adresse eines \gls{Client}s zu bestimmen. Verwendung finden solche Datenbanken häufig bei Internet-Streaming-Anbietern, um Zugriffe auf ein Videoangebot aus dem Ausland zu verhindern. Die Firma MaxMind ist dabei führender Anbieter für solche \gls{GeoIP}-Datenbanken \cite{maxmind2021geoip}.
 
 \section{Domain Name System (DNS)}\label{DNS}
 Das DNS ermöglicht, Server im Internet anhand eines Namens, dem Fully Qualified Domain Name (FQDN), zu erreichen. Somit muss sich ein Benutzer einer Webseite keine IP-Adresse merken, sondern lediglich den dazugehörigen FQDN. Die IP-Adresse wird über die \textit{DNS-Auflösung} herausgefunden. Das DNS ist ein hierarchisches Modell, welches mit Domains arbeitet. Diese unterliegen unterschiedlichen Autoritäten. 
@@ -174,12 +174,12 @@ Das DNS ermöglicht, Server im Internet anhand eines Namens, dem Fully Qualified
   \label{grafik: dns-hierarchy}
 \end{figure}\FloatBarrier
 
-Soll z.B. der FQDN www.intern.ba.mungard.de. aufgelöst werden (s. Abb. \ref{grafik: dns-hierarchy}), muss der \textit{Baum} von der Wurzel \glqq .\grqq{} über die Knoten \glqq de\grqq{}, \glqq mungard\grqq{}, ... bis zum Blatt \glqq www\grqq{} durchlaufen werden. Man spricht von einer iterativen Auflösung. Pro Hierarchie-Ebene sind \textit{autoritative Nameserver} verantwortlich für die richtige Delegation des auflösenden Clients.\\
+Soll z.B. der FQDN www.intern.ba.mungard.de. aufgelöst werden (s. Abb. \ref{grafik: dns-hierarchy}), muss der \textit{Baum} von der Wurzel \glqq .\grqq{} über die Knoten \glqq de\grqq{}, \glqq mungard\grqq{}, ... bis zum Blatt \glqq www\grqq{} durchlaufen werden. Man spricht von einer iterativen Auflösung. Pro Hierarchie-Ebene sind \textit{autoritative Nameserver} verantwortlich für die richtige Delegation des auflösenden \gls{Client}s.\\
 Das Blatt \glqq www\grqq{} wird auch als Resource Record bezeichnet. Für diese Arbeit sind lediglich A-Records relevant, welche FQDN nach IPv4-Adresse auflösen. Viele weitere DNS-Records existieren, z.B. für IPv6-Adressen (AAAA) oder um Mailserver (MX) für eine Domain anzugeben \cite[S.528]{Fall2011}.\\
 Ein Beispiel für einen autoritativen Nameserver ist Bind \cite{liu2006dns}. Innerhalb des Nameservers werden Domains anhand von \textit{Zonen(-Dateien)} verwaltet.
 \newpage
 \subsection{DNS-Resolver}
-Clients machen diese iterative Namensauflösung typischerweise nicht selbst, sondern leiten ihre Anfragen an einen DNS-Resolver weiter (\textit{Forwarding}). Dieser sucht \textit{iterativ} zu einem FQDN eine IPv4-Adresse und liefert sie dem Client aus (s. Abb. \ref{grafik: dns-resolver}). Wenn ein Nameserver für eine gesuchte Domain nicht autoritativ ist, wird der Resolver per NS Record weiterdelegiert.\\
+\gls{Client}s machen diese iterative Namensauflösung typischerweise nicht selbst, sondern leiten ihre Anfragen an einen DNS-Resolver weiter (\textit{Forwarding}). Dieser sucht \textit{iterativ} zu einem FQDN eine IPv4-Adresse und liefert sie dem \gls{Client} aus (s. Abb. \ref{grafik: dns-resolver}). Wenn ein Nameserver für eine gesuchte Domain nicht autoritativ ist, wird der Resolver per NS Record weiterdelegiert.\\
 Weiterhin kann ein Resolver Einträge \textit{cachen}, um auf erneute Anfragen für gleiche FQDN schneller zu antworten.%Der letzte Punkt eines FQDN, welcher die Root-Domain repräsentiert, wird üblicherweise ausgelassen.
 \begin{figure}[h]
   \centering
@@ -225,11 +225,11 @@ Split DNS ist die Möglichkeit, verschiedene Resource Records anhand der Absende
 
 \subsection{DNS UPDATE}
 Die Methode DNS UPDATE ist in RFC 2136 definiert und erlaubt es, autoritative Zonen eines Nameserver zur Laufzeit zu verändern\cite{rfc2136}. Somit müssen keine Zonen-Dateien manuell angepasst werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten Zonen-Dateien neu einzulesen.\\
-Clients werden über eine ACL ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP zur Authentifizierung genutzt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen}, d.h. fälschen, lassen\cite[S.70-71]{Fall2011}. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (\textit{Pre-Shared Key}) eine DNS UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (TSIG) \cite[S.911-914]{Fall2011}.
+\gls{Client}s werden über eine ACL ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP zur Authentifizierung genutzt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen}, d.h. fälschen, lassen\cite[S.70-71]{Fall2011}. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (\textit{Pre-Shared Key}) eine DNS UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (TSIG) \cite[S.911-914]{Fall2011}.
 
 \section{Virtual Private Network (VPN)}\label{vpn}
 VPNs werden genutzt, um private Netzwerke über eine öffentlich genutzte Infrastruktur abbilden zu können. Dies erfolgt zwischen VPN-Endpunkten über gängige Enkapsulierungen, z.B. Generic Routing Encapsulation (GRE), Encapsulating Security Payload (ESP) oder OpenVPN.\\
-In Abbildung \ref{grafik: vpn-example} werden Daten von Client A zu Client B über das Internet zwischen Router R1 und Router R2 enkapsuliert. R2 empfängt das Datenpaket, packt es aus und sendet es in der ursprünglichen Form weiter an Client B.\\
+In Abbildung \ref{grafik: vpn-example} werden Daten von \gls{Client} A zu \gls{Client} B über das Internet zwischen Router R1 und Router R2 enkapsuliert. R2 empfängt das Datenpaket, packt es aus und sendet es in der ursprünglichen Form weiter an \gls{Client} B.\\
 Das Diagramm ist dabei nicht spezifisch für eine bestimmte VPN-Technologie. Es können, je nach Technologie, Nutzdaten verschlüsselt werden. 
 \begin{figure}[h]
   \centering
@@ -238,8 +238,8 @@ Das Diagramm ist dabei nicht spezifisch für eine bestimmte VPN-Technologie. Es 
   \label{grafik: vpn-example}
 \end{figure}\FloatBarrier
 
-Die in dieser Arbeit verwendeten VPN-Technologien sind Internet Protocol Security (IPsec) und OpenVPN. IPsec wird u.a. für die Vernetzung von (Cloud-)Standorten, auch Site-to-Site (S2S) genannt, genutzt und arbeitet auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 3. Ebenso dient es zur \textit{Einwahl} in (Firmen-)Netzwerke. IPsec wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
-OpenVPN ist ein Open Source-Projekt und es nutzt \textit{Transport Layer Security} (TLS) für die verschlüsselte Übertragung von Daten via UDP oder TCP. Das Protokoll ist auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 7 zu finden und es wird vor allem für Client-to-Site-Verbindungen genutzt (C2S): Passende Software ist für viele verschiedene Plattformen verfügbar (u.a. Windows, Linux, Mac, Android) und sowohl Client- als auch Server-Applikation sind kostenfrei erhältlich.\\
+Die in dieser Arbeit verwendeten VPN-Technologien sind Internet Protocol Security (IPsec) und OpenVPN. IPsec wird u.a. für die Vernetzung von (Cloud-)Standorten, auch \gls{Site-to-Site} genannt, genutzt und arbeitet auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 3. Ebenso dient es zur \textit{Einwahl} in (Firmen-)Netzwerke. IPsec wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
+OpenVPN ist ein Open Source-Projekt und es nutzt \textit{Transport Layer Security} (TLS) für die verschlüsselte Übertragung von Daten via UDP oder TCP. Das Protokoll ist auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 7 zu finden und es wird vor allem für \gls{\gls{Client}-to-Site}-Verbindungen genutzt: Passende Software ist für viele verschiedene Plattformen verfügbar (u.a. Windows, Linux, Mac, Android) und sowohl \gls{Client}- als auch Server-Applikation sind kostenfrei erhältlich.\\
 Angesprochene MTU-Probleme (s. \ref{mtumss}) können sich bei einer getunnelten Verbindung auf Grund des zusätzliches \textit{Overheads} auf Grund der Enkapsulierung zeigen. Eine IP-Fragmentierung sollte optimalerweise verhindert werden.
 
 \section{Cloud}\label{cloud}
@@ -247,7 +247,7 @@ Der Cloud-Begriff kann je nach Literatur variieren. Diese Arbeit verweist an die
 
 \subsection{Public und Private Cloud}
 Auch für die so genannten \textit{Cloud \gls{Deployment}}-Modelle wird auf die Definition des NIST verwiesen.\cite{mell2011}\\
-Allerdings soll an dieser Stelle auf ein häufiges Missverständnis hingewiesen werden: Eine Private Cloud existiert nicht zwingend \textit{on-premises} einer Organisation, also bspw. im eigenen Rechenzentrum. Sie kann ebenso über Public Cloud-Plattformen abgebildet werden. Allerdings ist die Voraussetzung, dass alle genutzten Ressourcen dann exklusiv für die Organisation zur Verfügung stehen (\textit{exclusive use by a single organization}). Sie werden nicht mit weiteren Parteien geteilt (\textit{open use by the general public}).\\
+Allerdings soll an dieser Stelle auf ein häufiges Missverständnis hingewiesen werden: Eine Private Cloud existiert nicht zwingend \textit{\gls{on-premises}} einer Organisation, also bspw. im eigenen Rechenzentrum. Sie kann ebenso über Public Cloud-Plattformen abgebildet werden. Allerdings ist die Voraussetzung, dass alle genutzten Ressourcen dann exklusiv für die Organisation zur Verfügung stehen (\textit{exclusive use by a single organization}). Sie werden nicht mit weiteren Parteien geteilt (\textit{open use by the general public}).\\
 Die Public Cloud-Provider, welche in dieser Arbeit genutzt werden, sind Amazon Web Services (AWS) und Microsoft Azure. Rechenzentren stehen weltweit zur Verfügung, um eine schnelle und latenzarme Anbindung für die Kunden zu ermöglichen. Eine Private Cloud lässt sich bspw. mit OpenStack abbilden\cite{sefraoui2012openstack}.
 
 \subsection{Multi und Hybrid Cloud}
@@ -275,7 +275,7 @@ AWS SGs können einer Instanz zugewiesen werden. Wird keine SG explizit für ein
 Azure NSGs können sowohl Subnets als auch VMs direkt zugewiesen werden. NSGs für Subnets wirken sich global für alle VMs eines Subnets aus. Wenn granularer Zugriff auf bestimmte VMs gewünscht ist, nutzt man zusätzliche NSGs \glqq auf\grqq{} den jeweiligen Instanzen.
 
 \subsection{VPN}
-AWS bringt in Form von Virtual Private Gateway und Transit Gateway Möglichkeiten mit, IPsec-basierte S2S-Verbindungen zu terminieren. Ersteres kann Verbindungen nur innerhalb eines VPC terminieren. Transit Gateway bietet die Möglichkeit, verschiedene VPCs miteinander zu \textit{peeren}. VPN-Verbindungen können auf Transit Gateway terminiert werden und Pakete, die über VPN reinkommen, können alle gepeerten VPCs erreichen.\\
+AWS bringt in Form von Virtual Private Gateway und Transit Gateway Möglichkeiten mit, IPsec-basierte \gls{Site-to-Site}-Verbindungen zu terminieren. Ersteres kann Verbindungen nur innerhalb eines VPC terminieren. Transit Gateway bietet die Möglichkeit, verschiedene VPCs miteinander zu \textit{peeren}. VPN-Verbindungen können auf Transit Gateway terminiert werden und Pakete, die über VPN reinkommen, können alle gepeerten VPCs erreichen.\\
 Azure Virtual network gateway kann analog zu AWS Virtual Private Gateway IPsec-Tunnel in einem VNET terminieren.\\
 AWS und Azure ermöglichen innerhalb der Tunnel die Nutzung von BGP, um dynamische Routing-Informationen miteinander auszutauschen.
 
