@@ -66,7 +66,7 @@ AND 11111111.11111111.11111111.00000000
 \end{listing}\FloatBarrier
 %TC:endignore
 
-\subsection{\gls{RFC} 1918-Adressen}
+\subsection{RFC 1918-Adressen}
 Ein Großteil der IP-Adressen werden \textit{blockweise} an Provider, Firmen und Forschungseinrichtungen herausgegeben und können fortan im Internet genutzt werden. Mit \gls{RFC} 1918 wurden Blöcke durch die Internet Assigned Numbers Authority (IANA) reserviert, welche ausschließlich für private und firmeninterne Nutzung vorgesehen sind\cite{rfc1918}. Sie werden im Internet nicht geroutet. Es handelt sich dabei um die Blöcke:
 \begin{itemize}
 \item 10.0.0.0/8
@@ -213,7 +213,7 @@ www01.fh-kiel.de.       21599   IN      A       149.222.20.63
 \end{listing}\FloatBarrier
 %TC:endignore
 
-\subsection{Split \gls{DNS}}
+\subsection{Split DNS}
 Split \gls{DNS} ist die Möglichkeit, verschiedene Resource Records anhand der Absender-IP auszuliefern. Dafür pflegen autoritative Nameserver Access Control Lists (\gls{ACL}) mit verschiedenen IP-Präfixen, um eine Fallunterscheidung treffen zu können\cite[S.565-567]{Fall2011}. Dies ist z.B. relevant, wenn eine Firma zwischen internen und externen Anfragen unterscheiden muss, um den (richtigen) Zugriff auf Ressourcen zu gewährleisten.
 
 \begin{figure}[h]
@@ -256,9 +256,9 @@ Bei einer Hybrid Cloud werden unterschiedliche Bausteine zusammengefasst. In die
 
 \section{Public Cloud-Netzwerke}\label{public-cloud-networking}
 In diesem Kapitel wird näher auf die verschiedenen Netzwerk-\textit{Building Blocks} der Public Cloud-Plattformen AWS und Azure eingegangen. Beide bringen oftmals ähnliche Bausteine mit. Es wird daher stets versucht, im jeweiligen Kontext auf beide Plattformen zugleich einzugehen, um die Grundfunktionalität zu erläutern.
-Dieses Kapitel vermittelt lediglich Grundlagen, die für das Verständnis der Use-Cases in Kapitel \ref{Defintion der Use-Cases} und Kapitel \ref{Umsetzung der Use-Cases und Evaluation} notwendig sind. Besonderheiten und Constraints, die sich im Verlauf der Bearbeitung ergeben haben, werden im jeweiligen Use-Case unter \glqq Probleme und Lösungsfindung\grqq{} zusammengefasst.
+Dieses Kapitel vermittelt lediglich Grundlagen, die für das Verständnis der Use Cases in Kapitel \ref{Defintion der Use-Cases} und Kapitel \ref{Umsetzung der Use-Cases und Evaluation} notwendig sind. Besonderheiten und Constraints, die sich im Verlauf der Bearbeitung ergeben haben, werden im jeweiligen Use Case unter \glqq Probleme und Lösungsfindung\grqq{} zusammengefasst.
 
-\subsection{AWS \gls{VPC} / Azure \gls{VNET}}
+\subsection{AWS VPC / Azure VNET}
 AWS Virtual Private Cloud (VPC) und Azure Virtual Network (VNET) bilden private Netzwerke innerhalb eines Cloud-Mandanten ab. Die hier hinterlegten Präfixe bilden eine Menge an möglichen IP-Adressen innerhalb von \gls{VPC} und \gls{VNET} ab. Es können sowohl Public IP-Präfixe als auch IPs nach \gls{RFC} 1918 benutzt werden. Diese Menge an IP-Adressen wird in AWS \textit{\gls{CIDR}} bzw. Azure \textit{Address Space} als Container zusammengefasst.\\
 AWS gibt /16 als minimale und /28 als maximale Größe des \gls{CIDR} vor \cite[S.100]{awsug2020}. Azure \gls{VNET} ist da großzügiger und es darf eine Größe zwischen /8 und /29 gewählt werden\cite[S.10]{Toroman2019}. 
 \subsection{Subnets}

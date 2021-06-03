@@ -1,8 +1,8 @@
-\section{Use-Case 2: Road Warrior} \label{Use-Case 2: Road Warrior}
+\section{Use Case 2: Roadwarrior VPN} \label{Use-Case 2: Road Warrior}
 \subsection{Umsetzung: Kerntätigkeiten}
 
 In AWS und Azure wurden via Terraform die virtuellen Maschinen VyOS aus den jeweiligen Marketplaces installiert.\\
-Es wurden für die Cloud-Standorte AWS und Azure analog zu Use-Case 1 Templates erstellt, um den \gls{VPN-Konzentrator} zu konfigurieren. In der Terraform Resource \textit{azurerm\_linux\_virtual\_machine} wird das richtige VyOS-Image aus dem Cloud-Marketplace referenziert über \textit{source\_image\_reference} und lässt dieses installieren (s. Listing \ref{tf-azure-vyos-machine-image}). Einige dieser Market\-place-Images bieten verschiedene Support- und Lizenz-Verträge an. Über den \textit{plan \{\}}-Kontext wird der passende \textit{Contract} ausgewählt (hier: \glqq Standard support\grqq{}). Ähnlich wurde für die AWS-Instanz vorgegangen. 
+Es wurden für die Cloud-Standorte AWS und Azure analog zu Use Case 1 Templates erstellt, um den \gls{VPN-Konzentrator} zu konfigurieren. In der Terraform Resource \textit{azurerm\_linux\_virtual\_machine} wird das richtige VyOS-Image aus dem Cloud-Marketplace referenziert über \textit{source\_image\_reference} und lässt dieses installieren (s. Listing \ref{tf-azure-vyos-machine-image}). Einige dieser Market\-place-Images bieten verschiedene Support- und Lizenz-Verträge an. Über den \textit{plan \{\}}-Kontext wird der passende \textit{Contract} ausgewählt (hier: \glqq Standard support\grqq{}). Ähnlich wurde für die AWS-Instanz vorgegangen. 
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -39,7 +39,7 @@ resource "azurerm_linux_virtual_machine"  "azurerm_linux_virtual_machine" {
 \end{listing}\FloatBarrier
 %TC:endignore
 Public/Private-Schlüsselpaar wurde vorab erstellt, von der pfSense-\gls{PKI} signiert und mit dem Zertifikat auf dem Terraform-Server gespeichert. Während des Terraform-\gls{Deployment}s wird Private Key und Zertifikat per Terraform Provisioner auf das Zielsystem kopiert. Sie werden in der Config dann via \textit{set interfaces openvpn vtun0 tls cert-file / key-file} referenziert.\\
-In der Praxis sollte darauf verzichtet werden, das Schlüsselmaterial \glqq auf einem anderen System vorzulagern\grqq{}: Ein privater Schlüssel sollte nur auf dem Server erzeugt und gespeichert werden, auf dem dieser final genutzt wird. Optimalerweise wäre dies zur Laufzeit der Terraform-\gls{Deployment}s. Zur Vereinfachung des Use-Cases wurde auf diesen Schritt verzichtet. Eine Möglichkeit zur automatisierten Signatur von vertrauenswürdigen Zertifikaten ist das Simple Certificate Enrollment Protocol (SCEP)\cite[S.554]{Schmeh2013}.\\
+In der Praxis sollte darauf verzichtet werden, das Schlüsselmaterial \glqq auf einem anderen System vorzulagern\grqq{}: Ein privater Schlüssel sollte nur auf dem Server erzeugt und gespeichert werden, auf dem dieser final genutzt wird. Optimalerweise wäre dies zur Laufzeit der Terraform-\gls{Deployment}s. Zur Vereinfachung des Use Cases wurde auf diesen Schritt verzichtet. Eine Möglichkeit zur automatisierten Signatur von vertrauenswürdigen Zertifikaten ist das Simple Certificate Enrollment Protocol (SCEP)\cite[S.554]{Schmeh2013}.\\
 Für den sich verbindenden \gls{Roadwarrior}-\gls{Client} sind diverse Konfigurationen hinterlegt: Suchdomäne, (interner) Name-Server und Routen, die über den \gls{VPN-Konzentrator} erreicht werden können (s. Listing \ref{vpn-c2s-server-config}).
 Weiterhin wird ein \gls{MSS}-Clamping (s. Kapitel \ref{mtumss}) vorgenommen, um IP-Fragmen\-tierung von \gls{TCP}-Applikationen möglichst zu verhindern.\\
 Das Subnetz, in dem die OpenVPN-\gls{Client}s terminiert werden, wird wieder dynamisch aus dem \gls{IPAM} alloziert.
@@ -63,7 +63,7 @@ set interfaces openvpn vtun0 tls key-file '/config/auth/vpn-server-aws.ba.mungar
 \end{listing}
 %TC:endignore
 
-Die drei Cloud-Standorte wurden in diesem Proof-of-Concept verteilt über verschiedenen Regionen: Dublin (Azure), Frankfurt (AWS), Kiel (Private Cloud). Es werden drei \gls{Roadwarrior}-\gls{Client}s simuliert, die ebenso am jeweiligen Standort stehen. Dazu wurden weitere \gls{VM}s an den Cloud-Standorten hochgefahren: Sie wurden völlig isoliert von dem restlichen \gls{Deployment} installiert und sind nicht Teil der internen Netzwerke 10.32.0.0/16 bzw. 10.33.0.0/16 (s. Listing \ref{ext-ip-addr-roadwarrior}). Zugang zu internen Ressourcen wird nur über eine erfolgreiche Authentifizierung am \gls{VPN-Konzentrator} gewährleistet.
+Die drei Cloud-Standorte wurden in diesem Proof of Concept verteilt über verschiedenen Regionen: Dublin (Azure), Frankfurt (AWS), Kiel (Private Cloud). Es werden drei \gls{Roadwarrior}-\gls{Client}s simuliert, die ebenso am jeweiligen Standort stehen. Dazu wurden weitere \gls{VM}s an den Cloud-Standorten hochgefahren: Sie wurden völlig isoliert von dem restlichen \gls{Deployment} installiert und sind nicht Teil der internen Netzwerke 10.32.0.0/16 bzw. 10.33.0.0/16 (s. Listing \ref{ext-ip-addr-roadwarrior}). Zugang zu internen Ressourcen wird nur über eine erfolgreiche Authentifizierung am \gls{VPN-Konzentrator} gewährleistet.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -301,13 +301,13 @@ persist-tun
 
 \newpage
 Analog zu den Kapiteln \ref{xml-tunnel-parameters} bis \ref{azure-deployment-time} werden im Folgenden Probleme und Lösungsfindung erläutert.
-\subsection{Beschleunigung des \gls{Deployment}s}\label{accelerate-deployment-use-case-2}
-Das Azure \gls{VPN} Gateway benötigt viel Zeit für die Erstellung (s. Kapitel \ref{azure-deployment-time}). Da Use-Case 2 direkt auf diesem Use-Case aufsetzt, hätte das ebenso eine lange \gls{Deployment}-Zeit nach sich gezogen. So war ursprünglich die Idee, den Programmcode aus Use-Case 1 zu kopieren und um die Infrastruktur-Komponenten aus Use-Case 2 zu ergänzen. Somit hätte sich die \gls{Deployment} Zeit $t_{gesamt}$ aus den jeweiligen \gls{Deployment}-Zeiten der Infrastrukturen aus Use-Case 1 und Use-Case 2 zusammengesetzt:\\
+\subsection{Beschleunigung des Deployments}\label{accelerate-deployment-use-case-2}
+Das Azure \gls{VPN} Gateway benötigt viel Zeit für die Erstellung (s. Kapitel \ref{azure-deployment-time}). Da Use Case 2 direkt auf diesem Use Case aufsetzt, hätte das ebenso eine lange \gls{Deployment}-Zeit nach sich gezogen. So war ursprünglich die Idee, den Programmcode aus Use Case 1 zu kopieren und um die Infrastruktur-Komponenten aus Use Case 2 zu ergänzen. Somit hätte sich die \gls{Deployment} Zeit $t_{gesamt}$ aus den jeweiligen \gls{Deployment}-Zeiten der Infrastrukturen aus Use Case 1 und Use Case 2 zusammengesetzt:\\
 $t_{gesamt} = t_{Infrastruktur_{U1}} + t_{Infrastruktur_{U2}}$
 
-Somit kam die Frage auf, ob man das \gls{Deployment} für Use-Case 2 beschleunigen könnte. Da in Use-Case 2 viele Tests und Änderungen gemacht wurden, musste das \gls{Deployment} oftmals komplett neu erfolgen, was \gls{Deployment}-Zeiten von bis zu anderthalb Stunden (siehe \ref{xml-tunnel-parameters}) nach sich ziehen kann.\\
-Dieses Problem konnte mit der Data Source \textit{terraform\_remote\_state} zumindest abgemildert werden\cite{remotestateimport2021}. So wurde die Infrastruktur aus Use-Case 1 als \textbf{vorhanden} angenommen und die Infrastruktur aus Use-Case 2 lediglich hinzugefügt.\\
-Der \textit{state import} findet in der Datei \underline{main.tf} von Use-Case 2 statt und referenziert die Datei \underline{terraform.tfstate} aus Use-Case 1.
+Somit kam die Frage auf, ob man das \gls{Deployment} für Use Case 2 beschleunigen könnte. Da in Use Case 2 viele Tests und Änderungen gemacht wurden, musste das \gls{Deployment} oftmals komplett neu erfolgen, was \gls{Deployment}-Zeiten von bis zu anderthalb Stunden (siehe \ref{xml-tunnel-parameters}) nach sich ziehen kann.\\
+Dieses Problem konnte mit der Data Source \textit{terraform\_remote\_state} zumindest abgemildert werden\cite{remotestateimport2021}. So wurde die Infrastruktur aus Use Case 1 als \textbf{vorhanden} angenommen und die Infrastruktur aus Use Case 2 lediglich hinzugefügt.\\
+Der \textit{state import} findet in der Datei \underline{main.tf} von Use Case 2 statt und referenziert die Datei \underline{terraform.tfstate} aus Use Case 1.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -319,12 +319,12 @@ data "terraform_remote_state" "base_deployment" {
 }
 
 \end{minted}
-\caption{Import des Remote States aus Use-Case 1 in Use-Case 2}
+\caption{Import des Remote States aus Use Case 1 in Use Case 2}
 \label{tf-remote-state-import}
 \end{listing}\FloatBarrier
 %TC:endignore
 Der Remote-State-Import dauert einen kurzen Moment, wird aber in der folgenden Betrachtung vernachlässigt.
-Unter der Annahme, dass Use-Case 1 bereits bereitgestellt wurde, ist die Laufzeit des \gls{Deployment}s effektiv:\\
+Unter der Annahme, dass Use Case 1 bereits bereitgestellt wurde, ist die Laufzeit des \gls{Deployment}s effektiv:\\
 $t_{gesamt} = t_{Infrastruktur_{U2}}$
 
 Im Allgemeinen hat sich dieser \glqq Teile-und-herrsche\grqq{}-Ansatz im Zusammenspiel mit Terraform als sehr hilfreich erwiesen, um Konsistenz-Probleme der asynchronen Cloud-APIs während der \gls{Deployment}-Phase zu verringern\cite[S.183-184]{Brikman2019}. Probleme während des \gls{Deployment}s entstanden v.a. dann, wenn \glqq zu viele\grqq{} Abhängigkeiten in der Infrastruktur vorhanden waren. Für die Verschaltung von aufgeteilten Terraform-\gls{Deployment}s eignet sich das Werkzeug Terragrunt\cite[S.98]{Brikman2019}.
@@ -352,7 +352,7 @@ Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway d
 \end{figure}\FloatBarrier
 VPC \gls{CIDR} und \gls{VPC} Subnet werden in diesem Beispiel synonym verwendet, was formell nicht korrekt ist: Route Tables werden in Subnets genutzt, nicht im \gls{CIDR}. Dies dient jedoch zur Vereinfachung des Schaubildes. Das Transit Gateway lernt die \gls{VPC} \gls{CIDR} automatisch, insofern \textit{Route Propagation} eingeschaltet ist.
 \newpage
-\subsection{Untersuchung von \gls{GeoIP}-Daten}
+\subsection{Untersuchung von GeoIP-Daten}
 Die \gls{GeoIP}-Datenbank ist ein Binärformat\cite{maxmind2021binary}. Dies konnte durch das Werkzeug \texttt{file} nochmals bestätigt werden (\glqq data\grqq{})\cite{filemanpage2021}.
 %TC:ignore
 \begin{listing}[h]
@@ -424,7 +424,7 @@ Insgesamt erwiesen sich die Datensätze als sehr brauchbar und akkurat. Per cron
 
 Es wurde pro Cloud-Standort eine virtuelle Maschine hochgefahren, die einen \gls{Roadwarrior}-\gls{Client} simulieren soll. Diese \gls{Client}s haben \textbf{keinen} Zugriff auf interne Komponenten, sondern sind lediglich mit dem Internet verbunden, über welches \gls{VPN}-Verbindungen zum jeweiligen \gls{VPN-Konzentrator} aufgebaut werden können.
 
-Nach dem \gls{Deployment} von Use-Case 2 wird geprüft, ob sich die Domain vpn.ba.mungard.de auflösen lässt. Dies wird demonstriert in Listing \ref{dns-resolution-client-vpn} für den Standort Azure Dublin.
+Nach dem \gls{Deployment} von Use Case 2 wird geprüft, ob sich die Domain vpn.ba.mungard.de auflösen lässt. Dies wird demonstriert in Listing \ref{dns-resolution-client-vpn} für den Standort Azure Dublin.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -590,5 +590,5 @@ ubuntu@vpn-client-azure:~$ lynx -dump http://www.intern.ba.mungard.de | head -2
 \label{lynx-default-page}
 \end{listing}\FloatBarrier
 %TC:endignore
-Alle hier geschilderten Tests waren analog für alle weiteren Roadwarrier-\gls{Client}s und Cloud-Standorte erfolgreich und es konnten somit alle Evaluationskriterien von Use-Case 2 erfüllt werden (siehe \ref{eval-roadwarrior}).\\
-Auch zusammenfassend ist zu sagen, dass eine erfolgreiche Demonstration beider Use-Cases stattgefunden hat und die technischen Kapitel damit abgeschlossen sind. Im folgenden Kapitel \ref{Fazit und Ausblick} erfolgt eine abschließende Betrachtung der Arbeit mit Fazit und Ausblick.
+Alle hier geschilderten Tests waren analog für alle weiteren Roadwarrier-\gls{Client}s und Cloud-Standorte erfolgreich und es konnten somit alle Evaluationskriterien von Use Case 2 erfüllt werden (siehe \ref{eval-roadwarrior}).\\
+Auch zusammenfassend ist zu sagen, dass eine erfolgreiche Demonstration beider Use Cases stattgefunden hat und die technischen Kapitel damit abgeschlossen sind. Im folgenden Kapitel \ref{Fazit und Ausblick} erfolgt eine abschließende Betrachtung der Arbeit mit Fazit und Ausblick.

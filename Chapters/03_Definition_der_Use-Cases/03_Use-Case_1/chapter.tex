@@ -1,16 +1,16 @@
-\chapter{Definition der Use-Cases} \label{Defintion der Use-Cases}
-In diesem Kapitel werden die Use-Cases für ein Hybrid Cloud-\gls{Deployment} vorgestellt und näher erläutert. Es handelt sich um in der Praxis übliche Anforderungen aus dem Unternehmensumfeld. Es findet eine Vorauswahl über geeignete technische Komponenten statt, welche anschließend in Kapitel \ref{Umsetzung der Use-Cases und Evaluation} genutzt werden. Weiterhin werden Evaluationskriterien genannt, um messbare Kriterien für eine erfolgreiche Umsetzung zu haben. Grundlegende Kenntnisse v.a. über IPv4(-Routing), \gls{VPN} und Building Blocks der Public Cloud-Plattformen aus dem vorangegangenen Kapitel \ref{Technische_Grundlagen} werden vorausgesetzt.
+\chapter{Definition der Use Cases} \label{Defintion der Use-Cases}
+In diesem Kapitel werden die Use Cases für ein Hybrid Cloud-\gls{Deployment} vorgestellt und näher erläutert. Es handelt sich um in der Praxis übliche Anforderungen aus dem Unternehmensumfeld. Es findet eine Vorauswahl über geeignete technische Komponenten statt, welche anschließend in Kapitel \ref{Umsetzung der Use-Cases und Evaluation} genutzt werden. Weiterhin werden Evaluationskriterien genannt, um messbare Kriterien für eine erfolgreiche Umsetzung zu haben. Grundlegende Kenntnisse v.a. über IPv4(-Routing), \gls{VPN} und Building Blocks der Public Cloud-Plattformen aus dem vorangegangenen Kapitel \ref{Technische_Grundlagen} werden vorausgesetzt.
 
 \section{Use Case 1: Basis Deployment mit Ende-zu-Ende-Konnektivität}\label{base-deployment}
 Es wird ein Basis \gls{Deployment} benötigt, um eine grundlegende Integration in die Firmeninfrastruktur zu ermöglichen. So ist die Grundannahme, dass der Kunde bereits Rechenressourcen in Selbstverwaltung (\glqq Private Cloud\grqq{}) besitzt. Weiterhin hat die Integration von Public Cloud-Diensten noch gar nicht oder nur testweise stattgefunden: Es wurden ein paar Maschinen hochgefahren und bestimmte Internetdienste installiert. Über eine tiefergehende Koppelung mit bestehender Infrastruktur hat der Kunde bisher keine Überlegungen angestellt.\\
 Eine Hybrid Cloud besteht, wie bereits beschrieben, aus Public und Private Cloud. Da mit den beiden Public Clouds AWS und Azure gearbeitet wird, wäre hier bereits eine Fallunterscheidung notwendig: Private Cloud $\leftrightarrow$ Azure bzw. Private Cloud $\leftrightarrow$ AWS. Um sich diese Fallunterscheidung sparen zu können, soll ein Dreieck ausgerollt werden, bei dem jeder Punkt eine Cloud-Plattform darstellt.
 Optimalerweise wird durch dieses \gls{Deployment} auch die Redundanz erhöht: Fällt eine Verbindung aus bspw. zwischen AWS und Azure, so können Datenpakete weiterhin über die Private Cloud geroutet werden.
-Der Use-Case soll als Grundaufbau für alle weiteren Use-Cases dienen und eine Ende-zu-Ende-Konnektivität für alle Teilnehmer garantieren. Das Dreieck aus AWS, Azure und Private Cloud (s. Abb. \ref{grafik:Use-Case-1_Basis_Deployment}) wird fortan als \textit{Backbone} bezeichnet.
+Der Use Case soll als Grundaufbau für alle weiteren Use Cases dienen und eine Ende-zu-Ende-Konnektivität für alle Teilnehmer garantieren. Das Dreieck aus AWS, Azure und Private Cloud (s. Abb. \ref{grafik:Use-Case-1_Basis_Deployment}) wird fortan als \textit{Backbone} bezeichnet.
 
 \begin{figure}[h]
   \centering
   \includegraphics{Figures/Use-Case-1_Basis_Deployment.pdf}
-  \caption{Use-Case 1: Dreiecks-Topologie für die Hybrid-Cloud (\glqq Backbone\grqq{})}
+  \caption{Use Case 1: Dreiecks-Topologie für die Hybrid-Cloud (\glqq Backbone\grqq{})}
   \label{grafik:Use-Case-1_Basis_Deployment}
 \end{figure}\FloatBarrier
 

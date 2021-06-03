@@ -1,7 +1,7 @@
-\chapter{Umsetzung der Use-Cases und Evaluation} \label{Umsetzung der Use-Cases und Evaluation}
-Dieses Kapitel beinhaltet die Umsetzung der Use-Cases (\glqq Kerntätigkeiten\grqq{}) und anschließende Evaluation für genannte Kriterien in Kap. \ref{Defintion der Use-Cases} (s. \ref{eval-kriterien-uc1}, \ref{eval-roadwarrior}). Probleme, die in der Umsetzungsphase auftraten, und dazugehörige Lösungsfindung werden gesondert erläutert.
+\chapter{Umsetzung der Use Cases und Evaluation} \label{Umsetzung der Use-Cases und Evaluation}
+Dieses Kapitel beinhaltet die Umsetzung der Use Cases (\glqq Kerntätigkeiten\grqq{}) und anschließende Evaluation für genannte Kriterien in Kap. \ref{Defintion der Use-Cases} (s. \ref{eval-kriterien-uc1}, \ref{eval-roadwarrior}). Probleme, die in der Umsetzungsphase auftraten, und dazugehörige Lösungsfindung werden gesondert erläutert.
 
-\section{Use-Case 1: Basis Deployment mit Ende-zu-Ende-Konnektivität} \label{Use-Case 1: Basis Deployment}
+\section{Use Case 1: Basis Deployment mit Ende-zu-Ende-Konnektivität} \label{Use-Case 1: Basis Deployment}
 \subsection{Umsetzung: Kerntätigkeiten}
 
 Im phpIPAM müssen mehrere Netzbereiche reserviert werden. Es werden Netzbereiche benötigt, in denen Maschinen per IPv4 kommunizieren können. Diese Netze werden mit \gls{VPC} bzw. \gls{VNET} assoziiert.\\
@@ -118,10 +118,10 @@ resource "null_resource" "vyos_config" {
 \end{listing}\FloatBarrier
 %TC:endignore
 \newpage
-Folgend werden zentrale Probleme geschildert, die bei der technischen Umsetzung von Use-Case 1 auftraten. Die erarbeiteten Lösungen werden ausführlich erläutert.
+Folgend werden zentrale Probleme geschildert, die bei der technischen Umsetzung von Use Case 1 auftraten. Die erarbeiteten Lösungen werden ausführlich erläutert.
 
 \newpage
-\subsection{Vertauschung von \gls{IPsec}-Tunnelparametern}\label{xml-tunnel-parameters}
+\subsection{Vertauschung von IPsec-Tunnelparametern}\label{xml-tunnel-parameters}
 
 AWS \gls{VPN-Konzentrator}en bieten aus Redundanzgründen standardmäßig zwei IPs pro Gegenstelle an. 
 %TC:ignore
@@ -292,9 +292,9 @@ resource "null_resource" "vyos_config_destroy" {
 \label{apply-last-commit-vyos}
 \end{listing}\FloatBarrier
 %TC:endignore
-\subsection{Lange Laufzeiten für Erstellung von Azure \gls{VPN} Gateway}\label{azure-deployment-time}
+\subsection{Lange Laufzeiten für Erstellung von Azure VPN Gateway}\label{azure-deployment-time}
 Die Erstellung des Azure \gls{VPN} Gateways kann bis zu 45 Minuten in Anspruch nehmen\cite{azurevpndeployment2021}. In der Praxis waren es meist etwa 25 Minuten für den Standort \glqq North Europe\grqq{}. Auch das Löschen eines \gls{VPN} Gateways via \texttt{terraform destroy} dauert bis zu 15 Minuten. Nur wenn dieses Gateway gelöscht wurde, kann ein \textit{Re-\gls{Deployment}} erfolgen, welches vor allem dann notwendig ist, wenn die Vertauschung von \gls{IPsec}-Parametern (s. Kapitel \ref{xml-tunnel-parameters}) eintrifft.\\
-Bei diesem Phänomen handelt es sich nicht um einen Bug im eigentlichen Sinne, macht aber das \gls{Deployment} z.B. für Live-Demonstrationen nicht praktikabel. Da alle weiteren Use-Cases auf diesem Use-Case 1 aufbauen und ebenso in Terraform abgebildet werden sollten, musste eine Lösung gefunden werden, um die \gls{Deployment}-Zeiten zu verkürzen, da jede Änderung des Codes ein (teilweises) Re-\gls{Deployment} notwendig macht (vgl. Kapitel \ref{accelerate-deployment-use-case-2}).
+Bei diesem Phänomen handelt es sich nicht um einen Bug im eigentlichen Sinne, macht aber das \gls{Deployment} z.B. für Live-Demonstrationen nicht praktikabel. Da alle weiteren Use Cases auf diesem Use Case 1 aufbauen und ebenso in Terraform abgebildet werden sollten, musste eine Lösung gefunden werden, um die \gls{Deployment}-Zeiten zu verkürzen, da jede Änderung des Codes ein (teilweises) Re-\gls{Deployment} notwendig macht (vgl. Kapitel \ref{accelerate-deployment-use-case-2}).
 %TC:ignore
 \subsection{Evaluation}
 Nach dem erfolgreichen \gls{Deployment} wird folgender Status von Terraform zurückgemeldet (s. Listing \ref{tf-base-deployment-ok}).
@@ -307,7 +307,7 @@ Outputs:
 aws_subnet_id = "subnet-0192ae38a3a16f584"
 [... weitere Output-Variablen ...]
 \end{minted}
-\caption{Terraform Status nach Deployment Use-Case 1}
+\caption{Terraform Status nach Deployment Use Case 1}
 \label{tf-base-deployment-ok}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -453,4 +453,4 @@ PING 10.33.0.121 (10.33.0.121) 56(84) bytes of data.
 \label{tf-base-deployment-ping-ok-missing-link}
 \end{listing}\FloatBarrier
 %TC:endignore
-Alle Evaluationskriterien (siehe Kapitel \ref{eval-kriterien-uc1}) wurden somit erfüllt und der Use-Case konnte erfolgreich umgesetzt werden.
+Alle Evaluationskriterien (siehe Kapitel \ref{eval-kriterien-uc1}) wurden somit erfüllt und der Use Case konnte erfolgreich umgesetzt werden.
