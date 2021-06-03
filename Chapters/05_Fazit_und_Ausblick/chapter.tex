@@ -20,8 +20,8 @@ Wie bereits in der Abgrenzung geschrieben, sollte in dieser Arbeit wenig auf (m�
     \item Sind die Verschlüsselungsparameter der Tunnel optimal gewählt?
     \item Unterscheiden sich Bandbreiten zwischen verschiedenen Protokollen (\gls{UDP} \textit{versus} \gls{TCP} bspw.) eklatant?
     \item Ermöglichen Cloud-Plattformen Optimierungen wie z.B. \gls{TCP}-Offloading?
-    \item Wird auf einer Verbindung fragmentiert? Wie wirken sich verschiedene MTU-Parameter aus?
-    \item Sind die Cloud-Standorte (Dublin und Frankfurt) Routing-technisch \textit{zu weit} voneinander entfernt?
+    \item Wird auf einer Verbindung fragmentiert? Wie wirken sich verschiedene \gls{MTU}-Parameter aus?
+    \item Sind die Cloud-Standorte (Dublin und Frankfurt) Routing-technisch zu weit voneinander entfernt?
     \item Wie kann sich Equal Cost Multipath (ECMP) auf die verfügbare Bandbreite auswirken? Funktioniert ECMP richtungsunabhängig?
 \end{itemize}
 Grundsätzlich hat sich im Laufe dieser Arbeit gezeigt, dass die Verbindungen, auch durch die zusätzliche Redundanz des Backbones, stabil sind. Weiterhin war in Anbetracht typischer Anforderungen im Firmenumfeld die Performance gut, z.B. wenn über den Tunnel auf entfernten Systemen gearbeitet wurde per \gls{SSH}. Wie vereinzelte Messungen jedoch zeigen, existiert wahrscheinlich zwischen AWS und Azure ein Flaschenhals (s. Listing \ref{iperf3-vpc-vnet}). Hohe Paketverluste, die dies rechtfertigen würden, sind nicht zu messen (\ref{floodping}).\\
@@ -29,7 +29,7 @@ Um genauere Aussagen diesbezüglich treffen zu können, wäre eine weitere Ausar
 Es könnten geeignete Tools entwickelt werden, um Standorte dauerhaft zu messen und ggf. temporär aus einer Topologie herauszunehmen, sollten Kriterien nicht mehr erfüllbar sein. Durch geeignete Automatisierungsmechanismen müssten verbliebene User auf andere Standorte \glqq umgelenkt\grqq{} werden.\\
 Weiterhin wurde in der Abgrenzung angedeutet, dass diese Arbeit Use Cases für kleine bis mittelgroße Skalierungen herausstellen wird. Während die in dieser Arbeit verwendeten \gls{VPN-Konzentrator}en der Public Cloud-Provider \textit{bis zu} 1,25 Gbit/s Bandbreite (pro \gls{VPN}-Verbindung) zusichern, sind es bei AWS Direct Connect \cite{awsdc2020} und Azure ExpressRoute \cite{Washam2014} bis zu 100 Gbit/s. Dies sind dedizierte Schicht-2-Verbindungen vom eigenen Rechenzentrum bis zum Rechenzentrum eines Public Cloud-Providers.\\
 Diese Verbindungen sind in der Theorie ausfallsicherer, da die Pakete zwischen den Standorten nicht über das Internet geroutet, sondern mit der Unterstützung des Internet Service Providers direkt zwischen den Rechenzentren auf Schicht 2 \textit{gebridget} werden. Außerdem lassen sich hier Services wie Bidirectional Forwarding Detection (BFD) nutzen, um deutlich schnellere \gls{BGP}-Konvergenzzeiten als in dieser Arbeit (vgl. \ref{tf-base-deployment-ping-ok-missing-link}) zu erreichen\cite{azurebfd2018}.
-An dieser Stelle könnte angesetzt werden, um mit einer weiteren Arbeit zu untersuchen, inwiefern ein Hybrid Cloud-Setup mit AWS Direct Connect bzw. Azure ExpressRoute automatisiert konfiguriert werden könnte. Auch eine Mischung aus \gls{VPN} und Direct Connect / ExpressRoute wäre vorstellbar. Folgende Fragestellungen sind dann zu untersuchen:
+An dieser Stelle könnte angesetzt werden, um mit einer weiteren Arbeit zu untersuchen, inwiefern ein Hybrid Cloud-Setup mit AWS Direct Connect bzw. Azure ExpressRoute automatisiert konfiguriert werden könnte. Auch eine Kombination aus \gls{VPN} und Direct Connect / ExpressRoute wäre vorstellbar. Folgende Fragestellungen sind dann zu untersuchen:
 \begin{itemize}
     \item Ließe sich ein \textit{Backbone} ausschließlich per AWS Direct Connect und Azure ExpressRoute analog zu dieser Arbeit aufbauen?
     \item Ist es möglich, direkt zwischen AWS und Azure zu bridgen?

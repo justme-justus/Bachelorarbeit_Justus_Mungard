@@ -30,7 +30,7 @@ resource "phpipam_first_free_subnet" "free_subnet_apipa" {
 \label{apipa-reservation-ipam}
 \end{listing}\FloatBarrier
 %TC:endignore
-Weiterhin werden Pre-Shared-Keys für die Aushandlung der \gls{IPsec}-Verbindungen benötigt. AWS erzeugt automatisch solche Schlüssel, welche durch die Terraform-Resource \glqq aws\_vpn\_connection\grqq{} zurückgegeben werden. Diese automatisch erzeugten Schlüssel werden daher für die Backbone-Verbindungen AWS $\leftrightarrow$ Azure und AWS $\leftrightarrow$ Private Cloud genutzt. Da Azure diese Schlüssel nicht erzeugt, wurde ein Terraform-Modul geschrieben, welches 24 Zeichen lange Schlüssel erzeugt (s. Lsiting \ref{tf-generate-psk}). Auf Sonderzeichen wird dabei verzichtet. Diese können anschließend genutzt werden für die Backbone-Verbindung Azure $\leftrightarrow$ Private Cloud.
+Weiterhin werden Pre-Shared-Keys für die Aushandlung der \gls{IPsec}-Verbindungen benötigt. AWS erzeugt automatisch solche Schlüssel, welche durch die Terraform-Resource \glqq aws\_vpn\_connection\grqq{} zurückgegeben werden. Diese automatisch erzeugten Schlüssel werden daher für die Backbone-Verbindungen AWS $\leftrightarrow$ Azure und AWS $\leftrightarrow$ Private Cloud genutzt. Da Azure diese Schlüssel nicht erzeugt, wurde ein Terraform-Modul geschrieben, welches 24 Zeichen lange Schlüssel erzeugt (s. Listing \ref{tf-generate-psk}). Auf Sonderzeichen wird dabei verzichtet. Diese können anschließend genutzt werden für die Backbone-Verbindung Azure $\leftrightarrow$ Private Cloud.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -113,7 +113,7 @@ resource "null_resource" "vyos_config" {
 }
 
 \end{minted}
-\caption{Kopie per \gls{SSH} und remote-exec Provisioner}
+\caption{Kopie per SSH und remote-exec Provisioner}
 \label{tf-copy-tpl}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -166,7 +166,7 @@ AWS \gls{VPN-Konzentrator}en bieten aus Redundanzgründen standardmäßig zwei I
 %TC:endignore
 Wie man in Listing \ref{tf-xml-response-aws} sieht, taucht das XML-Element ipsec\_tunnel zwei Mal auf, ist dabei jedoch \textbf{unnummeriert}.
 Der Terraform-Provider aws\_vpn\_connection nutzt diese XML-Antwort, um daraus die Rückgabewerte tunnel1\_* und tunnel2\_* zu erzeugen\cite{awsattributestf2021}, die in der weiteren Ausführung von anderen Modulen wiederverwendet werden. Bei einigen Ausführungen wurden diese Elemente Terraform-intern vertauscht: Da nun weder \gls{IPsec}-Schlüssel noch interne \gls{BGP}-Peering-Gegenstellen stimmen, kommen weder \gls{IPsec}-Tunnel noch die \gls{BGP}-Peering-Sessions hoch. Dieser Bug für den AWS Provider ist in Github seit 2017 dokumentiert\cite{githubbugtf2021}.\\
-Mit einem Bash-Skript konnte zumindest ein Workaround gefunden werden, um ein erfolgreiches \gls{Deployment} sicherzustellen. Die Grundannahme ist, dass pro Präfix zwei Pfade auf dem Private Cloud-Router existieren und somit redundant sind (s. Listing \ref{bgp-paths-vyos}). Wenn nur ein Pfad pro Präfix zur Verfügung steht, kam es mit einer hohen Wahrscheinlichkeit zu einer Vertauschung und es muss ein erneutes \gls{Deployment} erfolgen (\texttt{terraform destroy \&\& terraform apply}). Es wird dreimal versucht, eine funktionierende Infrastruktur bereitzustellen, um die APIs der Cloud-Anbieter zu \textit{schonen} und kein Rate-Limiting zu triggern \cite{awsthrottling2021}.
+Mit einem Bash-Skript konnte zumindest ein Workaround gefunden werden, um ein erfolgreiches \gls{Deployment} sicherzustellen. Die Grundannahme ist, dass pro Präfix zwei Pfade auf dem Private Cloud-Router existieren und somit redundant sind (s. Listing \ref{bgp-paths-vyos}). Wenn nur ein Pfad pro Präfix zur Verfügung steht, kam es mit einer hohen Wahrscheinlichkeit zu einer Vertauschung und es muss ein erneutes \gls{Deployment} erfolgen (\texttt{terraform destroy \&\& terraform apply}). Es wird dreimal versucht, eine funktionierende Infrastruktur bereitzustellen, um die APIs der Cloud-Anbieter zu \glqq schonen\grqq{} und kein Rate-Limiting zu triggern \cite{awsthrottling2021}.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -187,7 +187,7 @@ Das Beispiel in Abb. \ref{grafik:programmablaufplan_bash_deploy_tf} zeigt den Pr
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.6]{Figures/programmablaufplan_bash_deploy_tf.pdf}
-  \caption{Programmablaufplan für das Terraform \gls{Deployment} Skript}
+  \caption{Programmablaufplan für das Terraform Deployment Skript}
   \label{grafik:programmablaufplan_bash_deploy_tf}
 \end{figure}\FloatBarrier
 Durch das Bash-Skript konnte die Schwere des Bugs abgemildert werden, um ein funktionierendes Deployment herzustellen. Allerdings führten Re-Deployments zu relativ langen \gls{Deployment}-Zeiten (siehe auch \ref{azure-deployment-time}).\\

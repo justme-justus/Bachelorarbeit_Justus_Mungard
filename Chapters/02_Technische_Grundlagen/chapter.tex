@@ -157,10 +157,10 @@ NAT\label{nat-bad} verletzt das Prinzip der Ende-zu-Ende-Konnektivität: Findet 
 Wenn allerdings eine \gls{Client}-zu-\gls{Client}-Kommunikation stattfinden soll, ist man auf aufwändige Mechanismen wie z.B. Hole Punching angewiesen \cite[S.317]{Fall2011}.\\
 Auf \gls{NAT} soll daher in dieser Arbeit verzichtet werden, wenn dies möglich ist und es soll eine vollwertige Ende-zu-Ende-Konnektivität gewährleistet werden.
 
-\subsection{Maximum Transmission Unit / Maximum Segment Size}\label{mtumss}
-Die maximale Paketgröße auf einem Netzwerkmedium wird durch die Maxmimum Transmission Unit (MTU) beschrieben. Im Ethernet ist die \textit{Default}-MTU 1500 Byte.\cite[S.86]{Fall2011} Ethernet ist im Internet inzwischen das meistgenutzte Medium, daher haben sich auch hier diese 1500 Byte manifestiert.\\
-Da die MTU auf dem Weg vom Empfänger zum Ziel variieren und auch mal geringer als 1500 Byte ausfallen kann, kann ein IPv4-Paket \textit{fragmentiert} werden. Dieser Prozess fordert Rechenzeit für Aufteilung und (Wieder-)Zusammensetzung in Fragmente und kann sich negativ auf die Performance (Latenz und Datendurchsatz) auswirken.\\
-Man nutzt optimalerweise Path MTU Discovery oder beeinflusst die Maximum Segment Size für \gls{TCP} (\glqq \gls{MSS}-Clamping\grqq{}) bei Initiierung der Verbindung, um Fragmentierung (bestmöglich) zu umgehen.
+\subsection{Maximum Transmission Unit (MTU) / Maximum Segment Size (MSS)}\label{mtumss}
+Die maximale Paketgröße auf einem Netzwerkmedium wird durch die Maxmimum Transmission Unit (MTU) beschrieben. Im Ethernet ist die \textit{Default}-\gls{MTU} 1500 Byte.\cite[S.86]{Fall2011} Ethernet ist im Internet inzwischen das meistgenutzte Medium, daher haben sich auch hier diese 1500 Byte manifestiert.\\
+Da die \gls{MTU} auf dem Weg vom Empfänger zum Ziel variieren und auch mal geringer als 1500 Byte ausfallen kann, kann ein IPv4-Paket \textit{fragmentiert} werden. Dieser Prozess fordert Rechenzeit für Aufteilung und (Wieder-)Zusammensetzung in Fragmente und kann sich negativ auf die Performance (Latenz und Datendurchsatz) auswirken.\\
+Man nutzt optimalerweise Path \gls{MTU} Discovery oder beeinflusst die Maximum Segment Size für \gls{TCP} (\glqq \gls{MSS}-Clamping\grqq{}) bei Initiierung der Verbindung, um Fragmentierung (bestmöglich) zu umgehen.
 
 \subsection{GeoIP}
 Mit Hilfe von \gls{GeoIP}-Datenbanken ist es möglich, den (ungefähren) Standort anhand der Absender-IP-Adresse eines \gls{Client}s zu bestimmen. Verwendung finden solche Datenbanken häufig bei Internet-Streaming-Anbietern, um Zugriffe auf ein Videoangebot aus dem Ausland zu verhindern. Die Firma MaxMind ist dabei führender Anbieter für solche \gls{GeoIP}-Datenbanken \cite{maxmind2021geoip}.
@@ -240,7 +240,7 @@ Das Diagramm ist dabei nicht spezifisch für eine bestimmte \gls{VPN}-Technologi
 
 Die in dieser Arbeit verwendeten \gls{VPN}\-Technologien sind Internet Protocol Security (\gls{IPsec}) und OpenVPN. \gls{IPsec} wird u.a. für die Vernetzung von (Cloud-)Standorten, auch \gls{Site-to-Site} genannt, genutzt und arbeitet auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 3. Ebenso dient es zur \textit{Einwahl} in (Firmen-)Netzwerke. \gls{IPsec} wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
 OpenVPN ist ein Open Source-Projekt und es nutzt \textit{Transport Layer Security} (TLS) für die verschlüsselte Übertragung von Daten via \gls{UDP} oder \gls{TCP}. Das Protokoll ist auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 7 zu finden und es wird vor allem für \gls{Client-to-Site}-Verbindungen genutzt: Passende Software ist für viele verschiedene Plattformen verfügbar (u.a. Windows, Linux, Mac, Android) und sowohl \gls{Client}- als auch Server-Applikation sind kostenfrei erhältlich.\\
-Angesprochene MTU-Probleme (s. \ref{mtumss}) können sich bei einer getunnelten Verbindung auf Grund des zusätzliches \textit{Overheads} auf Grund der Enkapsulierung zeigen. Eine IP-Fragmentierung sollte optimalerweise verhindert werden.
+Angesprochene \gls{MTU}-Probleme (s. \ref{mtumss}) können sich bei einer getunnelten Verbindung auf Grund des zusätzliches \textit{Overheads} der Enkapsulierung zeigen. Eine IP-Fragmentierung sollte optimalerweise verhindert werden.
 
 \section{Cloud}\label{cloud}
 Der Cloud-Begriff kann je nach Literatur variieren. Diese Arbeit verweist an dieser Stelle auf die Definition des \textit{National Institute of Standards and Technology (NIST)}. Ebenso werden dort die drei typischen \textit{Cloud Delivery}-Modelle Software as a Service (SaaS), Platform as a Service (PaaS) und Infrastructure as a Service (IaaS) definiert, welche fortan als bekannt vorausgesetzt werden.\cite{mell2011}
@@ -367,6 +367,6 @@ Einfacher ist es, im Modul lediglich festzulegen, welche Subnetzgröße erforder
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.8]{Figures/ipam_cake.pdf}
-  \caption{IPAM-Reservierung von \gls{CIDR}-Blöcken}
+  \caption{IPAM-Reservierung von CIDR-Blöcken}
   \label{grafik: ipam_ip_reservation}
 \end{figure}\FloatBarrier

@@ -28,7 +28,7 @@ Die Infrastruktur-Komponenten aus Use Case 1 werden als vorhanden und funktionie
 Zur Terminierung der \gls{Roadwarrior}-\gls{Client}s muss pro Cloud-Standort ein \gls{VPN-Konzentrator} zur Verfügung stehen. Mit \textit{\gls{Client} \gls{VPN} Endpoint} (AWS) bzw. \textit{Point-to-site} Azure bieten bereits Lösungen, um \gls{Roadwarrior}-\gls{Client}s zu terminieren. Nach längerer Evaluation dieser Building Blocks erwiesen sich diese Lösungen für das Ziel der Arbeit als nicht tauglich:
 \begin{itemize}
 \item Bei AWS werden \gls{Client-to-Site}-Verbindungen eingehend ge\gls{NAT}ted (\textit{NAT Masquerading}). Damit sind alle \gls{Client}s intern mit der gleichen Absender-IP zu sehen. Dies verletzt den Anspruch der Arbeit, eine Ende-zu-Ende-Konnektivität zu ermöglichen.
-\item Obwohl Azure als auch AWS OpenVPN für \gls{Roadwarrior}-\gls{VPN}s benutzen, sind die \gls{Client-to-Site}-Konfigurationen nicht \glqq deckungsgleich\grqq{} zu bekommen. Um den sich mit dem nächstgelegenen \gls{VPN-Konzentrator} zu verbinden, wäre eine manuelle Interaktion des Benutzers notwendig, was mit den Evaluationskriterien nicht vereinbar ist. Weiterhin kann der Benutzer nicht immer wissen, wo der nächstgelegene Standort ist. Man kann nicht von jedem Mitarbeiter tiefe Kenntnisse der Netzwerktopologie abverlangen.
+\item Obwohl Azure als auch AWS OpenVPN für \gls{Roadwarrior}-\gls{VPN}s benutzen, sind die \gls{Client-to-Site}-Konfigurationen nicht \glqq deckungsgleich\grqq{} zu bekommen. Um sich mit dem nächstgelegenen \gls{VPN-Konzentrator} zu verbinden, wäre eine manuelle Interaktion des Benutzers notwendig, was mit den Evaluationskriterien nicht vereinbar ist. Weiterhin kann der Benutzer nicht immer wissen, wo der nächstgelegene Standort ist. Man kann nicht von jedem Mitarbeiter tiefe Kenntnisse der Netzwerktopologie abverlangen.
 \end{itemize}
 AWS benutzt bspw. eine \textit{remote-random-hostname}-Direktive (s. Listing \ref{ovpn-client-config-remote}), welche dafür sorgt, dass bei Verbindungsversuch eine Zufallszeichenkette an den Domainnamen angehangen wird, um \gls{DNS} Caching zu verhindern.
 %TC:ignore
@@ -42,7 +42,7 @@ azure-client-vpn.ovpn:remote azuregateway-61820068.vpn.azure.com 443
 azure-client-vpn.ovpn:remote-cert-tls server
 
 \end{minted}
-\caption{Auszüge aus den OpenVPN-Client-Konfigurationen für AWS und Azure.}
+\caption{Auszüge aus den OpenVPN-Client-Konfigurationen für AWS und Azure}
 \label{ovpn-client-config-remote}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -55,10 +55,10 @@ Ein Problem ergibt sich aus der Authentifizierung und Autorisierung der \gls{Roa
 \item \label{radius-decentralized} einen zentralen RADIUS-Server pro Standort verwalten oder
 \item \label{radius-centralized} einen zentralen RADIUS-Server für alle Standorte zur Verfügung stellen.
 \end{enumerate}
-\ref{radius-decentralized} bringt ein Skalierungsproblem mit sich: So müssen bspw. Benutzerkennungen und Passwörter lokal auf allen Systemen gepflegt werden, was die Komplexität des Use Cases deutlich erhöhen würde und auch in Realität schwierig zu warten wäre. Mit \ref{radius-centralized} hätte man einen Single-Point-of-Failure, scheidet also auch aus. Hätte der \textit{zentrale} Authentifizierungsserver ein technisches Problem, wären alle \gls{VPN-Konzentrator}en betroffen und \gls{Roadwarrior} könnten sich nicht mehr einwählen.\\
+\ref{radius-decentralized} bringt ein Skalierungsproblem mit sich: So müssen bspw. Benutzerkennungen und Passwörter lokal auf allen Systemen gepflegt werden, was die Komplexität des Use Cases deutlich erhöhen würde und auch in Realität schwierig zu warten wäre. Mit \ref{radius-centralized} hätte man einen Single-Point-of-Failure und scheidet somit auch aus. Hätte der \textit{zentrale} Authentifizierungsserver ein technisches Problem, wären alle \gls{VPN-Konzentrator}en betroffen und \gls{Roadwarrior} könnten sich nicht mehr verbinden.\\
 Lightweight Directory Access Protocol (LDAP)\cite{rfc4511} als verteilte Datenbank wäre eine Lösung für genannte Probleme: man müsste pro Standort einen LDAP-Server bereitstellen und durchgehend mit allen weiteren LDAP-Servern synchronisieren. Als Authentifizierungsmechanismus könnte man dann bspw. RADIUS\cite{rfc2865} oder gleich LDAP benutzen. \textit{Windows Domänen Controller} implementieren den LDAP-Verzeichnisdienst in Form von \textit{Active Directory} und wären ein Beispiel für solch ein verteiltes Szenario.\cite[S.603-604]{Tanenbaum2003}\\
-In dieser Arbeit wird von der Implementation abgesehen, da die Komplexität deutlich erhöht und es für den Proof of Concept an sich keine gewinnbringenden Erkenntnisse liefern würde.\\
-Der Lösungsansatz wäre an dieser Stelle, auf eine Zertifikat-basierte Authentifizierung zu setzen. Eine Publik-Key-Infrastruktur benötigt zur Authentifizierung keine Verbindungen zu anderen (Authentifizierungs-)Services. Es reicht, auf dem VPN-Server vertrauenswürdige Root-Zertifikate zu hinterlegen. Diese \textit{vertrauenswürdigen Stellen} signieren mit dem privaten Schlüssel dann die Zertifikate der \gls{Roadwarrior}-\gls{Client}s, wodurch das Vertrauensverhältnis zwischen VPN-Server und -\gls{Client} hergestellt ist.\\ 
+In dieser Arbeit wird von der Implementation abgesehen, da die Komplexität deutlich erhöht und diese für den Proof of Concept an sich keine gewinnbringenden Erkenntnisse liefern würde.\\
+Der Lösungsansatz ist an dieser Stelle, auf eine Zertifikat-basierte Authentifizierung zu setzen. Eine Public-Key-Infrastruktur (PKI) benötigt zur Authentifizierung keine Verbindungen zu anderen (Authentifizierungs-)Services. Es reicht, auf dem \gls{VPN-Konzentrator} vertrauenswürdige Root-Zertifikate zu hinterlegen. Diese \textit{vertrauenswürdigen Stellen} signieren mit dem privaten Schlüssel dann die Zertifikate der \gls{Roadwarrior}-\gls{Client}s, wodurch das Vertrauensverhältnis zwischen VPN-Server und -\gls{Client} hergestellt ist.\\ 
 Auf Prüfung der Gültigkeit von Zertifikaten mittels Certificate Revocation Lists (CRLs) bzw. Online Certificate Status Protocol (OCSP) wird in dieser Arbeit verzichtet. Sie ist aber prinzipiell möglich mit der serverseitigen OpenVPN-Direktive \textit{crl-verify} (CRL-Prüfung) bzw. \textit{tls-verify} (OCSP-Prüfung).\cite[S.116, S.325-327]{Keijser2011}\\
 %tf remote
 Als \gls{PKI} wird eine pfSense-Instanz genutzt. Dieses Firewall-Betriebssystem bietet eine simple \gls{PKI}, welche via Web-GUI administrierbar ist und so das Ausstellen und die Verwaltung der \gls{Client}- und Server-Zertifikate erleichtert.\cite[S.376-383]{Netgate2020}
@@ -67,7 +67,7 @@ Der technische Fokus wird in diesem Use Case auf \gls{DNS} liegen. Es soll in de
 \item Mit Hilfe von \gls{GeoIP}-Daten soll ermöglicht werden, immer den nächstgelegenen \gls{VPN-Konzentrator} zu finden.\label{geoip-nearest-vpn}
 \begin{enumerate}[label=(\alph*)]
     \item Wenn ein Server in der Nähe ist, soll dieser kontaktiert werden.\label{server-nearest}
-    \item Wenn kein Server in der Nähe ist, soll ein beliebiger Server kontaktiert werden (random)\cite{bindrrset2020}.\label{no-server}
+    \item Wenn kein Server in der Nähe ist, soll ein beliebiger Server kontaktiert werden (\textit{random})\cite{bindrrset2020}.\label{no-server}
     \item Wenn das Terraform \gls{Deployment} noch nicht stattgefunden hat, also keine Public Cloud-Standorte zur Verfügung stehen, soll sich der \gls{Client} immer mit dem \gls{VPN-Konzentrator} der Private Cloud verbinden.\label{server-not-deployed}
 \end{enumerate}
 \item Sobald der \gls{Roadwarrior} mit einem \gls{VPN-Konzentrator} verbunden ist, soll immer der (beispielhafte) Server, der am jeweiligen Standort bereitgestellt wurde, kontaktiert werden.
