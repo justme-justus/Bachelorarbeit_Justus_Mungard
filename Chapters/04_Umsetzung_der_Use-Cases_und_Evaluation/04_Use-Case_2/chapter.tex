@@ -71,7 +71,7 @@ ubuntu@vpn-client-azure:~$ ip -brief -4 address show | grep -v lo
 eth0             UP             10.42.0.4/24
 
 \end{minted}
-\caption{IP-Adresse in \gls{CIDR}-Notation des \gls{Roadwarrior}-\gls{Client}s}
+\caption{IP-Adresse in CIDR-Notation des Roadwarrior-Clients}
 \label{ext-ip-addr-roadwarrior}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -96,7 +96,7 @@ PING 192.168.201.1 (192.168.201.1) 56(84) bytes of data.
 1 packets transmitted, 0 received, 100% packet loss, time 0ms
 
 \end{minted}
-\caption{Kein Zugriff des \gls{Roadwarrior}-\gls{Client}s auf interne Ressourcen ohne \gls{VPN}-Verbindung}
+\caption{Kein Zugriff des Roadwarrior-Clients auf interne Ressourcen ohne VPN-Verbindung}
 \label{internet-access-roadwarrior}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -111,7 +111,7 @@ options {
 };
 
 \end{minted}
-\caption{Konfiguration \gls{GeoIP} für Bind-Nameserver}
+\caption{Konfiguration GeoIP für Bind-Nameserver}
 \label{bind-geoip-directory}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -124,7 +124,7 @@ acl "dublin" {
         key "db-vpn.ba.mungard.de.";
 };
 \end{minted}
-\caption{\gls{ACL} \glqq dublin\grqq{} für \gls{GeoIP} und \gls{TSIG}-Key}
+\caption{ACL \glqq dublin\grqq{} für GeoIP und TSIG-Key}
 \label{tsig-key-acl}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -141,7 +141,7 @@ view "dublin" {
         };
 };
 \end{minted}
-\caption{\gls{View} \glqq dublin\grqq{} für Zusammenführung von \gls{ACL} und Zonendatei}
+\caption{View \glqq dublin\grqq{} für Zusammenführung von ACL und Zonendatei}
 \label{view-dublin-bind}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -153,7 +153,7 @@ $ grep -A1 "ORIGIN ba.mungard.de" < /etc/bind/ba_zones/db.geo.ba.mungard.de-dubl
 $ORIGIN ba.mungard.de.
 default-vpn             A       195.244.254.197
 \end{minted}
-\caption{Die Zone ba.mungard.de vor dem Terraform-\gls{Deployment}}
+\caption{Die Zone ba.mungard.de vor dem Terraform-Deployment}
 \label{zone-dublin-before-deployment}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -166,7 +166,7 @@ acl "dublin-internal" {
         key "db-vpn-internal.ba.mungard.de.";
 };
 \end{minted}
-\caption{\gls{ACL} \glqq dublin-internal\grqq{} für internes \gls{DNS}}
+\caption{ACL \glqq dublin-internal\grqq{} für internes DNS}
 \label{view-internal-bind}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -179,7 +179,7 @@ acl "match-all" {
         key "all-vpn.ba.mungard.de.";
 };
 \end{minted}
-\caption{\gls{ACL} \glqq match-all\grqq{} für alle übrigen Anfragen}
+\caption{ACL \glqq match-all\grqq{} für alle übrigen Anfragen}
 \label{view-matchall-bin}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -205,7 +205,7 @@ resource "dns_a_record_set" "vpn-dublin" {
   ttl = 15
 }
 \end{minted}
-\caption{Terraform Modul zur Veränderung von \gls{DNS}-Zonen}
+\caption{Terraform Modul zur Veränderung von DNS-Zonen}
 \label{tf-provider-dns}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -229,7 +229,7 @@ vpn.ba.mungard.de.                  15 IN A           137.116.237.246
 vpn.ba.mungard.de.                  15 IN A           195.244.254.197
 
 \end{minted}
-\caption{\gls{View} \glqq dublin\grqq{} und \gls{View} \glqq match-all\grqq{}}
+\caption{View \glqq dublin\grqq{} und View \glqq match-all\grqq{}}
 \label{bind-entries-after-tf}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -269,7 +269,7 @@ resource "null_resource" "www_config" {
   }
 }
 \end{minted}
-\caption{Configuration Management nach \gls{Deployment} der virtuellen Maschine per remote-exec Provisioner}
+\caption{Configuration Management nach Deployment der virtuellen Maschine per remote-exec Provisioner}
 \label{sed-replace-apache-location}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -292,7 +292,7 @@ verb 3
 persist-tun
 
 \end{minted}
-\caption{Die OpenVPN-\gls{Client} Konfigurationsdatei (gekürzt)}
+\caption{Die OpenVPN-Client Konfigurationsdatei (gekürzt)}
 \label{ovpn-client-conf}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -347,7 +347,7 @@ Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway d
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.75]{Figures/Use-Case-2_AWS_TGW_Route-Tables.pdf}
-  \caption{AWS Transit Gateway für Terminierung von \gls{VPN}-Verbindungen und \gls{VPC}-Peerings}
+  \caption{AWS Transit Gateway für Terminierung von VPN-Verbindungen und VPC-Peerings}
   \label{grafik:aws_tgw_route_tables}
 \end{figure}\FloatBarrier
 VPC \gls{CIDR} und \gls{VPC} Subnet werden in diesem Beispiel synonym verwendet, was formell nicht korrekt ist: Route Tables werden in Subnets genutzt, nicht im \gls{CIDR}. Dies dient jedoch zur Vereinfachung des Schaubildes. Das Transit Gateway lernt die \gls{VPC} \gls{CIDR} automatisch, insofern \textit{Route Propagation} eingeschaltet ist.
@@ -379,7 +379,7 @@ with maxminddb.open_database('/usr/share/GeoIP/GeoLite2-City.mmdb') as reader:
 print("++++++++++++++++++++ CITY INFO +++++++++++++++++++\n")
 #aehnliche Code-Teile ausgelassen
 \end{minted}
-\caption{Python-Skript mit Modul maxminddb zur Untersuchung der \gls{GeoIP}-Datenbank}
+\caption{Python-Skript mit Modul maxminddb zur Untersuchung der GeoIP-Datenbank}
 \label{python-mmdb-reader}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -465,7 +465,7 @@ PING 94.245.93.144 (94.245.93.144) 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.936/1.073/1.216/0.106 ms
 
 \end{minted}
-\caption{Ping von \gls{Roadwarrior}-\gls{Client} Azure $\rightarrow$ vpn.ba.mungard.de.}
+\caption{Ping von Roadwarrior-Client Azure $\rightarrow$ vpn.ba.mungard.de.}
 \label{ping-microsoft-ip}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -485,7 +485,7 @@ PING vpn.ba.mungard.de (3.67.38.135) 56(84) bytes of data.
 rtt min/avg/max/mdev = 0.930/1.001/1.157/0.091 ms
 
 \end{minted}
-\caption{Ping von \gls{Roadwarrior}-\gls{Client} AWS $\rightarrow$ vpn.ba.mungard.de.}
+\caption{Ping von Roadwarrior-Client AWS $\rightarrow$ vpn.ba.mungard.de.}
 \label{ping-aws-ip}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -572,7 +572,7 @@ Wed May 12 12:19:19 2021 UDP link remote: [AF_INET]195.244.254.197:61231
 Wed May 12 12:19:20 2021 Initialization Sequence Completed
 
 \end{minted}
-\caption{Open\gls{VPN}-Verbindungsversucht mit \texttt{iptables}-Filterregel}
+\caption{OpenVPN-Verbindungsversucht mit \texttt{iptables}-Filterregel}
 \label{connection-fail-vpn-fallback-default-vpn}
 \end{listing}\FloatBarrier
 %TC:endignore

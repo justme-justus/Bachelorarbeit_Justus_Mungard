@@ -117,7 +117,7 @@ Im Folgenden soll das Routing-Protokoll \gls{BGP} betrachet werden. Dieses ist d
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.75]{Figures/ebgp_peerings.pdf}
-  \caption{Verschiedene \gls{AS} signalisieren Erreichbarkeit für Präfixe}
+  \caption{Verschiedene AS signalisieren Erreichbarkeit für Präfixe}
   \label{grafik: ebgp_peerings}
 \end{figure}\FloatBarrier
 
@@ -219,7 +219,7 @@ Split \gls{DNS} ist die Möglichkeit, verschiedene Resource Records anhand der A
 \begin{figure}[h]
   \centering
   \includegraphics{Figures/dns_split_view.pdf}
-  \caption{Split \gls{DNS} für portal.firma.de.}
+  \caption{Split DNS für portal.firma.de.}
   \label{grafik: split-dns}
 \end{figure}\FloatBarrier
 
@@ -239,7 +239,7 @@ Das Diagramm ist dabei nicht spezifisch für eine bestimmte \gls{VPN}-Technologi
 \end{figure}\FloatBarrier
 
 Die in dieser Arbeit verwendeten \gls{VPN}\-Technologien sind Internet Protocol Security (\gls{IPsec}) und OpenVPN. \gls{IPsec} wird u.a. für die Vernetzung von (Cloud-)Standorten, auch \gls{Site-to-Site} genannt, genutzt und arbeitet auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 3. Ebenso dient es zur \textit{Einwahl} in (Firmen-)Netzwerke. \gls{IPsec} wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
-OpenVPN ist ein Open Source-Projekt und es nutzt \textit{Transport Layer Security} (TLS) für die verschlüsselte Übertragung von Daten via \gls{UDP} oder \gls{TCP}. Das Protokoll ist auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 7 zu finden und es wird vor allem für \gls{\gls{Client}-to-Site}-Verbindungen genutzt: Passende Software ist für viele verschiedene Plattformen verfügbar (u.a. Windows, Linux, Mac, Android) und sowohl \gls{Client}- als auch Server-Applikation sind kostenfrei erhältlich.\\
+OpenVPN ist ein Open Source-Projekt und es nutzt \textit{Transport Layer Security} (TLS) für die verschlüsselte Übertragung von Daten via \gls{UDP} oder \gls{TCP}. Das Protokoll ist auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 7 zu finden und es wird vor allem für \gls{Client-to-Site}-Verbindungen genutzt: Passende Software ist für viele verschiedene Plattformen verfügbar (u.a. Windows, Linux, Mac, Android) und sowohl \gls{Client}- als auch Server-Applikation sind kostenfrei erhältlich.\\
 Angesprochene MTU-Probleme (s. \ref{mtumss}) können sich bei einer getunnelten Verbindung auf Grund des zusätzliches \textit{Overheads} auf Grund der Enkapsulierung zeigen. Eine IP-Fragmentierung sollte optimalerweise verhindert werden.
 
 \section{Cloud}\label{cloud}

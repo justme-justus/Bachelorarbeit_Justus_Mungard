@@ -239,7 +239,7 @@ Possible completions:
     2   2021-05-04 21:17:57 vyos by cli
     
 \end{minted}
-\caption{VyOS \gls{Rollback} auf Revision $N$ nach Neustart}
+\caption{VyOS Rollback auf Revision $N$ nach Neustart}
 \label{rollback-cmd-vyos}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -288,7 +288,7 @@ resource "null_resource" "vyos_config_destroy" {
 }
 
 \end{minted}
-\caption{\gls{Rollback} zur Terraform \glqq Destroy-Time\grqq{}}
+\caption{Rollback zur Terraform \glqq Destroy-Time\grqq{}}
 \label{apply-last-commit-vyos}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -307,7 +307,7 @@ Outputs:
 aws_subnet_id = "subnet-0192ae38a3a16f584"
 [... weitere Output-Variablen ...]
 \end{minted}
-\caption{Terraform Status nach \gls{Deployment} Use-Case 1}
+\caption{Terraform Status nach Deployment Use-Case 1}
 \label{tf-base-deployment-ok}
 \end{listing}\FloatBarrier
 %TC:endignore
@@ -323,7 +323,7 @@ Die im \gls{IPAM} reservierten Netze (s. Abb. \ref{grafik:subnet_aws_vpc_reserve
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.4]{Figures/subnet_aws_reserved_server.png}
-  \caption{Das in phpIPAM reservierte Subnet in AWS \gls{VPC}}
+  \caption{Das in phpIPAM reservierte Subnet in AWS VPC}
   \label{grafik:subnet_aws_vpc_reserved}
 \end{figure}\FloatBarrier
 \newpage
@@ -339,7 +339,7 @@ peer-20.67.209.254-tunnel-vti  up       4h43m19s [...]
 peer-3.65.181.187-tunnel-vti   up       4h47m26s [...]
 
 \end{minted}
-\caption{VyOS \gls{IPsec}-Tunnel Status}
+\caption{VyOS IPsec-Tunnel Status}
 \label{tf-base-deployment-ipsec-ok}
 \end{listing}\FloatBarrier
 %TC:endignore
