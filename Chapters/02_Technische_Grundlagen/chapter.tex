@@ -4,7 +4,7 @@ In diesem Kapitel werden technische Grundlagen erläutert, welche für ein weite
 \section{Internet Protocol Version 4 (IPv4)} \label{ipv4}
 
 \subsection{Allgemeines und Adressierungsschema}
-Das Internet Protocol Version 4 ist im \gls{OSI-Schichtenmodell} auf Schicht 3 (Network) angesiedelt\cite{itu1994}. Es dient der \textit{Paketierung} von Daten und anschließenden Ende-zu-Ende-Vermittlung dieser \textit{Pakete} zwischen Netzwerk-Systemen. Dafür notwendig ist eine Adressierung: eine IPv4-Adresse besteht aus einer 32 Bit-Zahl, welche typischerweise dezimal dargestellt wird in so genannter \glqq dotted decimal\grqq{}-Schreibweise. Dafür wird die Binärzahl in vier Oktette mit einem Punkt aufgeteilt und die jeweiligen Oktette in dezimal umgerechnet.
+Das Internet Protocol Version 4 findet sich im \gls{OSI-Schichtenmodell} auf Schicht 3 (Network) wieder\cite{itu1994}. Es dient der \textit{Paketierung} von Daten und anschließenden Ende-zu-Ende-Vermittlung dieser \textit{Pakete} zwischen Netzwerk-Systemen. Dafür notwendig ist eine Adressierung: eine IPv4-Adresse besteht aus einer 32 Bit-Zahl, welche typischerweise dezimal dargestellt wird in so genannter \glqq dotted decimal\grqq{}-Schreibweise. Dafür wird die Binärzahl in vier Oktette mit einem Punkt aufgeteilt und die jeweiligen Oktette in dezimal umgerechnet.
 
 {\centering 32 Bit Integer:\\
 \textbf{00000001 0000001 000000011 00000100}\\
@@ -15,7 +15,7 @@ $\Downarrow$\\
 Dotted Decimal (bekannte Schreibweise):\\
 {\textbf{1.2.3.4}}\par}
 
-Mit Hilfe von (Sub-)Netzmasken wird die Netzwerkgröße bestimmt. Ein Host mit der IP-Adresse 1.2.3.4 habe eine Netzmaske von 255.255.255.0. Diese Netzmaske entspricht in dotted binary:
+Mit Hilfe von (Sub-)Netzmasken wird die lokale Netzwerkgröße bestimmt. Ein Host mit der IP-Adresse 1.2.3.4 habe eine Netzmaske von 255.255.255.0. Diese Netzmaske entspricht in dotted binary:
 
 {\centering\textbf{11111111.11111111.11111111.00000000}\par}
 
@@ -23,7 +23,7 @@ Die ersten 24 Bit sind für das Netzwerk reserviert (Network bits), die letzte 8
 
 Heutzutage üblich ist die so genannte Classless Inter-Domain Routing-Notation (\gls{CIDR}), welche IP-Addresse und Netzmaske vereint. Wenn man die genannten Beispiele aus Adresse und Subnetzmaske zusammenführt, erhält man die IP-Adresse in \gls{CIDR}-Notation: 1.2.3.4/24. /24 entspricht dabei den gesetzten Network bits.
 
-Mit Hilfe der IP-Adresse und Netzmaske lässt sich ermitteln, ob sich ein anderer Host im gleichen \textit{Subnetz} befindet. Dafür berechnet das Betriebssystem die eigene Netzwerkadresse per Bitwise-AND aus eigener IP und Netzmaske. In Listing \ref{own-ip-address-AND-subnet} wird die Netzwerkadresse für die IP-Adresse 1.2.3.4 mit der Netzmaske 255.255.255.0 ermittelt.
+Mit Hilfe der IP-Adresse und Netzmaske lässt sich ermitteln, ob sich ein anderer Host im gleichen \textit{Subnetz} befindet. Dafür berechnet das Betriebssystem die eigene Netzwerkadresse per Bitwise-AND aus eigener IP-Adresse und Netzmaske. In Listing \ref{own-ip-address-AND-subnet} wird die Netzwerkadresse für die IP-Adresse 1.2.3.4 mit der Netzmaske 255.255.255.0 ermittelt.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
@@ -36,8 +36,8 @@ AND 11111111.11111111.11111111.00000000
 \label{own-ip-address-AND-subnet}
 \end{listing}\FloatBarrier
 %TC:endignore
-Hat man nun zwei Hosts 1.2.3.240 und 8.9.10.23, mit denen eine IP-Verbindung aufgebaut werden soll, so prüft der Initiator zuerst, ob das jeweilige Netz \textit{link-lokal} erreichbar ist, also im gleichen Subnetz liegt. Es verhält sich gleich zum vorherigen Beispiel, nur dass an dieser Stelle die IP der Gegenstelle genutzt wird.\\
-Dies passiert analog für die IP-Adresse 1.2.3.240 (s. Listing \ref{local-ip-address-AND-subnet}). Dabei ist die resultierende Netzwerkadresse die gleiche, daher kann das Paket link-lokal zum Ziel gesendet werden.
+Hat man nun zwei Hosts 1.2.3.240 und 8.9.10.23, mit denen eine IP-Verbindung aufgebaut werden soll, so prüft der Initiator zuerst, ob das jeweilige Netz \textit{link-lokal} erreichbar ist, also im gleichen Subnetz liegt. Es verhält sich gleich zum Beispiel aus Listing \ref{own-ip-address-AND-subnet}, nur dass an dieser Stelle die IP der Gegenstelle genutzt wird.\\
+Für die IP-Adresse 1.2.3.240 ist die resultierende Netzwerkadresse die gleiche, daher kann das Paket link-lokal zum Ziel gesendet werden (s. Listing \ref{local-ip-address-AND-subnet}).
 
 %TC:ignore
 \begin{listing}[h]
@@ -52,7 +52,7 @@ AND 11111111.11111111.11111111.00000000
 \end{listing}\FloatBarrier
 %TC:endignore
 
-Für die IP-Adresse 8.9.10.23\label{ip_ausserhalb} hingegen liegt die Netzwerkadresse außerhalb der eigenen (s. Listing \ref{remote-ip-address-AND-subnet}), daher muss das Paket \textit{geroutet} werden:
+Für die IP-Adresse 8.9.10.23\label{ip_ausserhalb} hingegen liegt die Netzwerkadresse außerhalb der eigenen (s. Listing \ref{remote-ip-address-AND-subnet}), daher muss das Paket \textit{geroutet} werden.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
@@ -67,7 +67,7 @@ AND 11111111.11111111.11111111.00000000
 %TC:endignore
 
 \subsection{RFC 1918-Adressen}
-Ein Großteil der IP-Adressen werden \textit{blockweise} an Provider, Firmen und Forschungseinrichtungen herausgegeben und können fortan im Internet genutzt werden. Mit \gls{RFC} 1918 wurden Blöcke durch die Internet Assigned Numbers Authority (IANA) reserviert, welche ausschließlich für private und firmeninterne Nutzung vorgesehen sind\cite{rfc1918}. Sie werden im Internet nicht geroutet. Es handelt sich dabei um die Blöcke:
+Ein Großteil der IP-Adressen werden \textit{blockweise} an Provider, Firmen und Forschungseinrichtungen herausgegeben und können fortan im Internet genutzt werden. Mit \gls{RFC} 1918 wurden Blöcke durch die Internet Assigned Numbers Authority (IANA) reserviert, welche ausschließlich für private und firmeninterne Nutzung vorgesehen sind\cite{rfc1918}. Sie werden im Internet nicht geroutet. Es handelt sich dabei um die \gls{CIDR}-Blöcke:
 \begin{itemize}
 \item 10.0.0.0/8
 \item 172.16.0.0/12
@@ -90,8 +90,8 @@ Damit weiß der \gls{Client}, dass Pakete für das Netzwerk 192.168.200.0/24 üb
 \end{figure}\FloatBarrier
 %TC:endignore
 \gls{Client} und Server müssen im Übrigen das Netzwerk 192.168.100.0/30 \textbf{nicht} in ihrer Routing-Tabelle pflegen. Dieses Netzwerk hat ausschließlich eine Relevanz zur Übertragung von Daten zwischen R1 und R2: Man spricht auch von Transfernetzwerken.\\
-Dieses Beispiel bringt ein Skalierungsproblem mit sich: Umso mehr Subnetze existieren, in denen Server zu erreichen sind, desto mehr Routen muss der \gls{Client} in der Routing-Tabelle, u.U. manuell gepflegt, vorhalten. Das gleiche gilt für Server, insofern eine Server-zu-Server-Kommunikation erfolgen soll.\\
-In der Praxis sieht man kaum noch Endsysteme (darunter fallen \gls{Client} und Server), welche mit solchen \textit{spezifischen} Routen arbeiten. Man überlässt die komplexe Verwaltung von Routing-Tabellen den Routern, während die Endsysteme neben der link-lokalen nur noch die \textit{Default}-Route besitzen. In diese Route 0.0.0.0/0 fallen alle Zielnetzwerke, abgesehen vom link-lokalen Subnetz, und sie zeigt immer auf den lokal erreichbaren Router.\\
+Dieses Beispiel bringt ein Skalierungsproblem mit sich: Umso mehr Subnetze existieren, in denen Server zu erreichen sind, desto mehr Routen muss der \gls{Client} in der Routing-Tabelle, u.U. manuell gepflegt, vorhalten. Das gleiche gilt für Server, insofern eine Netz-übergreifende Server-zu-Server-Kommunikation erfolgen soll.\\
+In der Praxis sieht man kaum noch Endsysteme (darunter fallen \gls{Client} und Server), welche mit solchen \textit{spezifischen} Routen arbeiten. Man überlässt die komplexe Verwaltung von Routing-Tabellen den Routern, während die Endsysteme neben der link-lokalen nur noch die \textit{Default}-Route besitzen (s. Abb. \ref{grafik: next_hop_routing_with_default_route}). In diese Route 0.0.0.0/0 fallen alle Zielnetzwerke, abgesehen vom link-lokalen Subnetz, und sie zeigt immer auf den lokal erreichbaren Router.\\
 Das Setzen der Default Route garantiert allerdings nicht, dass ein Ziel auch wirklich erreicht werden kann, z.B. weil es gar nicht existiert oder das Zielnetzwerk nicht in der Routing-Tabelle eines (Next-Hop-)Routers vorhanden ist. Ein Hilfsprotokoll zur Signalisierung von Erreichbarkeit ist dabei das Internet Control Message Protocol (\gls{ICMP}). Das bekannte Werkzeug \texttt{ping} nutzt Nachrichten in Form von \gls{ICMP} Echo Request und \gls{ICMP} Echo Response, um die Erreichbarkeit via IP eines Endsystems zu prüfen.
 \begin{figure}[h]
   \centering
@@ -105,8 +105,8 @@ Prinzipiell spielen im IPv4-Routing viele weitere Mechanismen eine zentrale Roll
 \textbf{\underline{Statisches IP-Routing}}\\
 Bei nochmaliger Betrachtung der Abbildung \ref{grafik: next_hop_routing_with_default_route} erkennt man zwei Next-Hop Typen: link-lokal und \glqq IP-Adresse\grqq{}. Die link-lokale Route wird automatisch angelegt, sobald eine Netzwerkschnittstelle mit den entsprechenden Adressparametern konfiguriert wird.\\
 Routen hingegen, die als Next-Hop eine IP-Adresse beinhalten, müssen entweder als statische oder dynamische Route den Weg in die Routing-Tabelle finden. Statische Routen sind Routen, bei denen ein Administrator Ziel-Netzwerk und Next-Hop manuell auf den Geräten pflegt.\\
-Bis zu einer gewissen Netzwerkgröße lassen sich die Routing-Einträge statisch pflegen. Ab größeren Skalierungen mit vielen Routern und Zielnetzwerken wird die Administration jedoch problematisch. So kann es passieren, dass Router in der Konfiguration vergessen werden oder Routing-Einträge fehlen: dies macht eine Weiterleitung dann unmöglich und die Pakete werden verworfen.\\
-Weiterhin bieten statische Routen wenig Flexibilität, wenn Verbindungen ausfallen: Es ist zwar möglich, Backup-Routen zu definieren, die zum gleichen Ziel über einen anderen Next-Hop führen mit Hilfe einer schlechteren \textit{Routing-Metrik}. Allerdings kann man nicht alle \textit{Fallback-Szenarien} des Routings vorab durchdenken.
+Bis zu einer gewissen Netzwerkgröße lassen sich die Routing-Einträge statisch pflegen. Ab größeren Skalierungen mit vielen Routern und Zielnetzwerken wird die Administration jedoch problematisch. So kann es passieren, dass Router in der Konfiguration vergessen werden oder Routing-Einträge fehlen: dies macht eine Weiterleitung für fehlerhaft konfigurierte Router unmöglich und die Pakete werden verworfen.\\
+Weiterhin bieten statische Routen wenig Flexibilität, wenn Verbindungen ausfallen: Es ist möglich, Backup-Routen zu definieren, die zum gleichen Ziel über einen anderen Next-Hop führen mit Hilfe einer schlechteren \textit{Routing-Metrik}. Allerdings kann man nicht alle \textit{Fallback-Szenarien} des Routings vorab durchdenken.
 
 \textbf{\underline{Dynamisches IP-Routing}}\\
 IP-Routing auf Basis von dynamischen Routing-Protokollen kann geschilderte Probleme umgehen, indem manuelle Administrationsaufwände verringert bzw. nicht erforderlich werden. Router, die ein dynamisches Routing-Protokoll nutzen, können gegenüber benachbarten Routern Erreichbarkeit für bestimmte Netzwerke signalisieren. Diese Information wird kaskadiert durch das gesamte Netzwerk getragen und es erhalten alle berechtigten Router einer \textit{Routing-Domäne} die Information, \textit{welche} Netzwerke erreichbar sind und \textit{wie} sie erreicht werden können. Auch Fallback-Szenarien sind durch dynamische Routing-Protokolle abgedeckt. Meist werden Backup-Routen schon im Speicher vorgehalten, um bei Ausfall einer Verbindung das Routing zu \textit{schwenken}. Man spricht auch von \textit{Routing-Konvergenz}.
@@ -133,7 +133,7 @@ Die Next-Hop IP für Präfixe anderer \gls{AS} zeigt bei R2-AS10 somit auf die I
 \end{figure}\FloatBarrier
 
 In Listing \ref{grafik: ebgp_peerings_additional_connection} wurde noch eine Verbindung zwischen \gls{AS} 10 und \gls{AS} 30 hinzugefügt. Damit werden alle Präfixe, bis auf die eigenen, doppelt sichtbar, da sie nun über verschiedene Pfade erreicht werden können. Im Standardfall wird das Präfix mit dem kürzeren \gls{AS}-Pfad bevorzugt.\\
-Die Präfixe mit roter Schrift sind dabei allerdings nicht wertlos. Sie können als Backup-Pfad dienen, falls der bessere Pfad wegfallen sollte. Falls bspw. die Verbindung zwischen \gls{AS} 10 und \gls{AS} 30 ausfällt, \textit{konvergiert} das \gls{BGP} auf allen Routern wieder hin zum Beispiel aus Abbildung \ref{grafik: ebgp_peerings}.\\
+Die Präfixe mit roter Schrift sind dabei allerdings nicht wertlos. Sie können als Backup-Pfad dienen, falls der bessere Pfad wegfallen sollte. Falls bspw. die Verbindung zwischen \gls{AS} 10 und \gls{AS} 30 ausfällt, \textit{konvergiert} das \gls{BGP} auf allen Routern wieder hin zum Beispiel aus Abbildung \ref{grafik: ebgp_peerings}. Ein Fallback ist somit gegeben.\\
 BGP-Router ignorieren \gls{AS}-Pfade, in denen die eigene \gls{AS}-Nummer bereits vorkommt. Pakete werden dann gemäß \gls{RFC} 4271 verworfen. Dadurch werden effektiv Routing-Schleifen verhindert\cite{rfc4271}.\\
 BGP sieht analog zu \gls{RFC} 1918-Adressen Bereiche für \gls{AS}-Nummern vor, die privat, also nicht im Internet, verwendet werden dürfen. Diese Nummern sind in \gls{RFC} 6996 gelistet und gehen von einschließlich 64512 bis 65534\cite{rfc6996}.
 
@@ -141,7 +141,7 @@ BGP sieht analog zu \gls{RFC} 1918-Adressen Bereiche für \gls{AS}-Nummern vor, 
 Grundlegend geht es bei \gls{NAT} darum, eine IP-Adresse \textit{umzuschreiben}. Dies ist sowohl für die Absender- als auch die Ziel-Adresse möglich. Dies kann verschiedene Gründe haben, oftmals geht es aber darum, IPv4-Adressen einzusparen.\\
 Dies ist dem Umstand geschuldet, dass IPv4 nur einen Adressraum von 32 Bit hat, was $2^{32} \approx 4*10^9$ Adressen entspricht. Wenn man dagegen hält, dass die Weltbevölkerung zum Zeitpunkt der Arbeit knapp $8*10^9$ Menschen beträgt und viele Menschen bereits mehr als ein Endgerät besitzen, reicht der Adressraum bei weitem nicht mehr aus \cite{weltbevoelkerung2020dsw}.\\
 Langfristig soll IPv6 mit einem Adressraum aus $2^{128}$ Bit IPv4 ablösen, doch selbst im Jahr 2021 fehlt weiterhin die \textbf{vollständige Unterstützung} einiger Hersteller für IPv6. Dies gilt ebenso für Public Cloud-Plattformen.\\
-Der häufigste \gls{NAT}-Mechanismus ist Network Address Port Translation (NAPT). Dabei können $n$ \gls{Client}s hinter einer einzigen IPv4-Adresse \glqq verborgen\grqq{} und so IP-Adressen eingespart werden. Dafür werden neben der IP-Adresse bspw. noch Information der Transport-Schicht (Schicht 4) wie Ports herangezogen, um NAPT-Sessions zuordnen zu können. Ein Router verwaltet diese Sessions in Form einer NAPT-Tabelle. Diese wird notwendig, wenn Rückpakete die verborgenen \gls{Client}s erreichen sollen.\\
+Der häufigste \gls{NAT}-Mechanismus ist Network Address Port Translation (NAPT). Dabei können $n$ \gls{Client}s hinter einer einzigen IPv4-Adresse \glqq verborgen\grqq{} und so IP-Adressen eingespart werden. Dafür werden neben der IP-Adresse bspw. noch Informationen der Transport-Schicht (Schicht 4) wie Ports herangezogen, um NAPT-Sessions zuordnen zu können. Ein Router verwaltet diese Sessions in Form einer NAPT-Tabelle. Diese wird notwendig, wenn Rückpakete die verborgenen \gls{Client}s erreichen sollen.\\
 In dieser Ausarbeitung ist, wenn von \gls{NAT} oder \gls{NAT}ting gesprochen wird und keine anderweitigen Aussagen getroffen werden, der NAPT-Mechanismus gemeint.\\
 Im Beispiel von Abbildung \ref{grafik: napt} werden drei \gls{Client}s hinter einem Router ge\gls{NAT}tet. Alle eingehenden Pakete werden auf die Quell-IP 10.1.0.1 umgeschrieben und es wird ein neuer Quell-Port vergeben. Wenn nun eine Verbindung von einem \gls{Client} initiiert wird, sieht der Webserver lediglich die Quell-IP und den Quell-Port des Routers, welche durch das \gls{NAT} vergeben wurden.\\
 Rückpakete vom Webserver zu einem \gls{Client} werden folgerichtig an den Router adressiert, welcher wiederum in der \gls{NAT}-Tabelle nachschlägt, um den ursprünglichen \gls{Client} (interne Absender-IP 10.0.0.x und Quell-Port) herauszufinden. Bevor Pakete also nach intern weitergeschickt werden können, werden sie auf das ursprüngliche Tupel aus Quell-IP und Quell-Port umgeschrieben.\\
@@ -153,9 +153,7 @@ Rückpakete vom Webserver zu einem \gls{Client} werden folgerichtig an den Route
   \label{grafik: napt}
 \end{figure}\FloatBarrier
 
-NAT\label{nat-bad} verletzt das Prinzip der Ende-zu-Ende-Konnektivität: Findet sich für ein \textbf{vom Webserver kommendes} Paket in der \gls{NAT}-Tabelle kein Eintrag, wird das Paket verworfen. Dies ist bei einer \gls{Client}-zu-Server-Kommunikation oftmals kein Problem, da Verbindungen ohnehin vom \gls{Client} initiiert werden und sich daraufhin ein State in der \gls{NAT}-Tabelle des Routers befindet.\\
-Wenn allerdings eine \gls{Client}-zu-\gls{Client}-Kommunikation stattfinden soll, ist man auf aufwändige Mechanismen wie z.B. Hole Punching angewiesen \cite[S.317]{Fall2011}.\\
-Auf \gls{NAT} soll daher in dieser Arbeit verzichtet werden, wenn dies möglich ist und es soll eine vollwertige Ende-zu-Ende-Konnektivität gewährleistet werden.
+NAT\label{nat-bad} verletzt das Prinzip der Ende-zu-Ende-Konnektivität: Findet sich für ein \textbf{vom Webserver kommendes} Paket in der \gls{NAT}-Tabelle kein Eintrag, wird das Paket verworfen. Dies ist bei einer \gls{Client}-zu-Server-Kommunikation oftmals kein Problem, da Verbindungen ohnehin vom \gls{Client} initiiert werden und sich daraufhin ein State in der \gls{NAT}-Tabelle des Routers befindet. Wenn allerdings eine \gls{Client}-zu-\gls{Client}-Kommunikation stattfinden soll (z.B. Internet-Telefonie), ist man auf aufwändige Mechanismen wie z.B. Hole Punching angewiesen \cite[S.317]{Fall2011}.\\
 
 \subsection{Maximum Transmission Unit (MTU) / Maximum Segment Size (MSS)}\label{mtumss}
 Die maximale Paketgröße auf einem Netzwerkmedium wird durch die Maxmimum Transmission Unit (MTU) beschrieben. Im Ethernet ist die \textit{Default}-\gls{MTU} 1500 Byte.\cite[S.86]{Fall2011} Ethernet ist im Internet inzwischen das meistgenutzte Medium, daher haben sich auch hier diese 1500 Byte manifestiert.\\
@@ -188,7 +186,7 @@ Weiterhin kann ein Resolver Einträge \textit{cachen}, um auf erneute Anfragen f
   \label{grafik: dns-resolver}
 \end{figure}\FloatBarrier
 %TC:ignore
-In Listing \ref{dig-example-fh-kiel} wird ein A-Record für die Domain www01.fh-kiel.de gegen den Resolver von Google (8.8.8.8) mit dem Werkzeug \texttt{dig} aufgelöst.
+In Listing \ref{dig-example-fh-kiel} wird ein A-Record für die Domain www01.fh-kiel.de gegen den Resolver von Google (8.8.8.8) mit dem Werkzeug \texttt{dig} aufgelöst, was effektiv dem Beispiel aus Abb. \ref{grafik: dns-resolver} entspricht.
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
 $ dig www01.fh-kiel.de @8.8.8.8 | grep -v '^$'
@@ -214,7 +212,7 @@ www01.fh-kiel.de.       21599   IN      A       149.222.20.63
 %TC:endignore
 
 \subsection{Split DNS}
-Split \gls{DNS} ist die Möglichkeit, verschiedene Resource Records anhand der Absender-IP auszuliefern. Dafür pflegen autoritative Nameserver Access Control Lists (\gls{ACL}) mit verschiedenen IP-Präfixen, um eine Fallunterscheidung treffen zu können\cite[S.565-567]{Fall2011}. Dies ist z.B. relevant, wenn eine Firma zwischen internen und externen Anfragen unterscheiden muss, um den (richtigen) Zugriff auf Ressourcen zu gewährleisten.
+Split \gls{DNS} ist die Möglichkeit, verschiedene Resource Records anhand der Absender-IP auszuliefern. Dafür pflegen autoritative Nameserver Access Control Lists (\gls{ACL}) mit verschiedenen IP-Präfixen, um eine Fallunterscheidung treffen zu können\cite[S.565-567]{Fall2011}. Dies ist z.B. relevant, wenn eine Firma zwischen internen und externen Anfragen unterscheiden muss, um den (richtigen) Zugriff auf Ressourcen zu gewährleisten. Ein Beispiel für diese Fallunterscheidung ist in Abb. \ref{grafik: split-dns} gegeben.
 
 \begin{figure}[h]
   \centering
@@ -224,13 +222,13 @@ Split \gls{DNS} ist die Möglichkeit, verschiedene Resource Records anhand der A
 \end{figure}\FloatBarrier
 
 \subsection{DNS UPDATE}
-Die Methode \gls{DNS} UPDATE ist in \gls{RFC} 2136 definiert und erlaubt es, autoritative Zonen eines Nameserver zur Laufzeit zu verändern\cite{rfc2136}. Somit müssen keine Zonen-Dateien manuell angepasst werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten Zonen-Dateien neu einzulesen.\\
+Die Methode \gls{DNS} UPDATE ist in \gls{RFC} 2136 dokumentiert und erlaubt es, autoritative Zonen eines Nameservers zur Laufzeit zu verändern\cite{rfc2136}. Somit müssen keine Zonen-Dateien manuell angepasst werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten Zonen-Dateien neu einzulesen.\\
 \gls{Client}s werden über eine \gls{ACL} ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP zur Authentifizierung genutzt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen}, d.h. fälschen, lassen\cite[S.70-71]{Fall2011}. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (\textit{Pre-Shared Key}) eine \gls{DNS} UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (\gls{TSIG})\cite[S.911-914]{Fall2011}.
 
 \section{Virtual Private Network (VPN)}\label{vpn}
 \gls{VPN}s werden genutzt, um private Netzwerke über eine öffentlich genutzte Infrastruktur abbilden zu können. Dies erfolgt zwischen \gls{VPN}-Endpunkten über gängige Enkapsulierungen, z.B. Generic Routing Encapsulation (GRE), Encapsulating Security Payload (ESP) oder OpenVPN.\\
-In Abbildung \ref{grafik: vpn-example} werden Daten von \gls{Client} A zu \gls{Client} B über das Internet zwischen Router R1 und Router R2 enkapsuliert. R2 empfängt das Datenpaket, packt es aus und sendet es in der ursprünglichen Form weiter an \gls{Client} B.\\
-Das Diagramm ist dabei nicht spezifisch für eine bestimmte \gls{VPN}-Technologie. Es können, je nach Technologie, Nutzdaten verschlüsselt werden. 
+In Abbildung \ref{grafik: vpn-example} werden Daten von \gls{Client} A zu \gls{Client} B über das Internet zwischen \gls{VPN-Gateway} R1 und \gls{VPN-Gateway} R2 enkapsuliert. R2 empfängt das Datenpaket, packt es aus und sendet es in der ursprünglichen Form weiter an \gls{Client} B.\\
+Das Diagramm ist dabei nicht spezifisch für eine bestimmte \gls{VPN}-Technologie. Es können je nach Technologie Nutzdaten verschlüsselt werden. 
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.65]{Figures/vpn-example.pdf}
@@ -238,41 +236,41 @@ Das Diagramm ist dabei nicht spezifisch für eine bestimmte \gls{VPN}-Technologi
   \label{grafik: vpn-example}
 \end{figure}\FloatBarrier
 
-Die in dieser Arbeit verwendeten \gls{VPN}\-Technologien sind Internet Protocol Security (\gls{IPsec}) und OpenVPN. \gls{IPsec} wird u.a. für die Vernetzung von (Cloud-)Standorten, auch \gls{Site-to-Site} genannt, genutzt und arbeitet auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 3. Ebenso dient es zur \textit{Einwahl} in (Firmen-)Netzwerke. \gls{IPsec} wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
+Die in dieser Arbeit verwendeten \gls{VPN}-Technologien sind Internet Protocol Security (\gls{IPsec}) und OpenVPN. \gls{IPsec} wird u.a. für die Standort-Vernetzung genutzt, auch \gls{Site-to-Site} genannt, und arbeitet auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 3. Ebenso dient es zur \textit{Einwahl} in (Firmen-)Netzwerke. \gls{IPsec} wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
 OpenVPN ist ein Open Source-Projekt und es nutzt \textit{Transport Layer Security} (TLS) für die verschlüsselte Übertragung von Daten via \gls{UDP} oder \gls{TCP}. Das Protokoll ist auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 7 zu finden und es wird vor allem für \gls{Client-to-Site}-Verbindungen genutzt: Passende Software ist für viele verschiedene Plattformen verfügbar (u.a. Windows, Linux, Mac, Android) und sowohl \gls{Client}- als auch Server-Applikation sind kostenfrei erhältlich.\\
-Angesprochene \gls{MTU}-Probleme (s. \ref{mtumss}) können sich bei einer getunnelten Verbindung auf Grund des zusätzliches \textit{Overheads} der Enkapsulierung zeigen. Eine IP-Fragmentierung sollte optimalerweise verhindert werden.
+Angesprochene \gls{MTU}-Probleme (s. Kap. \ref{mtumss}) können sich bei einer getunnelten Verbindung auf Grund des zusätzliches \textit{Overheads} der Enkapsulierung zeigen. Eine IP-Fragmentierung sollte optimalerweise verhindert werden.
 
 \section{Cloud}\label{cloud}
 Der Cloud-Begriff kann je nach Literatur variieren. Diese Arbeit verweist an dieser Stelle auf die Definition des \textit{National Institute of Standards and Technology (NIST)}. Ebenso werden dort die drei typischen \textit{Cloud Delivery}-Modelle Software as a Service (SaaS), Platform as a Service (PaaS) und Infrastructure as a Service (IaaS) definiert, welche fortan als bekannt vorausgesetzt werden.\cite{mell2011}
 
 \subsection{Public und Private Cloud}
 Auch für die so genannten \textit{Cloud \gls{Deployment}}-Modelle wird auf die Definition des NIST verwiesen.\cite{mell2011}\\
-Allerdings soll an dieser Stelle auf ein häufiges Missverständnis hingewiesen werden: Eine Private Cloud existiert nicht zwingend \textit{\gls{on-premises}} einer Organisation, also bspw. im eigenen Rechenzentrum. Sie kann ebenso über Public Cloud-Plattformen abgebildet werden. Allerdings ist die Voraussetzung, dass alle genutzten Ressourcen dann exklusiv für die Organisation zur Verfügung stehen (\textit{exclusive use by a single organization}). Sie werden nicht mit weiteren Parteien geteilt (\textit{open use by the general public}).\\
+Allerdings soll an dieser Stelle auf ein häufiges Missverständnis hingewiesen werden: Eine Private Cloud existiert nicht zwingend \textit{\gls{on-premises}} einer Organisation, also bspw. im eigenen Rechenzentrum. Sie kann ebenso über Cloud-Plattformen wie AWS abgebildet werden. Allerdings ist die Voraussetzung, dass alle genutzten Ressourcen dann exklusiv für die Organisation zur Verfügung stehen (\textit{exclusive use by a single organization}), was spezielle Verträge mit den Cloud-Providern erfordert. Die Ressourcen werden dann nicht mit weiteren Mandanten geteilt (\textit{open use by the general public}).\\
 Die Public Cloud-Provider, welche in dieser Arbeit genutzt werden, sind Amazon Web Services (AWS) und Microsoft Azure. Rechenzentren stehen weltweit zur Verfügung, um eine schnelle und latenzarme Anbindung für die Kunden zu ermöglichen. Eine Private Cloud lässt sich bspw. mit OpenStack abbilden\cite{sefraoui2012openstack}.
 
 \subsection{Multi und Hybrid Cloud}
 Eine Multi Cloud vernetzt \textbf{gleiche} Cloud \gls{Deployment}s miteinander, z.B. Public Cloud 	$\leftrightarrow$ Public Cloud oder Private Cloud $\leftrightarrow$ Private Cloud.\\
-Bei einer Hybrid Cloud werden unterschiedliche Bausteine zusammengefasst. In dieser Arbeit soll eine Hybrid Cloud aus AWS, Azure (Public) und Private Cloud bereitgestellt (\glqq {Deployment}\grqq{}) werden.
+Bei einer Hybrid Cloud werden unterschiedliche Bausteine zusammengefasst. In dieser Arbeit soll eine Hybrid Cloud aus AWS, Azure (Public) und Private Cloud bereitgestellt werden.
 
 \section{Public Cloud-Netzwerke}\label{public-cloud-networking}
-In diesem Kapitel wird näher auf die verschiedenen Netzwerk-\textit{Building Blocks} der Public Cloud-Plattformen AWS und Azure eingegangen. Beide bringen oftmals ähnliche Bausteine mit. Es wird daher stets versucht, im jeweiligen Kontext auf beide Plattformen zugleich einzugehen, um die Grundfunktionalität zu erläutern.
+In diesem Kapitel wird näher auf die verschiedenen Netzwerk-\textit{Building Blocks} der Public Cloud-Plattformen AWS und Azure eingegangen. Beide bringen oftmals ähnliche Bausteine mit. Es wird daher stets versucht, im jeweiligen Kontext auf beide Plattformen zugleich einzugehen, um die Grundfunktionalität zu erläutern.\\
 Dieses Kapitel vermittelt lediglich Grundlagen, die für das Verständnis der Use Cases in Kapitel \ref{Defintion der Use-Cases} und Kapitel \ref{Umsetzung der Use-Cases und Evaluation} notwendig sind. Besonderheiten und Constraints, die sich im Verlauf der Bearbeitung ergeben haben, werden im jeweiligen Use Case unter \glqq Probleme und Lösungsfindung\grqq{} zusammengefasst.
 
 \subsection{AWS VPC / Azure VNET}
 AWS Virtual Private Cloud (VPC) und Azure Virtual Network (VNET) bilden private Netzwerke innerhalb eines Cloud-Mandanten ab. Die hier hinterlegten Präfixe bilden eine Menge an möglichen IP-Adressen innerhalb von \gls{VPC} und \gls{VNET} ab. Es können sowohl Public IP-Präfixe als auch IPs nach \gls{RFC} 1918 benutzt werden. Diese Menge an IP-Adressen wird in AWS \textit{\gls{CIDR}} bzw. Azure \textit{Address Space} als Container zusammengefasst.\\
-AWS gibt /16 als minimale und /28 als maximale Größe des \gls{CIDR} vor \cite[S.100]{awsug2020}. Azure \gls{VNET} ist da großzügiger und es darf eine Größe zwischen /8 und /29 gewählt werden\cite[S.10]{Toroman2019}. 
+AWS gibt /16 als minimale und /28 als maximale Größe des \gls{CIDR} vor\cite[S.100]{awsug2020}. Azure \gls{VNET} ist großzügiger und es darf eine Größe zwischen /8 und /29 gewählt werden\cite[S.10]{Toroman2019}. 
 \subsection{Subnets}
 Innerhalb von \gls{VPC} und \gls{VNET} können Subnets angelegt werden. In diesen Subnets können bspw. virtuelle Maschinen mit IPs ausgestattet werden. Wenn also ein \gls{VPC} einen \gls{CIDR}-Block von 10.0.0.0/16 besitzt, kann z.B. ein Subnet 10.0.1.0/24 \glqq herausgeschnitten\grqq{} werden. Mit Subnets können weitere Objekte verknüpft werden wie z.B. Route Tables, welche das Routing für das Subnet steuern.
 
 \subsection{Route Tables}
 Route Tables ermöglichen es, den Fluss von IP-Pakete innerhalb eines Subnets zu steuern. So können z.B. statische Routen auf Ziele innerhalb eines Subnets angelegt werden. \gls{VNET} kann dies, wie aus dem klassischen Netzwerk gewohnt, über Next-Hop IPs abbilden. \gls{VPC} hingegen unterstützt als Next-Hop virtuelle Maschinen (Instances) und Interfaces von virtuellen Maschinen. Es existieren noch weitere spezielle Ziele, die genutzt werden können wie z.B. \gls{VPN} Gateways, um entfernte Netzwerke zu erreichen.\\
-Subnets in Azure erfordern keine Route Tables: Alle Maschinen eines \gls{VNET} erreichen sich untereinander standardmäßig und erreichen Ressourcen im Internet. Sollte ein granulareres Routing notwendig sein, werden Azure Route Tables erforderlich.\\
+Subnets in Azure erfordern keine Route Table: Alle Maschinen eines \gls{VNET}s erreichen sich untereinander und Ressourcen im Internet standardmäßig. Sollte ein granulareres Routing notwendig sein, werden Azure Route Tables erforderlich.\\
 Subnets in \gls{VPC} erhalten immer eine Route Table: Ohne weitere Konfigurationen wird einem Subnet die Main Route Table zugewiesen. Diese kann vorab editiert werden, so dass z.B. kein Internet-Traffic für virtuelle Maschinen möglich ist. \textit{Non-Main} Route Tables können für spezielle Anforderungen erstellt und Subnets zugewiesen werden.
 
 \subsection{Security Groups}
-AWS Security Groups (SG) bzw. Azure Network Security Groups (\gls{NSG}) bilden \textit{stateful Firewalling} ab \cite{wool2006packet}. Dabei können sowohl ingress (eingehende), als auch egress (ausgehende) Firewall-Regeln definiert und darauf basierend Pakete gefiltert werden. Typische Protokolle anhand derer Regeln definiert werden können sind \gls{UDP}, \gls{TCP} und \gls{ICMP}.\\
+AWS Security Groups (SG) bzw. Azure Network Security Groups (\gls{NSG}) bilden \textit{stateful Firewalling} ab\cite{wool2006packet}. Dabei können sowohl ingress (eingehende), als auch egress (ausgehende) Firewall-Regeln definiert und darauf basierend Pakete gefiltert werden. Typische Protokolle anhand derer Regeln definiert werden können sind \gls{UDP}, \gls{TCP} und \gls{ICMP}.\\
 AWS \gls{SG}s können einer Instanz zugewiesen werden. Wird keine \gls{SG} explizit für eine Instanz definiert, kommt eine Default \gls{SG} zu Einsatz, die vom \gls{VPC} vorgegeben ist.\\
-Azure \gls{NSG}s können sowohl Subnets als auch \gls{VM}s direkt zugewiesen werden. \gls{NSG}s für Subnets wirken sich global für alle \gls{VM}s eines Subnets aus. Wenn granularer Zugriff auf bestimmte \gls{VM}s gewünscht ist, nutzt man zusätzliche \gls{NSG}s \glqq auf\grqq{} den jeweiligen Instanzen.
+Azure \gls{NSG}s können sowohl Subnets als auch virtuellen Maschinen (\gls{VM}) direkt zugewiesen werden. \gls{NSG}s für Subnets wirken sich global für alle \gls{VM}s eines Subnets aus. Wenn granularer Zugriff auf bestimmte \gls{VM}s gewünscht ist, nutzt man zusätzliche \gls{NSG}s \glqq auf\grqq{} den jeweiligen Instanzen.
 
 \subsection{VPN}
 AWS bringt in Form von Virtual Private Gateway und Transit Gateway Möglichkeiten mit, \gls{IPsec}-basierte \gls{Site-to-Site}-Verbindungen zu terminieren. Ersteres kann Verbindungen nur innerhalb eines \gls{VPC} terminieren. Transit Gateway bietet die Möglichkeit, verschiedene \gls{VPC}s miteinander zu \textit{peeren}. \gls{VPN}-Verbindungen können auf Transit Gateway terminiert werden und Pakete, die über \gls{VPN} reinkommen, können alle gepeerten \gls{VPC}s erreichen.\\
@@ -282,9 +280,9 @@ AWS und Azure ermöglichen innerhalb der Tunnel die Nutzung von \gls{BGP}, um dy
 
 \section{Automatisierung}\label{automatisierung}
 
-Diverse Automatisierungswerkzeuge ermöglichen es, gewünschte Endzustände von Systemen zu definieren. Mit heutigen Werkzeugen wie z.B. \textit{Ansible} muss ein Administrator wenig Programmiererfahrungen mitbringen und schreibt die gewünschten Parameter in eine Konfigurationsdatei, die zu einem gewünschten Zeitpunkt auf Systemen ausgerollt werden. Viele Probleme wurden bereits von anderen Community-Mitgliedern gelöst. Für komplexere Sachverhalte existieren Plugins.\\
+Diverse Automatisierungswerkzeuge ermöglichen es, gewünschte Endzustände von Systemen zu definieren. Mit Werkzeugen wie z.B. \textit{Ansible} muss ein Administrator wenig Programmiererfahrungen mitbringen und schreibt die gewünschten Parameter in eine Konfigurationsdatei, die zu einem gewünschten Zeitpunkt auf Systemen ausgerollt werden. Viele Probleme wurden bereits von anderen Community-Mitgliedern gelöst. Für komplexere Sachverhalte existieren Plugins.\\
 Man muss bei Automatisierungswerkzeugen zwischen \textit{Configuration Management} (CM) und \textit{Provisioning} unterscheiden. Provisioner dienen der grundsätzlichen Erstellung einer Infrastruktur, während \gls{CM}-Werkzeuge diese Infrastruktur als vorhanden annehmen und weitere Konfigurationen auf den jeweiligen Komponenten tätigen\cite[S.20]{Brikman2019}.\\
-Eine Analogie wäre: Provisioner setzen das Haus an eine Straße und das \gls{CM} macht daraufhin die Innenaustattung. Auf die IT angewendet bedeutet dies, dass Provisioner dafür sorgen, dass Ubuntu-Maschinen aufgesetzt werden und zu erreichen sind. Das \gls{CM} macht daraufhin Paket-Updates und installiert z.B. einen Apache-Webserver.\\
+Eine Analogie wäre: Provisioner setzen das Haus an eine Straße und das \gls{CM} macht daraufhin die Innenaustattung. Auf die IT angewendet bedeutet dies, dass Provisioner dafür sorgen, dass Ubuntu-Maschinen aufgesetzt werden und zu erreichen sind. Das \gls{CM} macht daraufhin Paket-Updates und installiert einen Apache-Webserver.\\
 Es gibt keine eindeutige Linie zwischen den beiden Typen von Werkzeugen. So können viele \gls{CM}-Werkzeuge auch ein Provisioning von Infrastruktur abbilden, während Provisioner auch grundlegendes Configuration Management leisten können\cite[S.20]{Brikman2019}. Das bereits angesprochene Ansible ist ein \gls{CM}-Tool mit eingeschränkter Provisioning-Funktionalität.\\
 Passende Schnittstellen, z.B. in Form einer REST-API, sind Voraussetzung, um Automatisierungswerkzeuge mit entsprechenden Komponenten nutzen zu können.
 
@@ -328,7 +326,7 @@ resource "aws_vpc" "example_vpc" {
 \end{minted}
 \caption{Deployment der Resources \glqq example\_vpc\grqq{} und \glqq example\_subnet\grqq{}}
 \label{deployment_aws_tf}
-\end{listing}
+\end{listing}\FloatBarrier
 %TC:endignore
 Dabei zeigt sich auch der deklarative Aspekt von Terraform. Die Resource \glqq aws\_subnet\grqq{} mit dem Namen \glqq example\_subnet\grqq{} kommt als erstes im Code vor, referenziert jedoch das \gls{VPC} \glqq example\_vpc\grqq{}. Durch diese impliziete Abhängigkeit wird die Resource \glqq example\_vpc\grqq{} als erstes erstellt. Man beschreibt also, \textit{was} benötigt wird. \textit{Wie} und in welcher Reihenfolge das Rollout gemacht wird, obliegt Terraform.
 
@@ -361,8 +359,8 @@ output "ubuntu_ami_id" {
 \end{listing}\FloatBarrier
 %TC:endignore
 \subsection{IP Address Management (IPAM)}
-Ein \gls{IPAM} ist wichtig, insofern die Adressverwaltung automatisiert werden soll. Statisch konfigurierte \gls{CIDR}-Blöcke im Code sorgen für eine schlechte Wiederverwendbarkeit und Skalierbarkeit von Modulen: IP-Blöcke müssten dann jedes Mal händisch reserviert und in den gewünschten Modulen untergebracht werden.\\
-Einfacher ist es, im Modul lediglich festzulegen, welche Subnetzgröße erforderlich ist: ein \gls{IPAM} gibt dann den nächsten freien Block in der passenden Größe zurück. Es wird lediglich ein großer Block vorreserviert, aus dem die freien Blöcke entnommen werden können.
+Ein \gls{IPAM} ist hilfreich, insofern die Adressverwaltung automatisiert werden soll. Statisch konfigurierte \gls{CIDR}-Blöcke im Code sorgen für eine schlechte Wiederverwendbarkeit und Skalierbarkeit von Modulen: IP-Blöcke müssten dann jedes Mal händisch reserviert und in den gewünschten Modulen untergebracht werden.\\
+Einfacher ist es, im Modul lediglich festzulegen, welche Subnetzgröße erforderlich ist: ein \gls{IPAM} gibt dann den nächsten freien Block in der passenden Größe zurück. Es wird lediglich ein großer Block vorreserviert, aus dem die freien Blöcke entnommen werden können (s. Abb. \ref{grafik: ipam_ip_reservation}).
 
 \begin{figure}[h]
   \centering

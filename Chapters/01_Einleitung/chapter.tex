@@ -9,28 +9,28 @@ In der Public Cloud existiert keine klassische Netzwerk-Infrastruktur mehr, welc
 \section{Ziel}
 
 Es existieren bereits proprietäre Lösungen am Markt, um eine Vernetzung über Cloud-Anbieter hinweg zu ermöglichen. Sie fallen in die Kategorie \textit{Software-Defined Wide Area Network (SD-WAN)} und sind nicht interoperabel zu \gls{SD-WAN}-Lösungen anderer Hersteller.\\
-Ziel der Arbeit ist es, ein möglichst herstellerunabhängiges Netzwerk, welches eine Ende-zu-Ende-Konnektivität ermöglicht, zwischen verschiedenen Cloud-Plattformen herzustellen. Es soll gezeigt werden, wie neue Infrastruktur automatisiert und Cloud-übergreifend integriert werden kann, so dass sie anschließend für alle berechtigten Teilnehmer erreichbar ist. Dies soll möglichst mit freier, offener Software und \gls{RFC}-konformen Protokollen geschehen.\\
+Ziel der Arbeit ist es, ein möglichst herstellerunabhängiges Netzwerk mit Ende-zu-Ende-Konnektivität zwischen verschiedenen Cloud-Plattformen herzustellen. Es soll gezeigt werden, wie neue Infrastruktur automatisiert und Cloud-übergreifend integriert werden kann, so dass sie anschließend für alle berechtigten Teilnehmer erreichbar ist. Dies soll möglichst mit freier, offener Software und \gls{RFC}-konformen Protokollen geschehen.\\
 Interessant ist diese Lösung für Unternehmen, welche die Lizenzkosten für proprietäre Lösungen sparen wollen oder bevorzugt auf offene Systeme und Standards setzen, welche eine hohe Interoperabilität zu anderen (offenen) Systemen versprechen.
 
 \section{Inhalt}
-Es sollen verschiedene Use Cases erarbeitet werden, die im Kontext einer Cloud-Vernetzung geeignet erscheinen, um verschiedene Netzwerkdienste (redundant) anzubieten. Grundlegend wird davon ausgegangen, dass ein Kunde Netzwerkdienste bereits \gls{on-premises} nutzt und diese zu AWS und Azure hin erweitern möchte, um eine Hochverfügbarkeit bzw. einen Lastenausgleich zu erreichen.\\
+Es sollen verschiedene Use Cases erarbeitet werden, die im Kontext einer Cloud-Vernetz\-ung geeignet erscheinen, um verschiedene Netzwerkdienste (redundant) anzubieten.\\
+Es wird davon ausgegangen, dass ein Kunde Netzwerkdienste bereits \gls{on-premises} nutzt und diese zu AWS und Azure hin erweitern möchte, um eine Hochverfügbarkeit bzw. einen Lastenausgleich zu erreichen.\\
 Im ersten Schritt muss dafür ein geeignetes Design für die Vernetzung zwischen den verschiedenen Standorten gefunden werden. Dieses Design soll mit Hilfe geeigneter technischer Werkzeuge umgesetzt werden und dient im Anschluss als Grundlage für die Abbildung der zuvor definierten Use Cases.\\
 Diese technisch abgebildeten Use Cases sind im Einzelnen als Proof of Concept (PoC) anzusehen und sollen abschließend in Bezug auf im Voraus formulierte, in der Praxis übliche Anforderungen und Kriterien analysiert und bewertet werden. Es ist davon auszugehen, dass im Rahmen der Umsetzung der Autor mit diversen technischen Problemen konfrontiert sein wird. Die Analyse und Diskussion dieser Problemstellungen soll zu geeigneten Lösungsansätzen führen.
 
 \textbf{\underline{Herausgestellte Aspekte der Bachelorarbeit}}
 \begin{itemize}
     \item Keine \textbf{feste} Bindung an einen Cloud-Provider (\glqq Vendor Lock-In\grqq{}), da das Netzwerk über mehrere Cloud-Plattformen gespannt wird.
-    \item Möglichkeit der Hochverfügbarkeit und des Lastenausgleichs für Netzwerkdienste über mehrere Cloud-Plattformen hinweg
-    \item Projekte oder Dienste, die eine \textit{bestimmte} Cloud-Plattform erfordern, können für weitere (Cloud-)Plattformen verfügbar gemacht werden
-    \item Latenz- oder Bandbreitenanforderungen können durch eine Hybrid-Cloud-Strategie u.U. besser eingehalten werden
-    \item Neue Cloud-Netzwerke können dynamisch und automatisiert aufgebaut werden und stehen im Anschluss für alle berechtigten Teilnehmer zur Verfügung
+    \item Möglichkeit der Hochverfügbarkeit und des Lastenausgleichs für Netzwerkdienste über mehrere Cloud-Plattformen hinweg.
+    \item Projekte oder Dienste, die eine \textit{bestimmte} Cloud-Plattform erfordern, können für weitere (Cloud-)Plattformen verfügbar gemacht werden.
+    \item Latenz- oder Bandbreitenanforderungen können durch eine Hybrid-Cloud-Strategie u.U. besser eingehalten werden.
+    \item Neue Cloud-Netzwerke können dynamisch und automatisiert aufgebaut werden und stehen im Anschluss für alle berechtigten Teilnehmer zur Verfügung.
 \end{itemize}
 
 \textbf{\underline{Beleuchtete Fragestellungen}}
 \begin{itemize}
     \item Mit Hilfe welcher Technologien und Systemkomponenten lässt sich so eine Lösung aufbauen?
-    \item Welche Schnittstellen werden bei den jeweiligen Cloud-Plattformen angeboten, um eine automatisierte Vernetzung zu bewerkstelligen?
-    \item Welche Werkzeuge können mit diesen Schnittstellen genutzt werden?
+    \item Welche Schnittstellen werden bei den jeweiligen Cloud-Plattformen angeboten, um eine automatisierte Vernetzung zu bewerkstelligen und mit welchen Werkzeugen können diese genutzt werden?
     \item Welche Netzwerk-Topologie bieten sich an, um mehrere Cloud-Plattformen miteinander zu verbinden?
     \item Auf welche Netzwerk-Protokolle kann zurückgegriffen werden?
     \item Wie kann eine hohe Sicherheit im Netzwerk zwischen den Plattformen gewährleistet werden, um fremde Zugriffe zu verhindern?
