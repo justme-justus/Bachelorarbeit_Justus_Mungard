@@ -145,7 +145,7 @@ view "dublin" {
 \label{view-dublin-bind}
 \end{listing}\FloatBarrier
 %TC:endignore
-In der Zonen-Datei für Dublin befindet sich vor dem Terraform-\gls{Deployment} nur ein A-Record \textit{default-vpn}. Dies ist der A-Record, der als Fallback dient (s. Listing \ref{zone-dublin-before-deployment}). Gemäß Evaluationskriterien muss ein \gls{Roadwarrior}-\gls{Client} auf die Private Cloud zurückfallen, wenn bisher kein \gls{Deployment} stattgefunden hat. Die öffentlich auflösbare Zone lautet \textit{ba.mungard.de}.
+In der Zonen-Datei für Dublin befindet sich vor dem Terraform-\gls{Deployment} nur ein A-Record \textit{default-vpn}. Dies ist der A-Record, der als \gls{Fallback} dient (s. Listing \ref{zone-dublin-before-deployment}). Gemäß Evaluationskriterien muss ein \gls{Roadwarrior}-\gls{Client} auf die Private Cloud zurückfallen, wenn bisher kein \gls{Deployment} stattgefunden hat. Die öffentlich auflösbare Zone lautet \textit{ba.mungard.de}.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -209,7 +209,7 @@ resource "dns_a_record_set" "vpn-dublin" {
 \label{tf-provider-dns}
 \end{listing}\FloatBarrier
 %TC:endignore
-Nach dem Terraform-\gls{Deployment} kann man sich per \texttt{rndc dumpdb -zones} alle \gls{View}s ausgeben lassen (hier gefiltert auf die relevantesten Einträge der \gls{View}s \glqq dublin\grqq{} und \glqq match-all\grqq{}). Man erkennt in Listing \ref{bind-entries-after-tf}, dass in beiden \gls{View}s für die Domain default-vpn.ba.mungard.de die gleiche IP (\glqq Fallback\grqq{}) zurückgegegeben.\\
+Nach dem Terraform-\gls{Deployment} kann man sich per \texttt{rndc dumpdb -zones} alle \gls{View}s ausgeben lassen (hier gefiltert auf die relevantesten Einträge der \gls{View}s \glqq dublin\grqq{} und \glqq match-all\grqq{}). Man erkennt in Listing \ref{bind-entries-after-tf}, dass in beiden \gls{View}s für die Domain default-vpn.ba.mungard.de die gleiche IP (\glqq \gls{Fallback}\grqq{}) zurückgegegeben.\\
 Für Domain vpn.ba.mungard.de ist im \gls{View} \glqq dublin\grqq{} nur eine Azure-IP sichtbar, während im \gls{View} \glqq match-all\grqq{} IPs aller \gls{VPN-Konzentrator}en des \gls{Deployment}s vorkommen.
 %TC:ignore
 \begin{listing}[h]
@@ -274,7 +274,7 @@ resource "null_resource" "www_config" {
 \end{listing}\FloatBarrier
 %TC:endignore
 
-Die OpenVPN \gls{Client}-Konfigurationen wurden vor Terraform-\gls{Deployment} bereits \textit{inline} in einer Textdatei vorbereitet (s. Listing \ref{vpn-c2s-server-config}). Auch hier gilt analog zur Server-Konfiguration, dass Schlüsselmaterial optimalerweise erst zur Laufzeit erstellt wird. Zertifikate und privater Schlüssel wurden im folgenden Beispiel gefiltert. Von zentraler Bedeutung sind Zeilen 1 und 2: Durch mehrfache Angabe einer remote-Direktive kann ein Fallback auf \textit{default-vpn.ba.mungard.de} stattfinden, sollte \textit{vpn.ba.mungard.de} nicht auflösbar sein. Die erste remote-Direktive wird dabei \textbf{immer} zuerst kontaktiert, dann folgt der Fallback auf die zweite.\\
+Die OpenVPN \gls{Client}-Konfigurationen wurden vor Terraform-\gls{Deployment} bereits \textit{inline} in einer Textdatei vorbereitet (s. Listing \ref{vpn-c2s-server-config}). Auch hier gilt analog zur Server-Konfiguration, dass Schlüsselmaterial optimalerweise erst zur Laufzeit erstellt wird. Zertifikate und privater Schlüssel wurden im folgenden Beispiel gefiltert. Von zentraler Bedeutung sind Zeilen 1 und 2: Durch mehrfache Angabe einer remote-Direktive kann ein \gls{Fallback} auf \textit{default-vpn.ba.mungard.de} stattfinden, sollte \textit{vpn.ba.mungard.de} nicht auflösbar sein. Die erste remote-Direktive wird dabei \textbf{immer} zuerst kontaktiert, dann folgt der \gls{Fallback} auf die zweite.\\
 Dies gilt für den Fall, falls das \gls{Deployment} noch nicht stattgefunden hat und der \gls{Client} nicht in der Nähe von Kiel ist, um per \gls{GeoIP}-\gls{ACL} Zugriff auf die Auflösung von \textit{vpn.ba.mungard.de} erhält. Per \textit{pullfilter ignore redirect-gateway} wird verhindert, dass ein Default Gateway über den Tunnel signalisiert wird: Nur alle \textbf{bekannten} Routen kommen über die OpenVPN-Server-Konfiguration. Es findet kein \textit{full tunneling} statt.
 %TC:ignore
 \begin{listing}[h]
@@ -529,7 +529,7 @@ Wed May 12 11:27:27 2021 /sbin/ip route add 192.168.201.0/24 via 10.32.1.1
 \end{listing}\FloatBarrier
 %TC:endignore
 \newpage
-Um den Fallback zu testen, wurde eine spezielle \texttt{\gls{iptables}}-Regel eingerichtet, die ausgehende Pakete, in denen der String \glqq vpn\grqq{} enthalten ist, verwirft. \textit{vpn-default} bleibt hingegen erlaubt: Die Regel wird über der erstgenannten Regel ausgewertet (s. Listing \ref{iptables-deny-string-dns}).
+Um den \gls{Fallback} zu testen, wurde eine spezielle \texttt{\gls{iptables}}-Regel eingerichtet, die ausgehende Pakete, in denen der String \glqq vpn\grqq{} enthalten ist, verwirft. \textit{vpn-default} bleibt hingegen erlaubt: Die Regel wird über der erstgenannten Regel ausgewertet (s. Listing \ref{iptables-deny-string-dns}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -557,7 +557,7 @@ ubuntu@vpn-client-azure:~$ dig +short default-vpn.ba.mungard.de A
 \label{dig-fail-vpn-fallback-to-default-vpn}
 \end{listing}\FloatBarrier
 %TC:endignore
-Dies macht sich auch beim Verbindungsversuch mit OpenVPN bemerkbar. Ein Fallback auf die IP 195.244.254.197 erfolgt, da vpn.ba.mungard.de nicht mehr auflösbar ist (s. Listing \ref{connection-fail-vpn-fallback-default-vpn}). Die IP-Adresse entpricht dabei dem \gls{FQDN} default-vpn.ba.mungard.de. Fall c) wurde somit erfolgreich abgebildet (vgl. Abb. \ref{grafik:Use-Case_2_Entscheidungsbaum_GeoIP}).
+Dies macht sich auch beim Verbindungsversuch mit OpenVPN bemerkbar. Ein \gls{Fallback} auf die IP 195.244.254.197 erfolgt, da vpn.ba.mungard.de nicht mehr auflösbar ist (s. Listing \ref{connection-fail-vpn-fallback-default-vpn}). Die IP-Adresse entpricht dabei dem \gls{FQDN} default-vpn.ba.mungard.de. Fall c) wurde somit erfolgreich abgebildet (vgl. Abb. \ref{grafik:Use-Case_2_Entscheidungsbaum_GeoIP}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
