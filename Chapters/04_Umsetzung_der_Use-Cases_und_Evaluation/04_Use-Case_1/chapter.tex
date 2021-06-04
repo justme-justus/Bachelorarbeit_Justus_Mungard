@@ -51,7 +51,8 @@ output "azure_vyos_tunnel1_psk" {
 \end{listing}\FloatBarrier
 %TC:endignore
 Da, wie bereits erwähnt, für die VyOS-Router keine \textit{native} Terraform-Integration verfügbar ist, wurde zur Konfiguration des Devices eine Vorlage erstellt, welch per \gls{CLI}-Konfigurationen ausrollt.
-Die Erzeugung aus der Vorlage erfolgt über die Funktion templatefile()\cite{templatefiletf2021}. Sie erstellt aus einer Template-Datei \underline{vyos\_config.tpl} die Skript-Datei \underline{/tmp/example.sh}. Die Template-Datei wird mit den Variablen \textit{var.aws\_vgw\_ip} und \textit{aws\_tunnel1\_psk} befüllt.
+Die Erzeugung aus der Vorlage erfolgt über die Funktion templatefile()\cite{templatefiletf2021}. Sie erstellt aus einer Template-Datei \underline{vyos\_config.tpl} die Skript-Datei \underline{/tmp/example.sh}.\\
+Die Template-Datei wird mit den Variablen \textit{var.aws\_vgw\_ip} und \textit{aws\_tunnel1\_psk} befüllt.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}

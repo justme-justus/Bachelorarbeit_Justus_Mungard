@@ -16,7 +16,7 @@ Optimalerweise wird das Design also diese genannten Punkte in Angriff nehmen:
 \item Weiterhin sollen genannte Maßnahmen für den Anwender möglichst transparent und ohne manuelle Interaktion erfolgen. Er soll keine Wahl haben, mit welchem Cloud-Standort er sich zu verbinden hat: Die Annahme ist, dass dieser über geeignete Automatisierungsmechanismen mit dem \textit{besten} Standort verbunden wird.
 \end{itemize}
 Das Szenario baut auf Use Case 1 auf. So wird weiterhin von dem Backbone-Grundaufbau ausgegangen. Es soll gezeigt werden, wie ein \gls{Roadwarrior}-Setup aufgebaut werden kann, bei dem sich der jeweilige Mitarbeiter mit dem nächstgelegen \gls{VPN-Konzentrator} verbindet, um die beste Performance erreichen zu können.\\
-Weiterhin soll an jedem Cloud-Standort ein Server stehen, welcher einen \textbf{internen} Netzwerk-Dienst anbietet. Das Ziel ist es, dass ausschließlich der interne Server genutzt wird, der an dem Standort zur Verfügung steht. Ansonsten würde sich der Latenzgewinn des nahen \gls{VPN-Konzentrator}s durch die \textit{interne} Latenz des Backbones wieder aufheben.\\
+Weiterhin soll an jedem Cloud-Standort ein Server stehen, welcher einen \textbf{internen} Netz\-werk-Dienst anbietet. Das Ziel ist es, dass ausschließlich der interne Server genutzt wird, der an dem Standort zur Verfügung steht. Ansonsten würde sich der Latenzgewinn des nahen \gls{VPN-Konzentrator}s durch die \textit{interne} Latenz des Backbones wieder aufheben.\\
 Die Infrastruktur aus Use Case 1 wird als vorhanden und funktionierend angenommen und in Abbildung \ref{grafik:Use-Case-2_Vereinfacht} nicht mehr dargestellt.
 \begin{figure}[h]
   \centering
@@ -82,7 +82,7 @@ Um die unterschiedlichen Fälle aus \ref{geoip-nearest-vpn} zu verdeutlichen, wu
   \label{grafik:Use-Case_2_Entscheidungsbaum_GeoIP}
 \end{figure}\FloatBarrier
 
-Fall \ref{server-not-deployed} ist \gls{Client}-seitig gesteuert und kommt dann zum Tragen, wenn der \gls{FQDN} vpn.ba.mungard.de nicht auflösbar sein sollte (s. Abb. \ref{grafik:Use-Case_2_Entscheidungsbaum_OpenVPN}).
+Fall \ref{server-not-deployed} ist \gls{Client}-seitig gesteuert und kommt dann zum Tragen, wenn der \gls{FQDN} vpn.ba.mun\-gard.\-de nicht auflösbar sein sollte (s. Abb. \ref{grafik:Use-Case_2_Entscheidungsbaum_OpenVPN}).
 
 \begin{figure}[h]
   \centering

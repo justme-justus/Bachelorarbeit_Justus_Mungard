@@ -184,7 +184,8 @@ acl "match-all" {
 \end{listing}\FloatBarrier
 %TC:endignore
 
-Im Terraform-Modul muss ein Provider \textit{pro} \gls{TSIG}-Key konfiguriert werden. Der server-Parameter konfiguriert den Nameserver, der per \gls{DNS} UPDATE editiert werden soll. Außerdem ist das Pre-Shared-Secret (\gls{TSIG}-Key) hinterlegt. Es wird für die Domain vpn.ba.mungard.de die IP-Adresse (\textit{var.dublin\_ip}) des \gls{VPN-Konzentrator}s in Dublin (Azure) eingetragen, welche dynamisch zur Laufzeit entsteht (s. Listing \ref{tf-provider-dns}).
+Im Terraform-Modul muss ein Provider \textit{pro} \gls{TSIG}-Key konfiguriert werden. Der server-Parameter konfiguriert den Nameserver, der per \gls{DNS} UPDATE editiert werden soll. Außerdem ist das Pre-Shared-Secret (\gls{TSIG}-Key) hinterlegt.\\
+Es wird für die Domain vpn.ba.mungard.de die IP-Adresse (\textit{var.dublin\_ip}) des VPN-Konzen\-trators in Dublin (Azure) eingetragen, welche dynamisch zur Laufzeit entsteht (s. Listing \ref{tf-provider-dns}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -275,7 +276,7 @@ resource "null_resource" "www_config" {
 %TC:endignore
 
 Die OpenVPN \gls{Client}-Konfigurationen wurden vor Terraform-\gls{Deployment} bereits \textit{inline} in einer Textdatei vorbereitet (s. Listing \ref{vpn-c2s-server-config}). Auch hier gilt analog zur Server-Konfiguration, dass Schlüsselmaterial optimalerweise erst zur Laufzeit erstellt wird. Zertifikate und privater Schlüssel wurden im folgenden Beispiel gefiltert. Von zentraler Bedeutung sind Zeilen 1 und 2: Durch mehrfache Angabe einer remote-Direktive kann ein \gls{Fallback} auf \textit{default-vpn.ba.mungard.de} stattfinden, sollte \textit{vpn.ba.mungard.de} nicht auflösbar sein. Die erste remote-Direktive wird dabei \textbf{immer} zuerst kontaktiert, dann folgt der \gls{Fallback} auf die zweite.\\
-Dies gilt für den Fall, falls das \gls{Deployment} noch nicht stattgefunden hat und der \gls{Client} nicht in der Nähe von Kiel ist, um per \gls{GeoIP}-\gls{ACL} Zugriff auf die Auflösung von \textit{vpn.ba.mungard.de} erhält. Per \textit{pullfilter ignore redirect-gateway} wird verhindert, dass ein Default Gateway über den Tunnel signalisiert wird: Nur alle \textbf{bekannten} Routen kommen über die OpenVPN-Server-Konfiguration. Es findet kein \textit{full tunneling} statt.
+Dies gilt für den Fall, falls das \gls{Deployment} noch nicht stattgefunden hat und der \gls{Client} nicht in der Nähe von Kiel ist, um per \gls{GeoIP}-\gls{ACL} Zugriff auf die Auflösung von \textit{vpn.ba.mun\-gard\-.de} erhält. Per \textit{pullfilter ignore redirect-gateway} wird verhindert, dass ein Default Gateway über den Tunnel signalisiert wird: Nur alle \textbf{bekannten} Routen kommen über die OpenVPN-Server-Konfiguration. Es findet kein \textit{full tunneling} statt.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[linenos,breaklines,frame=single]{text}
