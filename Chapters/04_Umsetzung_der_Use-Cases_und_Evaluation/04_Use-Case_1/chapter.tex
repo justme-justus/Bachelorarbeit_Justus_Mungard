@@ -327,7 +327,7 @@ Die im \gls{IPAM} reservierten Netze (s. Abb. \ref{grafik:subnet_aws_vpc_reserve
   \label{grafik:subnet_aws_vpc_reserved}
 \end{figure}\FloatBarrier
 \newpage
-Die \gls{IPsec} Tunnel sind auf dem VyOS-Router konfiguriert und \textit{up} (s. Listing \ref{tf-base-deployment-ipsec-ok}). D.h. Die Tunnel sind aktiv.
+Die \gls{IPsec} Tunnel sind auf dem VyOS-Router konfiguriert und \textit{up} (s. Listing \ref{tf-base-deployment-ipsec-ok}), d.h. die Tunnel sind aktiv.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -403,7 +403,7 @@ Connecting to host 10.32.0.5, port 5201
 \label{iperf3-vpc-vnet}
 \end{listing}\FloatBarrier
 %TC:endignore
-Man sieht allerdings an Zeile 18, dass \gls{TCP} Retransmissions (\glqq Retr 62\grqq{}) stattgefunden haben. Es ist wahrscheinlich, dass ein \textit{Flaschenhals} existiert, Paketverluste konnten mit diversen Ping-Messungen (s. Listing \ref{tf-base-deployment-ping-ok}) nicht festgestellt werden.\\
+Man sieht allerdings an Zeile 17, dass \gls{TCP} Retransmissions (\glqq Retr 62\grqq{}) stattgefunden haben. Es ist wahrscheinlich, dass ein \textit{Flaschenhals} existiert, Paketverluste konnten mit diversen Ping-Messungen (s. Listing \ref{tf-base-deployment-ping-ok}) nicht festgestellt werden.\\
 Es werden Bandbreiten, insofern sich nicht ein deutlicher negative Auswirkungen wahrgenommen werden, in dieser Arbeit nicht tiefergehend untersucht (s. Kapitel \ref{abgrenzung}). Ein Ausblick zu Bandbreitenoptimierung wird im Ausblick gegeben (s. Kapitel \ref{ausblick}). Es wurde an dieser Stelle mit einem Floodping lediglich untersucht, ob sich ein deutlicher Paketverlust bemerkbar macht (s. Listing \ref{floodping}).
 %TC:ignore
 \begin{listing}[h]
@@ -420,7 +420,7 @@ rtt min/avg/max/mdev = 25.968/28.533/173.755/10.763 ms, pipe 11, ipg/ewma 13.384
 \end{listing}\FloatBarrier
 %TC:endignore
 
-Um die Redundanz zu des Backbones zu testen, wurden von allen Teilnehmern zu allen Teilnehmern Ping-Tests gemacht und währenddessen eine Verbindung getrennt. Da ein Präfix über zwei Pfade zu sehen ist, ist die Erwartung, dass ein Backup-Pfad genutzt wird (s. Listing \ref{grafik:Use-Case-1_Basis_Deployment_missing_link}).\\
+Um die Redundanz zu des Backbones zu testen, wurden von allen Teilnehmern zu allen Teilnehmern Ping-Tests gemacht und währenddessen eine Verbindung getrennt. Da ein Präfix über zwei Pfade zu sehen ist, ist die Erwartung, dass ein Backup-Pfad genutzt wird (s. Abb. \ref{grafik:Use-Case-1_Basis_Deployment_missing_link}).\\
 
 \begin{figure}[h]
   \centering
@@ -430,7 +430,7 @@ Um die Redundanz zu des Backbones zu testen, wurden von allen Teilnehmern zu all
 \end{figure}\FloatBarrier
 
 Man kann in Listing \ref{tf-base-deployment-ping-ok-missing-link} sehr gut erkennen, dass das \gls{BGP} eine Konvergenzzeit erfordert, bis die Pakete über einen anderen Pfad laufen. \textit{ping} versendet in der Standardkonfiguration im Interval von einer Sekunde \gls{ICMP}-Echo-Request-Pakete. Daraus lässt sich schlussfolgern, dass die Verbindung in Listing \ref{tf-base-deployment-ping-ok-missing-link} etwa 44 Sekunden unterbrochen war.\\
-Weiterhin hat sich die Round-Trip-Time von ~20 ms auf ~62 ms erhöht. Dies ist eine logische Konsequenz, da Pakete nun längere Wege (\textit{mehr Hops}) zurücklegen müssen. Alle Ping-Tests waren trotz Kappen einer Verbindung erfolgreich. Man muss dabei allerdings Paketverluste während der Konvergenzzeit hinnehmen.
+Weiterhin hat sich die Round-Trip-Time von ~20 ms auf ~62 ms erhöht. Dies ist eine logische Konsequenz, da Pakete nun längere Wege (\textit{mehr Routing-Hops}) zurücklegen müssen. Alle Ping-Tests waren trotz Kappen einer Verbindung erfolgreich. Man muss dabei allerdings Paketverluste während der Konvergenzzeit hinnehmen.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}

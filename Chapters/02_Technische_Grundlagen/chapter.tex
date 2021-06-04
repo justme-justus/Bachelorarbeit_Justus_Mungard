@@ -221,7 +221,7 @@ Split \gls{DNS} ist die Möglichkeit, verschiedene Resource Records anhand der A
   \label{grafik: split-dns}
 \end{figure}\FloatBarrier
 
-\subsection{DNS UPDATE}
+\subsection{DNS UPDATE}\label{dns-update}
 Die Methode \gls{DNS} UPDATE ist in \gls{RFC} 2136 dokumentiert und erlaubt es, autoritative Zonen eines Nameservers zur Laufzeit zu verändern\cite{rfc2136}. Somit müssen keine Zonen-Dateien manuell angepasst werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten Zonen-Dateien neu einzulesen.\\
 \gls{Client}s werden über eine \gls{ACL} ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP zur Authentifizierung genutzt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen}, d.h. fälschen, lassen\cite[S.70-71]{Fall2011}. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (\textit{Pre-Shared Key}) eine \gls{DNS} UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (\gls{TSIG})\cite[S.911-914]{Fall2011}.
 
