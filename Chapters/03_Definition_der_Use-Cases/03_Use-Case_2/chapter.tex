@@ -114,11 +114,11 @@ Die OpenVPN-Server sollen auflösbar sein unter der Domain vpn.ba.mungard.de.\\
 Als stellvertretender \glqq Applikations-Server\grqq{} soll ein Apache2-Webserver pro Standort in einer Ubuntu-\gls{VM} installiert werden. Dieser soll über die Domain www.intern.ba.mungard.de erreichbar sein.
 \subsection{Evaluationskriterien}\label{eval-roadwarrior}
 \begin{enumerate}
-\item \gls{Roadwarrior}-\gls{Client}s werden simuliert, indem an den entsprechenden Standort (Kiel, Dublin bzw. Frankfurt) eine weitere virtuelle Maschine installiert wird, die \gls{VPN}-Verbindungen zu den jeweiligen \gls{VPN-Konzentrator}en aufbaut.
+\item \gls{Roadwarrior}-\gls{Client}s werden simuliert, indem an den entsprechenden Standort (Kiel, Dublin bzw. Frankfurt) eine weitere virtuelle Maschine installiert wird, die \gls{VPN}-Ver\-bin\-dungen zu den jeweiligen \gls{VPN-Konzentrator}en aufbaut.
 \item Ein \gls{Roadwarrior}-\gls{Client} verbindet sich immer mit dem nächstgelegen Standort. Die \gls{DNS}-Antworten werden per \texttt{dig}- und \texttt{whois}-Kommando verifiziert.
 \item Der \gls{Client} hat keine Wahl, mit welchem Standort dieser verbunden wird.
 \item Ist ein Cloud-Standort nicht verfügbar (z.B. weil defekt oder nicht bereitgestellt), \textit{muss} der \gls{Client} auf den \textit{default} Standort (Kiel) zurückfallen.
 \item Sobald ein \gls{Client} mit einem \gls{VPN} verbunden ist, muss er die entsprechende interne Server-Ressource ansprechen, die am jeweiligen Standort zur Verfügung steht.
 \end{enumerate}
 
-Weitere Evaluationskriterien sind in der Praxis denkbar, spielen im Kontext des \textit{Proof of Concept} dieser Arbeit jedoch keine Rolle.
+Weitere Evaluationskriterien sind in der Praxis denkbar, spielen im Kontext des \textit{Proof of Concepts} dieser Arbeit jedoch keine Rolle.

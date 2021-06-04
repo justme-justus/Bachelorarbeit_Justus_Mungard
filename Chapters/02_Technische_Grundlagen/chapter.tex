@@ -21,7 +21,8 @@ Mit Hilfe von (Sub-)Netzmasken wird die lokale Netzwerkgröße bestimmt. Ein Hos
 
 Die ersten 24 Bit sind für das Netzwerk reserviert (Network bits), die letzte 8 Bit sind Host bits. Dieses Netzwerk kann somit theoretisch aus $2^8 = 256$ Hosts bestehen, wobei die erste und letzte Adresse reserviert sind (Netzwerk- und Broadcast-Adresse).
 
-Heutzutage üblich ist die so genannte Classless Inter-Domain Routing-Notation (\gls{CIDR}), welche IP-Addresse und Netzmaske vereint. Wenn man die genannten Beispiele aus Adresse und Subnetzmaske zusammenführt, erhält man die IP-Adresse in \gls{CIDR}-Notation: 1.2.3.4/24. /24 entspricht dabei den gesetzten Network bits.
+Heutzutage üblich ist die so genannte Classless Inter-Domain Routing-Notation (\gls{CIDR}), welche IP-Addresse und Netzmaske vereint. Wenn man die genannten Beispiele aus Adresse und Subnetzmaske zusammenführt, erhält man die IP-Adresse in \gls{CIDR}-Notation:\\
+1.2.3.4/24. /24 entspricht dabei den gesetzten Network bits.
 
 Mit Hilfe der IP-Adresse und Netzmaske lässt sich ermitteln, ob sich ein anderer Host im gleichen \textit{Subnetz} befindet. Dafür berechnet das Betriebssystem die eigene Netzwerkadresse per Bitwise-AND aus eigener IP-Adresse und Netzmaske. In Listing \ref{own-ip-address-AND-subnet} wird die Netzwerkadresse für die IP-Adresse 1.2.3.4 mit der Netzmaske 255.255.255.0 ermittelt.
 %TC:ignore
@@ -223,7 +224,7 @@ Split \gls{DNS} ist die Möglichkeit, verschiedene Resource Records anhand der A
 
 \subsection{DNS UPDATE}\label{dns-update}
 Die Methode \gls{DNS} UPDATE ist in \gls{RFC} 2136 dokumentiert und erlaubt es, autoritative \gls{Zone}n eines Nameservers zur Laufzeit zu verändern\cite{rfc2136}. Somit müssen keine \gls{Zone}n-Dateien manuell angepasst werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten \gls{Zone}n-Dateien neu einzulesen.\\
-\gls{Client}s werden über eine \gls{ACL} ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP zur Authentifizierung genutzt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen}, d.h. fälschen, lassen\cite[S.70-71]{Fall2011}. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (\textit{Pre-Shared Key}) eine \gls{DNS} UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (\gls{TSIG})\cite[S.911-914]{Fall2011}.
+\gls{Client}s werden über eine \gls{ACL} ermächtigt, diese Updates zu tätigen. Dabei kann die Absen\-der-IP zur Authentifizierung genutzt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen}, d.h. fälschen, lassen\cite[S.70-71]{Fall2011}. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (\textit{Pre-Shared Key}) eine \gls{DNS} UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (\gls{TSIG})\cite[S.911-914]{Fall2011}.
 
 \section{Virtual Private Network (VPN)}\label{vpn}
 \gls{VPN}s werden genutzt, um private Netzwerke über eine öffentlich genutzte Infrastruktur abbilden zu können. Dies erfolgt zwischen \gls{VPN}-Endpunkten über gängige Enkapsulierungen, z.B. Generic Routing Encapsulation (GRE), Encapsulating Security Payload (ESP) oder OpenVPN.\\
@@ -238,7 +239,7 @@ Das Diagramm ist dabei nicht spezifisch für eine bestimmte \gls{VPN}-Technologi
 
 Die in dieser Arbeit verwendeten \gls{VPN}-Technologien sind Internet Protocol Security (\gls{IPsec}) und OpenVPN. \gls{IPsec} wird u.a. für die Standort-Vernetzung genutzt, auch \gls{Site-to-Site} genannt, und arbeitet auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 3. Ebenso dient es zur \textit{Einwahl} in (Firmen-)Netzwerke. \gls{IPsec} wird meist im Geschäftsumfeld genutzt und es exisitieren viele herstellerabhängige Implementationen.\\
 OpenVPN ist ein Open Source-Projekt und es nutzt \textit{Transport Layer Security} (TLS) für die verschlüsselte Übertragung von Daten via \gls{UDP} oder \gls{TCP}. Das Protokoll ist auf \glslink{OSI-Schichtenmodell}{OSI-Schicht} 7 zu finden und es wird vor allem für \gls{Client-to-Site}-Verbindungen genutzt: Passende Software ist für viele verschiedene Plattformen verfügbar (u.a. Windows, Linux, Mac, Android) und sowohl \gls{Client}- als auch Server-Applikation sind kostenfrei erhältlich.\\
-Angesprochene \gls{MTU}-Probleme (s. Kap. \ref{mtumss}) können sich bei einer getunnelten Verbindung auf Grund des zusätzliches \textit{Overheads} der Enkapsulierung zeigen. Eine IP-Fragmentierung sollte optimalerweise verhindert werden.
+Angesprochene \gls{MTU}-Probleme (s. Kap. \ref{mtumss}) können sich bei einer getunnelten Verbindung auf Grund des zusätzliches \textit{Overheads} der Enkapsulierung zeigen. Eine IP-Fragmen\-tierung sollte optimalerweise verhindert werden.
 
 \section{Cloud}\label{cloud}
 Der Cloud-Begriff kann je nach Literatur variieren. Diese Arbeit verweist an dieser Stelle auf die Definition des \textit{National Institute of Standards and Technology (NIST)}. Ebenso werden dort die drei typischen \textit{Cloud Delivery}-Modelle Software as a Service (SaaS), Platform as a Service (PaaS) und Infrastructure as a Service (IaaS) definiert, welche fortan als bekannt vorausgesetzt werden.\cite{mell2011}

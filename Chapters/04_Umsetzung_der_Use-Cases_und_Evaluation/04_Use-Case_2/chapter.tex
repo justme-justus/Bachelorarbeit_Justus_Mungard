@@ -1,8 +1,8 @@
 \section{Use Case 2: Roadwarrior VPN} \label{Use-Case 2: Road Warrior}
 \subsection{Umsetzung: Kerntätigkeiten}
 
-In AWS und Azure wurden via Terraform die virtuellen Maschinen VyOS aus den jeweiligen Marketplaces installiert.\\
-Es wurden für die Cloud-Standorte AWS und Azure analog zu Use Case 1 Templates erstellt, um den \gls{VPN-Konzentrator} zu konfigurieren. In der Terraform Resource \textit{azurerm\_linux\_virtual\_machine} wird das richtige VyOS-Image aus dem Cloud-Marketplace referenziert über \textit{source\_image\_reference} und lässt dieses installieren (s. Listing \ref{tf-azure-vyos-machine-image}). Einige dieser Market\-place-Images bieten verschiedene Support- und Lizenz-Verträge an. Über den \textit{plan \{\}}-Kontext wird der passende \textit{Contract} ausgewählt (hier: \glqq Standard support\grqq{}). Ähnlich wurde für die AWS-Instanz vorgegangen. 
+In AWS und Azure wurden via Terraform die virtuellen Maschinen VyOS aus den jeweiligen Marketplaces installiert. Es wurden für die Cloud-Standorte AWS und Azure analog zu Use Case 1 Templates erstellt, um den \gls{VPN-Konzentrator} zu konfigurieren.\\
+In der Terraform Resource \textit{azurerm\_linux\_virtual\_machine} wird das richtige VyOS-Image aus dem Cloud-Marketplace referenziert über \textit{source\_image\_reference} und lässt dieses installieren (s. Listing \ref{tf-azure-vyos-machine-image}). Einige dieser Market\-place-Images bieten verschiedene Support- und Lizenz-Verträge an. Über den \textit{plan \{\}}-Kontext wird der passende \textit{Contract} ausgewählt (hier: \glqq Standard support\grqq{}). Ähnlich wurde für die AWS-Instanz vorgegangen. 
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -483,7 +483,7 @@ rtt min/avg/max/mdev = 0.936/1.073/1.216/0.106 ms
 \label{ping-microsoft-ip}
 \end{listing}\FloatBarrier
 %TC:endignore
-Die Annahme von nun an ist, dass die lokale \gls{DNS}-Auflösung auch für AWS funktioniert. Daher folgt an dieser Stelle nur ein Ping mit vorheriger Auflösung des Hostnamens vpn.ba.mungard.de. Die Round-Trip-Time (RTT) ist vergleichbar mit Azure (s. Listing \ref{ping-aws-ip}).
+Die Annahme von nun an ist, dass die lokale \gls{DNS}-Auflösung auch für AWS funktioniert. Daher folgt an dieser Stelle nur ein Ping mit vorheriger Auflösung des Hostnamens vpn.ba.\-mun\-gard.de. Die Round-Trip-Time (RTT) ist vergleichbar mit Azure (s. Listing \ref{ping-aws-ip}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -556,7 +556,7 @@ $ sudo iptables-save | grep vpn
 \label{iptables-deny-string-dns}
 \end{listing}\FloatBarrier
 %TC:endignore
-Die Domain vpn.ba.mungard.de ist daraufhin nicht mehr auflösbar, default-vpn.ba.mungard.de hingegen schon (s. Listing \ref{dig-fail-vpn-fallback-to-default-vpn}).
+Die Domain vpn.ba.mungard.de ist daraufhin nicht mehr auflösbar, default-vpn.ba.mungard.\-de hingegen schon (s. Listing \ref{dig-fail-vpn-fallback-to-default-vpn}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}

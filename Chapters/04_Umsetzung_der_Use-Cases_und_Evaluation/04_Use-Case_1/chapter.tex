@@ -193,7 +193,7 @@ Das Beispiel in Abb. \ref{grafik:programmablaufplan_bash_deploy_tf} zeigt den Pr
 Durch das Bash-Skript konnte die Schwere des Bugs abgemildert werden, um ein funktionierendes Deployment herzustellen. Allerdings führten Re-Deployments zu relativ langen \gls{Deployment}-Zeiten (siehe auch \ref{azure-deployment-time}).\\
 Anmerkung: Dieser Bug wurde angeblich noch kurz vor Abgabe dieser Arbeit behoben. Das konnte allerdings nicht mehr verifiziert werden. Es ist im Commit ersichtlich, dass es sich um einen Bug in der internen Sortierfunktion handelt.\cite{awsfixtf2021}
 \subsection{Zustandslose VyOS-Konfiguration}
-Terraform speichert alle Referenzen auf Infrastrukturkomponenten in der Datei terraform.tfstate (s. Kapitel \ref{tf-provider}). Da es für VyOS keinen vollwertigen Terraform-Provider gibt, wurde mit Templates, die verschiedene \texttt{set}-Kommandos ausführen, gearbeitet.\\
+Terraform speichert alle Referenzen auf Komponenten in der Datei \underline{terraform.tfstate} (s. Kapitel \ref{tf-provider}). Da es für VyOS keinen vollwertigen Terraform-Provider gibt, wurde mit Templates, die verschiedene \texttt{set}-Kommandos ausführen, gearbeitet.\\
 Diese Konfigurationsänderungen sind dadurch völlig zustandlos, da sie nicht invertierbar sind: Terraform kennt nicht die Umkehrung der \texttt{set}-Kommandos, welche benötigt würden, um bei \texttt{terraform destroy} die Konfigurationen am VyOS-Router rückgängig zu machen.
 
 Ein Ansatz wäre gewesen, ein weiteres Template zur Verfügung zu stellen, in dem alle \texttt{set}- durch \texttt{delete}-Kommandos negiert werden.\\
@@ -210,7 +210,7 @@ vyos@vyos-cloud# delete system time-zone Europe/Berlin
 \end{listing}\FloatBarrier
 %TC:endignore
 Per \textit{Destroy-Time Provisioner} würde dieses Template nur bei einem \textit{terraform destroy} genutzt\cite{destroytimeprovtf2021}. Das Problem ist, dass schon bei minimalen Änderungen des Deploy-Templates auch das Destroy-Template angepasst werden muss.
-Außerdem sind die \gls{IPsec}-Konfigurationen relativ umfangreich. Es war zu anzunehmen, dass Relikte aus der Konfiguration übrig bleiben, wenn die Negation aus unbekannten Gründen fehlschlug.
+Außerdem sind die \gls{IPsec}-Konfi\-guratio\-nen relativ umfangreich. Es war zu anzunehmen, dass Relikte aus der Konfiguration übrig bleiben, wenn die Negation aus unbekannten Gründen fehlschlug.
 Eine weitere Idee war, mit dem VyOS-Feature \textit{rollback} zu arbeiten. Über eine Commit History werden alle Änderungen an dem System revisionssicher dokumentiert.
 %TC:ignore
 \begin{listing}[h]
