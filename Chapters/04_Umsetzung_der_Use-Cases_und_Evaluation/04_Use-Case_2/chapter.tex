@@ -40,7 +40,7 @@ resource "azurerm_linux_virtual_machine"  "azurerm_linux_virtual_machine" {
 %TC:endignore
 Public/Private-Schlüsselpaar wurde vorab erstellt, von der pfSense-\gls{PKI} signiert und mit dem Zertifikat auf dem Terraform-Server gespeichert. Während des Terraform-\gls{Deployment}s wird Private Key und Zertifikat per Terraform Provisioner auf das Zielsystem kopiert. Sie werden in der Config dann via \textit{set interfaces openvpn vtun0 tls cert-file / key-file} referenziert.\\
 In der Praxis sollte darauf verzichtet werden, das Schlüsselmaterial \glqq auf einem anderen System vorzulagern\grqq{}: Ein privater Schlüssel sollte nur auf dem Server erzeugt und gespeichert werden, auf dem dieser final genutzt wird. Optimalerweise wäre dies zur Laufzeit der Terraform-\gls{Deployment}s. Zur Vereinfachung des Use Cases wurde auf diesen Schritt verzichtet. Eine Möglichkeit zur automatisierten Signatur von vertrauenswürdigen Zertifikaten ist das Simple Certificate Enrollment Protocol (SCEP)\cite[S.554]{Schmeh2013}.\\
-Für den sich verbindenden \gls{Roadwarrior}-\gls{Client} sind diverse Konfigurationen hinterlegt: Suchdomäne, (interner) Name-Server und Routen, die über den \gls{VPN-Konzentrator} erreicht werden können (s. Listing \ref{vpn-c2s-server-config}).
+Für den sich verbindenden \gls{Roadwarrior}-\gls{Client} sind diverse Konfigurationen hinterlegt: Suchdomäne, (interner) Nameserver und Routen, die über den \gls{VPN-Konzentrator} erreicht werden können (s. Listing \ref{vpn-c2s-server-config}).
 Weiterhin wird ein \gls{MSS}-Clamping (s. Kapitel \ref{mtumss}) vorgenommen, um IP-Fragmen\-tierung von \gls{TCP}-Applikationen möglichst zu verhindern.\\
 Das Subnetz, in dem die OpenVPN-\gls{Client}s terminiert werden, wird wieder dynamisch aus dem \gls{IPAM} alloziert.
 %TC:ignore
@@ -115,7 +115,7 @@ options {
 \label{bind-geoip-directory}
 \end{listing}\FloatBarrier
 %TC:endignore
-Dadurch wurde ermöglicht, \gls{GeoIP}-Daten in einer Access Control List (\gls{ACL}) zu nutzen und verschiedene Fälle zu definieren. Die \gls{ACL} heißt in diesem Falle \glqq dublin\grqq{} und erlaubt Zugriffe aus der Stadt Dublin bzw. Zugriff für den \gls{TSIG}-Key \glqq db-vpn.ba.mungard.de\grqq{} (s. Listing \ref{tsig-key-acl}). Dieser Key wird benötigt, um Zonen-Updates machen zu können und ist im entsprechenden Terraform-Modul hinterlegt.
+Dadurch wurde ermöglicht, \gls{GeoIP}-Daten in einer Access Control List (\gls{ACL}) zu nutzen und verschiedene Fälle zu definieren. Die \gls{ACL} heißt in diesem Falle \glqq dublin\grqq{} und erlaubt Zugriffe aus der Stadt Dublin bzw. Zugriff für den \gls{TSIG}-Key \glqq db-vpn.ba.mungard.de\grqq{} (s. Listing \ref{tsig-key-acl}). Dieser Key wird benötigt, um \gls{Zone}n-Updates machen zu können und ist im entsprechenden Terraform-Modul hinterlegt.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
@@ -128,7 +128,7 @@ acl "dublin" {
 \label{tsig-key-acl}
 \end{listing}\FloatBarrier
 %TC:endignore
-Weiterhin existiert ein \textit{\gls{View}} \glqq Dublin\grqq{}, in dem die \gls{ACL} und Zonen-Daten zusammengeführt werden (s. Listing \ref{view-dublin-bind}). Mit \textit{allow-update} werden Zonen-Updates explizit und ausschließlich für genannten \gls{TSIG}-Key erlaubt.
+Weiterhin existiert ein \textit{\gls{View}} \glqq Dublin\grqq{}, in dem die \gls{ACL} und \gls{Zone}n-Daten zusammengeführt werden (s. Listing \ref{view-dublin-bind}). Mit \textit{allow-update} werden \gls{Zone}n-Updates explizit und ausschließlich für genannten \gls{TSIG}-Key erlaubt.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
@@ -145,7 +145,7 @@ view "dublin" {
 \label{view-dublin-bind}
 \end{listing}\FloatBarrier
 %TC:endignore
-In der Zonen-Datei für Dublin befindet sich vor dem Terraform-\gls{Deployment} nur ein A-Record \textit{default-vpn}. Dies ist der A-Record, der als \gls{Fallback} dient (s. Listing \ref{zone-dublin-before-deployment}). Gemäß Evaluationskriterien muss ein \gls{Roadwarrior}-\gls{Client} auf die Private Cloud zurückfallen, wenn bisher kein \gls{Deployment} stattgefunden hat. Die öffentlich auflösbare Zone lautet \textit{ba.mungard.de}.
+In der \gls{Zone}n-Datei für Dublin befindet sich vor dem Terraform-\gls{Deployment} nur ein A-Record \textit{default-vpn}. Dies ist der A-Record, der als \gls{Fallback} dient (s. Listing \ref{zone-dublin-before-deployment}). Gemäß Evaluationskriterien muss ein \gls{Roadwarrior}-\gls{Client} auf die Private Cloud zurückfallen, wenn bisher kein \gls{Deployment} stattgefunden hat. Die öffentlich auflösbare \gls{Zone} lautet \textit{ba.mungard.de}.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -157,7 +157,7 @@ default-vpn             A       195.244.254.197
 \label{zone-dublin-before-deployment}
 \end{listing}\FloatBarrier
 %TC:endignore
-Die Konfigurationen für Frankfurter und Kieler \gls{Client}s wurden analog vollzogen. Dies gilt ebenso für das interne \gls{DNS}. Allerdings wird hier kein \gls{GeoIP} genutzt, sondern anhand der Absender-IP-Adresse wird eine \gls{ACL} (hier \glqq dublin-internal\grqq{}) \textit{getroffen} (s. Listing \ref{view-internal-bind}). Auch die internen Zonen sind durch Terraform via \gls{DNS} UPDATE (s. Kap. \ref{dns-update}) editierbar (key \glqq db-vpn-internal.ba.mungard.de.\grqq{}).
+Die Konfigurationen für Frankfurter und Kieler \gls{Client}s wurden analog vollzogen. Dies gilt ebenso für das interne \gls{DNS}. Allerdings wird hier kein \gls{GeoIP} genutzt, sondern anhand der Absender-IP-Adresse wird eine \gls{ACL} (hier \glqq dublin-internal\grqq{}) \textit{getroffen} (s. Listing \ref{view-internal-bind}). Auch die internen \gls{Zone}n sind durch Terraform via \gls{DNS} UPDATE (s. Kap. \ref{dns-update}) editierbar (key \glqq db-vpn-internal.ba.mungard.de.\grqq{}).
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{text}
@@ -209,7 +209,7 @@ resource "dns_a_record_set" "vpn-dublin" {
 \label{tf-provider-dns}
 \end{listing}\FloatBarrier
 %TC:endignore
-Nach dem Terraform-\gls{Deployment} kann man sich per \texttt{rndc dumpdb -zones} alle Zonen und \gls{View}s ausgeben lassen (hier gefiltert auf die relevantesten Einträge der \gls{View}s \glqq dublin\grqq{} und \glqq match-all\grqq{}). Man erkennt in Listing \ref{bind-entries-after-tf}, dass in beiden \gls{View}s für die Domain default-vpn.ba.mungard.de die gleiche IP (\glqq \gls{Fallback}\grqq{}) zurückgegegeben.\\
+Nach dem Terraform-\gls{Deployment} kann man sich per \texttt{rndc dumpdb -zones} alle \gls{Zone}n und \gls{View}s ausgeben lassen (hier gefiltert auf die relevantesten Einträge der \gls{View}s \glqq dublin\grqq{} und \glqq match-all\grqq{}). Man erkennt in Listing \ref{bind-entries-after-tf}, dass in beiden \gls{View}s für die Domain default-vpn.ba.mungard.de die gleiche IP (\glqq \gls{Fallback}\grqq{}) zurückgegegeben.\\
 Für Domain vpn.ba.mungard.de ist im \gls{View} \glqq dublin\grqq{} nur eine Azure-IP sichtbar, während im \gls{View} \glqq match-all\grqq{} IPs aller \gls{VPN-Konzentrator}en des \gls{Deployment}s vorkommen.
 %TC:ignore
 \begin{listing}[h]
@@ -234,7 +234,7 @@ vpn.ba.mungard.de.                  15 IN A           195.244.254.197
 \end{listing}\FloatBarrier
 %TC:endignore
 
-Listing \ref{zone-dump-dublin-internal} zeigt einen exemplarischen Zone-Dump für einen internen \gls{Client}, welcher über Dublin verbunden ist. Die interne Zone ist intern.ba.mungard.de. Alle Cloud-Standorte nutzen den gleichen Name-Server (ns1.intern.ba.mungard.de), welcher in der Private Cloud vorhanden ist.\\
+Listing \ref{zone-dump-dublin-internal} zeigt einen exemplarischen \gls{Zone}-Dump für einen internen \gls{Client}, welcher über Dublin verbunden ist. Die interne \gls{Zone} ist intern.ba.mungard.de. Alle Cloud-Standorte nutzen den gleichen Nameserver (ns1.intern.ba.mungard.de), welcher in der Private Cloud vorhanden ist.\\
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -345,7 +345,7 @@ Es wird im AWS Dashboard beim Versuch, eine more-specific Route anzulegen, eine 
 More specific Routing wird laut Amazon User Guide für das \textbf{Main Route Table} nicht unterstützt\cite[S.230]{awsug2020}. Dieser Constraint bezieht sich allerdings auf \textbf{alle} Route Tables, wie weitere Tests zeigten.\\
 Präfixe zu nutzen, welche nicht more specific sind, ginge insofern als das Routing \textit{innerhalb} des \gls{VPC}s möglich wird, allerdings werden diese Präfixe nicht durch \gls{BGP} den anderen Stellen bekannt gemacht. Somit erreichen Pakete aus Netzwerken, welche nicht im AWS \gls{VPC} \glqq leben\grqq{}, das VPN-\gls{Client}-Netzwerk nicht.\\
 Hide-NAT ist keine Lösung, da dies die Anforderung nach Ende-zu-Ende-Konnektivität verletzen würden (s. Kapitel \ref{nat-bad}).\\
-Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway dieses Problem erfolgreich gelöst werden. Es bietet die Möglichkeit \textit{Peerings} zwischen verschiedenen \gls{VPC}s herzustellen. Die Idee war, zwei \gls{VPC}s zu nutzen: ein \gls{VPC} für \gls{Roadwarrior}-\gls{VPN} und ein \gls{VPC} für den (Web-)Server. Alle \gls{VPN}-Verbindungen hängen fortan auf dem Transit Gateway, welches sowohl alle AWS-Routen kennt (statische Routing-Einträge) als auch alle weiteren Routen über \gls{BGP} lernt. Die \gls{VPC}s routen alle Ziele zu \gls{RFC} 1918-Netzwerken statisch auf das Transit Gateway, welches Pakete entweder weiter an das benachbarte \gls{VPC} oder über das Backbone-Netzwerk zum Ziel weiterschickt. Das folgende Netzwerkdiagramm in Abb. \ref{grafik:aws_tgw_route_tables} mit anhängigen Routing-Tabellen soll diesen Sachverhalt verdeutlichen.
+Nach diversen Versuchen und Überlegungen konnte durch das AWS Transit Gateway dieses Problem erfolgreich gelöst werden. Es bietet die Möglichkeit \textit{Peerings} zwischen verschiedenen \gls{VPC}s herzustellen. Die Idee war, zwei \gls{VPC}s zu nutzen: ein \gls{VPC} für \gls{Roadwarrior}-\gls{VPN} und ein \gls{VPC} für den (Web-)Server. Alle \gls{VPN}-Verbindungen hängen fortan auf dem Transit Gateway, welches sowohl alle AWS-Routen kennt (statische Routing-Einträge) als auch alle weiteren Routen über \gls{BGP} lernt. Die \gls{VPC}s routen alle Ziele zu \gls{RFC} 1918-Netzwerken statisch auf das Transit Gateway, welches Pakete entweder weiter an das benachbarte \gls{VPC} oder über das \gls{Backbone}-Netzwerk zum Ziel weiterschickt. Das folgende Netzwerkdiagramm in Abb. \ref{grafik:aws_tgw_route_tables} mit anhängigen Routing-Tabellen soll diesen Sachverhalt verdeutlichen.
 \begin{figure}[h]
   \centering
   \includegraphics[scale=0.75]{Figures/Use-Case-2_AWS_TGW_Route-Tables.pdf}

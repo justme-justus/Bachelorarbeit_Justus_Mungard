@@ -30,7 +30,7 @@ resource "phpipam_first_free_subnet" "free_subnet_apipa" {
 \label{apipa-reservation-ipam}
 \end{listing}\FloatBarrier
 %TC:endignore
-Weiterhin werden Pre-Shared-Keys für die Aushandlung der \gls{IPsec}-Verbindungen benötigt. AWS erzeugt automatisch solche Schlüssel, welche durch die Terraform-Resource \glqq aws\_vpn\_connection\grqq{} zurückgegeben werden. Diese automatisch erzeugten Schlüssel werden daher für die Backbone-Verbindungen AWS $\leftrightarrow$ Azure und AWS $\leftrightarrow$ Private Cloud genutzt. Da Azure diese Schlüssel nicht erzeugt, wurde ein Terraform-Modul geschrieben, welches 24 Zeichen lange Schlüssel erzeugt (s. Listing \ref{tf-generate-psk}). Auf Sonderzeichen wird dabei verzichtet. Diese können anschließend genutzt werden für die Backbone-Verbindung Azure $\leftrightarrow$ Private Cloud.
+Weiterhin werden Pre-Shared-Keys für die Aushandlung der \gls{IPsec}-Verbindungen benötigt. AWS erzeugt automatisch solche Schlüssel, welche durch die Terraform-Resource \glqq aws\_vpn\_connection\grqq{} zurückgegeben werden. Diese automatisch erzeugten Schlüssel werden daher für die \gls{Backbone}-Verbindungen AWS $\leftrightarrow$ Azure und AWS $\leftrightarrow$ Private Cloud genutzt. Da Azure diese Schlüssel nicht erzeugt, wurde ein Terraform-Modul geschrieben, welches 24 Zeichen lange Schlüssel erzeugt (s. Listing \ref{tf-generate-psk}). Auf Sonderzeichen wird dabei verzichtet. Diese können anschließend genutzt werden für die \gls{Backbone}-Verbindung Azure $\leftrightarrow$ Private Cloud.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{tf}
@@ -50,7 +50,7 @@ output "azure_vyos_tunnel1_psk" {
 \label{tf-generate-psk}
 \end{listing}\FloatBarrier
 %TC:endignore
-Da, wie bereits erwähnt, für die VyOS-Router keine \textit{native} Terraform-Integration verfügbar ist, wurde zur Konfiguration des Devices eine Vorlage erstellt, welch per CLI Konfigurationen ausrollt.
+Da, wie bereits erwähnt, für die VyOS-Router keine \textit{native} Terraform-Integration verfügbar ist, wurde zur Konfiguration des Devices eine Vorlage erstellt, welch per \gls{CLI}-Konfigurationen ausrollt.
 Die Erzeugung aus der Vorlage erfolgt über die Funktion templatefile()\cite{templatefiletf2021}. Sie erstellt aus einer Template-Datei \underline{vyos\_config.tpl} die Skript-Datei \underline{/tmp/example.sh}. Die Template-Datei wird mit den Variablen \textit{var.aws\_vgw\_ip} und \textit{aws\_tunnel1\_psk} befüllt.
 %TC:ignore
 \begin{listing}[h]
@@ -225,7 +225,7 @@ vyos@vyos-cloud:~$ show system commit | head -3
 \label{commit-history-vyos}
 \end{listing}\FloatBarrier
 %TC:endignore
-So würde man die letzte Revision \textit{vor} der Konfiguration der Backbone-Verbindungen festhalten, um bei einem \texttt{terraform destroy} darauf zurückgehen zu können. Ein \gls{Rollback} macht einen Neustart erforderlich.
+So würde man die letzte Revision \textit{vor} der Konfiguration der \gls{Backbone}-Verbindungen festhalten, um bei einem \texttt{terraform destroy} darauf zurückgehen zu können. Ein \gls{Rollback} macht einen Neustart erforderlich.
 %TC:ignore
 \begin{listing}[h]
 \begin{minted}[breaklines,frame=single]{bash}
@@ -420,7 +420,7 @@ rtt min/avg/max/mdev = 25.968/28.533/173.755/10.763 ms, pipe 11, ipg/ewma 13.384
 \end{listing}\FloatBarrier
 %TC:endignore
 
-Um die Redundanz zu des Backbones zu testen, wurden von allen Teilnehmern zu allen Teilnehmern Ping-Tests gemacht und währenddessen eine Verbindung getrennt. Da ein Präfix über zwei Pfade zu sehen ist, ist die Erwartung, dass ein Backup-Pfad genutzt wird (s. Abb. \ref{grafik:Use-Case-1_Basis_Deployment_missing_link}).\\
+Um die Redundanz zu des \gls{Backbone}s zu testen, wurden von allen Teilnehmern zu allen Teilnehmern Ping-Tests gemacht und währenddessen eine Verbindung getrennt. Da ein Präfix über zwei Pfade zu sehen ist, ist die Erwartung, dass ein Backup-Pfad genutzt wird (s. Abb. \ref{grafik:Use-Case-1_Basis_Deployment_missing_link}).\\
 
 \begin{figure}[h]
   \centering

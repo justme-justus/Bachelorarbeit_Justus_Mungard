@@ -174,7 +174,7 @@ Das \gls{DNS} ermöglicht, Server im Internet anhand eines Namens, dem Fully Qua
 
 Soll z.B. der \gls{FQDN} www.intern.ba.mungard.de. aufgelöst werden (s. Abb. \ref{grafik: dns-hierarchy}), muss der \textit{Baum} von der Wurzel \glqq .\grqq{} über die Knoten \glqq de\grqq{}, \glqq mungard\grqq{}, ... bis zum Blatt \glqq www\grqq{} durchlaufen werden. Man spricht von einer iterativen Auflösung. Pro Hierarchie-Ebene sind \textit{autoritative Nameserver} verantwortlich für die richtige Delegation des auflösenden \gls{Client}s.\\
 Das Blatt \glqq www\grqq{} wird auch als Resource Record bezeichnet. Für diese Arbeit sind lediglich A-Records relevant, welche \gls{FQDN} nach IPv4-Adresse auflösen. Viele weitere \gls{DNS}-Records existieren, z.B. für IPv6-Adressen (AAAA) oder um Mailserver (MX) für eine Domain anzugeben \cite[S.528]{Fall2011}.\\
-Ein Beispiel für einen autoritativen Nameserver ist Bind \cite{liu2006dns}. Innerhalb des Nameservers werden Domains anhand von \textit{Zonen(-Dateien)} verwaltet.
+Ein Beispiel für einen autoritativen Nameserver ist Bind \cite{liu2006dns}. Innerhalb des Nameservers werden Domains anhand von \textit{\gls{Zone}n(-Dateien)} verwaltet.
 \newpage
 \subsection{DNS-Resolver}
 \gls{Client}s machen diese iterative Namensauflösung typischerweise nicht selbst, sondern leiten ihre Anfragen an einen \gls{DNS}-Resolver weiter (\textit{Forwarding}). Dieser sucht \textit{iterativ} zu einem \gls{FQDN} eine IPv4-Adresse und liefert sie dem \gls{Client} aus (s. Abb. \ref{grafik: dns-resolver}). Wenn ein Nameserver für eine gesuchte Domain nicht autoritativ ist, wird der Resolver per NS Record weiterdelegiert.\\
@@ -222,7 +222,7 @@ Split \gls{DNS} ist die Möglichkeit, verschiedene Resource Records anhand der A
 \end{figure}\FloatBarrier
 
 \subsection{DNS UPDATE}\label{dns-update}
-Die Methode \gls{DNS} UPDATE ist in \gls{RFC} 2136 dokumentiert und erlaubt es, autoritative Zonen eines Nameservers zur Laufzeit zu verändern\cite{rfc2136}. Somit müssen keine Zonen-Dateien manuell angepasst werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten Zonen-Dateien neu einzulesen.\\
+Die Methode \gls{DNS} UPDATE ist in \gls{RFC} 2136 dokumentiert und erlaubt es, autoritative \gls{Zone}n eines Nameservers zur Laufzeit zu verändern\cite{rfc2136}. Somit müssen keine \gls{Zone}n-Dateien manuell angepasst werden. Außerdem muss der Nameserver nicht neugestartet werden, um die editierten \gls{Zone}n-Dateien neu einzulesen.\\
 \gls{Client}s werden über eine \gls{ACL} ermächtigt, diese Updates zu tätigen. Dabei kann die Absender-IP zur Authentifizierung genutzt werden: Allerdings ist diese Methode unsicher, da sich IPs \textit{spoofen}, d.h. fälschen, lassen\cite[S.70-71]{Fall2011}. Sicherer ist es, mit Hilfe eines vorab ausgetauschten Schlüssels (\textit{Pre-Shared Key}) eine \gls{DNS} UPDATE-Nachricht zu signieren. Dies passiert mit Hilfe von Transaction Signatures (\gls{TSIG})\cite[S.911-914]{Fall2011}.
 
 \section{Virtual Private Network (VPN)}\label{vpn}
